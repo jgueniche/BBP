@@ -66,3 +66,8 @@ Dernière mise à jour : 30/08/2026 · Sessions 1 à 4
 | Preview Vercel OK | ⚠️ Nécessite la connexion Vercel (action Jeremy) |
 | CI verte | ✅ lint + typecheck + test + build verts en local ; workflow poussé |
 | `STATE.md` rempli | ✅ |
+
+## Advisors Supabase (30/08/2026, post-sessions 3-4)
+- ✅ Aucune erreur ; RLS active sur toutes les tables.
+- Corrigé : `set_updated_at` avec `search_path` fixé (migration `202608301605`).
+- Restant (mineur) : extension `pg_trgm` dans le schéma public (déplacement disruptif, à traiter session 15) ; « Leaked password protection » à activer dans le dashboard Auth (1 clic, avec les réglages email de l'étape 2).
