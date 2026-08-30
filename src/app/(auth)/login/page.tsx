@@ -4,17 +4,15 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { z } from "zod";
 
+import { Logo } from "@/components/illustrations/logo";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { fr } from "@/i18n/fr";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 const emailSchema = z.email();
 const passwordSchema = z.string().min(6);
-
-const inputClass =
-  "w-full rounded-[20px] border-2 border-ink bg-paper px-4 py-3 outline-none focus:border-boutargue-deep";
-const primaryButtonClass =
-  "w-full rounded-full border-2 border-ink bg-boutargue px-6 py-3 font-semibold text-ink shadow-[4px_4px_0_var(--color-ink)] transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0_var(--color-ink)] disabled:opacity-50";
 
 function authErrorMessage(code: string | undefined, mode: "signin" | "signup") {
   switch (code) {
@@ -86,14 +84,15 @@ export default function LoginPage() {
   }
 
   return (
-    <section className="rounded-[20px] border-2 border-ink bg-paper p-6 shadow-[4px_4px_0_var(--color-ink)]">
+    <section className="rounded-[20px] border-2 border-ink bg-paper p-6 shadow-sticker">
+      <Logo variant="ink" height={32} className="mb-4" />
       <h1 className="font-display text-3xl font-extrabold tracking-tight">
         {fr.auth.title}
       </h1>
       <p className="mt-2 text-ink-70">{fr.auth.subtitle}</p>
 
       {!isSupabaseConfigured && (
-        <p className="mt-4 rounded-[16px] bg-boutargue-soft p-3 text-sm text-ink-70">
+        <p className="mt-4 rounded-[16px] bg-boutargue-soft p-3 text-sm text-[#3d3d3d]">
           {fr.auth.notConfigured}
         </p>
       )}
@@ -101,44 +100,45 @@ export default function LoginPage() {
       <form onSubmit={submit} className="mt-6 flex flex-col gap-4">
         <label className="flex flex-col gap-2 font-medium">
           {fr.auth.emailLabel}
-          <input
+          <Input
             type="email"
             autoComplete="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             placeholder={fr.auth.emailPlaceholder}
-            className={inputClass}
           />
         </label>
         <label className="flex flex-col gap-2 font-medium">
           {fr.auth.passwordLabel}
-          <input
+          <Input
             type="password"
-            autoComplete={mode === "signin" ? "current-password" : "new-password"}
+            autoComplete={
+              mode === "signin" ? "current-password" : "new-password"
+            }
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             placeholder={fr.auth.passwordPlaceholder}
-            className={inputClass}
           />
         </label>
-        <button
+        <Button
           type="submit"
           disabled={pending || !isSupabaseConfigured}
-          className={primaryButtonClass}
+          className="w-full"
         >
           {mode === "signin" ? fr.auth.signIn : fr.auth.signUp}
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="link"
+          size="sm"
           onClick={() => {
             setMode(mode === "signin" ? "signup" : "signin");
             setError(null);
             setNotice(null);
           }}
-          className="text-sm font-medium text-ink-70 underline"
         >
           {mode === "signin" ? fr.auth.toSignUp : fr.auth.toSignIn}
-        </button>
+        </Button>
       </form>
 
       {notice && <p className="mt-4 text-sm font-medium text-ok">{notice}</p>}

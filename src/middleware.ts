@@ -13,6 +13,7 @@ export const config = {
     "/coach/:path*",
     "/planning/:path*",
     "/profil/:path*",
+    "/design/:path*",
     "/login",
   ],
 };

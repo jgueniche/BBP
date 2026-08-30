@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { fr } from "@/i18n/fr";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
@@ -25,12 +26,9 @@ export default async function ProfilPage() {
             <span className="font-semibold text-ink">{email}</span>
           </p>
           <form action={signOut} className="mt-8">
-            <button
-              type="submit"
-              className="rounded-full border-2 border-ink bg-paper px-6 py-3 font-semibold shadow-[4px_4px_0_var(--color-ink)] transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0_var(--color-ink)]"
-            >
+            <Button type="submit" variant="secondary">
               {fr.auth.signOut}
-            </button>
+            </Button>
           </form>
         </>
       ) : (

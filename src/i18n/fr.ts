@@ -60,4 +60,29 @@ export const fr = {
     connectedAs: "Connecté·e avec",
     notConnected: "Tu n'es pas encore connecté·e.",
   },
+  kashrut: {
+    bassari: "Bassari",
+    halavi: "Halavi",
+    parve: "Parvé",
+    parveFish: "Parvé · poisson",
+  },
+  design: {
+    title: "Charte BBP",
+    subtitle:
+      "Le kit « sticker néo-brutaliste doux » : tokens, composants, Kémia et illustrations. Référence visuelle de toutes les sessions.",
+    sections: {
+      colors: "Couleurs",
+      typography: "Typographie",
+      buttons: "Boutons",
+      cards: "Cartes",
+      forms: "Formulaires",
+      kashrut: "Pastilles casher",
+      progress: "Progression",
+      kemia: "Kémia",
+      illustrations: "Illustrations",
+      logos: "Logo",
+      states: "États",
+      copy: "Ton éditorial",
+    },
+  },
 } as const;
