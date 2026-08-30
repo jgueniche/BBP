@@ -1,5 +1,17 @@
 # DECISIONS.md — ADR courts (≤ 5 lignes chacun)
 
+## ADR-009 — Casher Ciqual : heuristique par groupes, indication seulement (30/08/2026)
+Les 3 185 aliments Ciqual reçoivent une classe bassari/halavi/parvé par règles (groupes ANSES
++ mots-clés à frontière de mot) ; plats composés, pâtisseries, confiseries → classe nulle avec
+`kosher_hint` « à vérifier » ; porc/fruits de mer/poissons sans écailles → « non casher ».
+Jamais le mot « certifié ». Affinage LLM (kashrut_checker) prévu session 7.
+
+## ADR-008 — Seed de données via extension `http` + fichiers versionnés (30/08/2026)
+L'outil MCP `execute_sql` est en lecture seule ; les écritures passent par `apply_migration`.
+Les seeds volumineux (Ciqual) sont versionnés dans `src/db/seed/foods/` et chargés par une
+data migration qui les télécharge depuis le repo (URL épinglée au SHA du commit) et les
+exécute. Idempotent (upsert `on conflict`), reproductible, sans clé service role.
+
 ## ADR-007 — Kit UI : shadcn actuel (radix-ui unifié, sonner, tw-animate-css) (30/08/2026)
 shadcn/ui installé via CLI avec ses défauts 2026 : paquet `radix-ui` unifié, toasts via
 `sonner` (le composant Toast historique est déprécié), animations `tw-animate-css`.

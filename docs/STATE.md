@@ -1,6 +1,20 @@
 # STATE.md — État du projet BBP
 
-Dernière mise à jour : 30/08/2026 · Sessions 1 (Fondations) + 2 (Charte & kit UI)
+Dernière mise à jour : 30/08/2026 · Sessions 1 à 4
+
+## Fait — Session 4 (Base alimentaire & journal)
+- Base `foods` : 3 185 aliments **Ciqual** importés (nutriments/100 g, 2 297 avec kcal — le reste est absent de la source), classification casher heuristique (ADR-009), flags hametz/kitniyot, recherche full-text FR + trigram (`search_foods` RPC RLS-aware). Seed versionné + `scripts/import-ciqual.py`.
+- Tables `food_logs` + `food_favorites` (RLS), migration `202608301550`.
+- Journal : barre unique texte + **voix** (Web Speech) + **photo** (vision) + **scanner code-barres** (@zxing) ; agent `food_logger` (claude-sonnet-5, structured output Zod, prompt versionné) avec **fallback sans IA** (parser quantités + recherche base) tant que `ANTHROPIC_API_KEY` absent ; carte de confirmation éditable ; favoris ; « comme hier » ; anneaux kcal/protéines ; classe casher par repas ; **minuteur viande → lait** selon le délai du profil ; proxy OpenFoodFacts (cache 30 j, indication non certifiée).
+- Tests : parser fallback, totaux, classification repas, minuteur (28 tests verts au total).
+
+## Fait — Session 3 (Onboarding & profil)
+- Migration `202608301545` : `profiles`, `user_settings`, `health_profile`, `goals`, `weight_logs` — RLS partout, triggers `updated_at`, un seul objectif actif par utilisateur. Types générés dans `src/db/types.ts`.
+- Onboarding 9 étapes : bienvenue Kémia → consentement santé distinct + flags médicaux → profil → objectif → activité → mode → contraintes casher → allergies/aversions → récap TDEE.
+- TDEE Mifflin-St Jeor × activité ; bornes §3.4 appliquées client ET serveur (jamais < 1 200/1 500 kcal, déficit ≤ 25 %, rythme 0,25–1 %/sem) — tests unitaires dédiés.
+- Refus < 16 ans ; 16–18 ans et flags médicaux → mode accompagnement général (aucune cible chiffrée).
+- Garde d'accès : `(app)` redirige vers `/onboarding` tant que le profil n'est pas complété.
+- Profil : infos + objectif, refaire l'onboarding, **export JSON** (`/api/account/export`), **suppression des données** self-service, disclaimer permanent.
 
 ## Fait — Session 2 (Charte graphique & kit UI)
 - Tokens `@theme` complets (palette §2.2) avec **dark mode** par inversion ink/paper (orange inchangé, ombres paper 30 %) — vérifié par screenshots light + dark.
@@ -25,20 +39,21 @@ Dernière mise à jour : 30/08/2026 · Sessions 1 (Fondations) + 2 (Charte & kit
 - Rien.
 
 ## Reste à faire (actions côté Jeremy)
-1. ~~Créer le projet Supabase~~ ✅ Projet « BBP » `apxrducsgrddwujnibcf`, eu-west-3 (Paris), sain.
-2. ~~Projet Vercel + env vars~~ ✅ Projet `bbp` créé, prod déployée depuis `master` en `cdg1` : https://bbp-ruby.vercel.app (login OTP vérifié servi, Supabase branché).
-3. Dashboard Supabase (2 min) : Authentication → Sign In / Providers → Email → décocher « Confirm email » (sinon l'inscription attend une confirmation par lien qui pointe vers localhost) ; Authentication → URL Configuration → Site URL = `https://bbp-ruby.vercel.app`.
-4. Tester la création de compte + login mot de passe sur la prod.
-5. Renseigner `.env.local` en local avec les mêmes clés que Vercel.
-6. Créer les projets **Sentry** et **PostHog EU**, renseigner les clés.
-7. Valider le plan de la session 1 a posteriori (session lancée en autonome, cf. ADR-002).
+1. **`ANTHROPIC_API_KEY` sur Vercel** (+ `.env.local`) → active le parsing IA texte/photo du journal. Sans elle, mode dégradé (recherche directe) opérationnel.
+2. Dashboard Supabase (2 min) : Authentication → Sign In / Providers → Email → décocher « Confirm email » ; URL Configuration → Site URL = `https://bbp-mu.vercel.app`.
+3. Tester le parcours complet en prod : inscription → onboarding → journal (log texte, favori, comme hier).
+4. Créer les projets **Sentry** et **PostHog EU**, renseigner les clés.
+5. Valider a posteriori les plans des sessions 1-4 (sessions autonomes, cf. ADR-002).
 
 ## Backlog
-- Validation visuelle de `/design` par Jeremy (DoD session 2) ; itérer sur logo/avatar/illustrations selon retours.
-- Auth : OTP email et OAuth Google/Apple repoussés (ADR-006) ; réactiver plus tard avec Site URL corrigée.
-- Supabase local (`supabase init` + première migration + types générés) : à faire en session 3 avec les premières tables.
+- DoD session 4 partielle : évals « 20 phrases ≥ 90 % / photo ≥ 80 % » à passer avec promptfoo dès que la clé Anthropic est posée (prévu session 6).
+- Tests RLS par rôle (SQL) — exigés brief §9, à faire au plus tard session 15.
+- Refaire l'onboarding ne préremplit pas encore les valeurs existantes.
+- Suppression de compte : purge les données ; la suppression de l'utilisateur auth (service role) arrive session 15.
+- Presets « repas de chabbat type » dans le journal (avec session 13).
+- Auth : OTP email et OAuth Google/Apple repoussés (ADR-006).
 - Sentry + PostHog : instrumentation code (clés requises d'abord).
-- Session 3 : onboarding & profil (TDEE, modes, contraintes casher, consentement santé).
+- Session 5 : poids, tendance EWMA, TDEE adaptatif.
 
 ## Bugs connus
 - Aucun.
