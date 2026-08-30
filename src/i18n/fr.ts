@@ -144,6 +144,7 @@ export const fr = {
       chabbat_samedi: "Déjeuner de chabbat",
     },
     totalsKcal: "kcal",
+    daySummary: "Résumé du jour",
     protein: "Protéines",
     carbs: "Glucides",
     fat: "Lipides",
