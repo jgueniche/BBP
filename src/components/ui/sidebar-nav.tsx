@@ -88,12 +88,12 @@ export function SidebarNav() {
 
   return (
     <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r bg-surface-raised px-3.5 py-5 lg:flex">
-      <Link href="/accueil" className="flex items-baseline gap-2 px-2.5">
-        <span className="font-display text-2xl font-extrabold tracking-tight">
+      <Link href="/accueil" className="flex flex-col px-2.5">
+        <span className="font-display text-2xl leading-none font-extrabold tracking-tight">
           {fr.app.name}
         </span>
-        <span className="text-[10.5px] font-medium text-ink-50">
-          {fr.app.tagline}
+        <span className="mt-1 text-[10.5px] font-medium text-ink-50">
+          {fr.app.fullName}
         </span>
       </Link>
 

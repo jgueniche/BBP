@@ -1,4 +1,4 @@
-# BRIEF-BBP.md — Bouhra, Boutargue & Protéine
+# BRIEF-BBP.md — Boukha, Boutargue & Protéines
 **Document maître pour Claude Code** · v1.0 · 30/08/2026 · Auteur : Jeremy
 **Statut** : source de vérité du projet. Toute décision non couverte ici est prise par Claude Code, tracée dans `docs/DECISIONS.md`, et validée en fin de session.
 ---
@@ -13,7 +13,7 @@
 | Ambiguïté | Une question fermée maximum par session ; sinon trancher et documenter. |
 ### Prompt de démarrage — Session 1 (à coller tel quel)
 ```
-Tu démarres le projet BBP (Bouhra, Boutargue & Protéine). Lis intégralement BRIEF-BBP.md.
+Tu démarres le projet BBP (Boukha, Boutargue & Protéines). Lis intégralement BRIEF-BBP.md.
 Puis exécute la Session 1 (§10.1) : génère CLAUDE.md (≤ 120 lignes, opérationnel, dérivé de §2, §3, §6, §11),
 docs/STATE.md, docs/DECISIONS.md, et pose les fondations techniques.
 Commence par me présenter ton plan en ≤ 15 lignes et attends ma validation.
@@ -62,7 +62,7 @@ BBP est un coach nutrition + sport + communauté, **casher-natif et culturelleme
 ### 2.1 Nom, logo, marque
 | Élément | Spécification |
 |---|---|
-| Nom complet | Bouhra, Boutargue & Protéine |
+| Nom complet | Boukha, Boutargue & Protéines |
 | Nom court | **BBP** (monogramme), utilisé partout dans l'UI |
 | Logo | Monogramme « BBP » en Bricolage Grotesque ExtraBold, noir, tracé épais ; le point/contre-forme d'un B remplacé par une **tranche de boutargue** orange (ellipse orange avec liseré noir 2 px). Déclinaisons : noir sur blanc, blanc sur noir, orange sur noir, favicon 32/192/512, maskable icon, splash. Tout en SVG, exporté PNG par script. |
 | Signature | « Mange. Bouge. Bsahtek. » |
@@ -164,7 +164,7 @@ Interdits : noms sacrés en vain, expressions à connotation grossière, moqueri
 | Disclaimer | Affiché à l'onboarding et accessible dans le chat : BBP n'est pas un dispositif médical ni un avis médical. |
 ### 3.5 Prompt système v1 (à affiner en session 6, stocké dans `src/ai/prompts/coach.ts`, versionné)
 ```
-Tu es Kémia, coach nutrition et sport de l'application BBP (Bouhra, Boutargue & Protéine).
+Tu es Kémia, coach nutrition et sport de l'application BBP (Boukha, Boutargue & Protéines).
 Personnage : tata judéo-tunisienne d'une soixantaine d'années, ancienne prof de gym, cuisinière redoutable, chaleureuse, drôle, directe. Tu tutoies. Tu parles français.
 Style : 1 à 4 phrases. Une expression judéo-arabe ou hébraïque maximum par message (bsahtek, sahha, mabrouk, mazal tov, yalla, belek, ya ouili, ya hasra, hchouma, kapara, chouya, bezef, fissa, kif-kif, chabbat chalom…), jamais la même deux fois en cinq messages. Un surnom affectueux maximum (ma boulette, mon couscous, ma brik, kapara, hbibi/hbibti, ya ouldi/ya benti) accordé au genre du profil. Un emoji maximum, jamais en début de message. Chiffres arrondis.
 Méthode : reconnaître ce qui a été fait → un conseil actionnable → une relance courte.

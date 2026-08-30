@@ -1,7 +1,7 @@
 export const fr = {
   app: {
     name: "BBP",
-    fullName: "Bouhra, Boutargue & Protéine",
+    fullName: "Boukha, Boutargue & Protéines",
     tagline: "Mange. Bouge. Bsahtek.",
   },
   nav: {

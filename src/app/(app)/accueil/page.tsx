@@ -9,6 +9,7 @@ import {
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { IlluBoutargueDemiTranchee } from "@/components/illustrations";
 import { KemiaAvatar } from "@/components/illustrations/kemia-avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -211,15 +212,21 @@ export default async function AccueilPage() {
 
   return (
     <section className="flex flex-col gap-6">
-      <header className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
-          {t.greeting}
-          {firstName ? ` ${firstName}` : ""}
-        </h1>
-        <p className="text-sm text-ink-50 first-letter:uppercase">
-          {formatDateFr(today)}
-          {calendarEnabled && dayInfo ? ` · ${dayInfo.hebrewDate}` : ""}
-        </p>
+      <header className="flex items-end gap-4">
+        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+          <h1 className="font-display text-3xl font-extrabold tracking-tight">
+            {t.greeting}
+            {firstName ? ` ${firstName}` : ""}
+          </h1>
+          <p className="text-sm text-ink-50 first-letter:uppercase">
+            {formatDateFr(today)}
+            {calendarEnabled && dayInfo ? ` · ${dayInfo.hebrewDate}` : ""}
+          </p>
+        </div>
+        <IlluBoutargueDemiTranchee
+          size={52}
+          className="ml-auto hidden shrink-0 text-ink sm:block"
+        />
       </header>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

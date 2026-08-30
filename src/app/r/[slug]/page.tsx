@@ -29,7 +29,7 @@ export async function generateMetadata({
   const recipe = await loadRecipe(slug);
   const title = recipe
     ? `${recipe.title} — BBP`
-    : "BBP — Bouhra, Boutargue & Protéine";
+    : "BBP — Boukha, Boutargue & Protéines";
   const description = recipe?.description ?? fr.app.tagline;
   return {
     title,

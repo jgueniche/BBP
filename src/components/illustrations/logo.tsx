@@ -70,7 +70,7 @@ export function Logo({
       height={height}
       width={height * 2.36}
       role="img"
-      aria-label="BBP — Bouhra, Boutargue & Protéine"
+      aria-label="BBP — Boukha, Boutargue & Protéines"
       className={cn("shrink-0", className)}
     >
       <g

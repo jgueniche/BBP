@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { z } from "zod";
 
+import { IlluBoutargueDemiTranchee } from "@/components/illustrations";
 import { Logo } from "@/components/illustrations/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -85,7 +86,15 @@ export default function LoginPage() {
 
   return (
     <section className="rounded-lg border bg-card p-6 shadow-soft">
-      <Logo variant="ink" height={32} className="mb-4" />
+      <div className="mb-4 flex items-end justify-between gap-4">
+        <div>
+          <Logo variant="ink" height={32} />
+          <p className="mt-1.5 text-xs font-semibold tracking-wide text-ink-50">
+            {fr.app.fullName}
+          </p>
+        </div>
+        <IlluBoutargueDemiTranchee size={64} className="text-ink" />
+      </div>
       <h1 className="font-display text-3xl font-extrabold tracking-tight">
         {fr.auth.title}
       </h1>
