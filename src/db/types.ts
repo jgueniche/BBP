@@ -230,6 +230,48 @@ export type Database = {
         };
         Relationships: [];
       };
+      exercises: {
+        Row: {
+          created_at: string;
+          cues: string;
+          equipment: string[];
+          id: string;
+          kind: string;
+          level: string;
+          met: number;
+          mistakes: string;
+          muscle_groups: string[];
+          name_fr: string;
+          slug: string;
+        };
+        Insert: {
+          created_at?: string;
+          cues: string;
+          equipment?: string[];
+          id?: string;
+          kind?: string;
+          level?: string;
+          met: number;
+          mistakes: string;
+          muscle_groups?: string[];
+          name_fr: string;
+          slug: string;
+        };
+        Update: {
+          created_at?: string;
+          cues?: string;
+          equipment?: string[];
+          id?: string;
+          kind?: string;
+          level?: string;
+          met?: number;
+          mistakes?: string;
+          muscle_groups?: string[];
+          name_fr?: string;
+          slug?: string;
+        };
+        Relationships: [];
+      };
       food_favorites: {
         Row: {
           created_at: string;
@@ -986,6 +1028,111 @@ export type Database = {
           shomer_shabbat?: boolean;
           updated_at?: string;
           user_id?: string;
+        };
+        Relationships: [];
+      };
+      workout_programs: {
+        Row: {
+          created_at: string;
+          days_per_week: number;
+          duration_min: number;
+          equipment: string;
+          generated_by: string;
+          goal: string;
+          id: string;
+          level: string;
+          status: string;
+          updated_at: string;
+          user_id: string;
+          weeks: Json;
+        };
+        Insert: {
+          created_at?: string;
+          days_per_week: number;
+          duration_min?: number;
+          equipment: string;
+          generated_by?: string;
+          goal: string;
+          id?: string;
+          level: string;
+          status?: string;
+          updated_at?: string;
+          user_id: string;
+          weeks?: Json;
+        };
+        Update: {
+          created_at?: string;
+          days_per_week?: number;
+          duration_min?: number;
+          equipment?: string;
+          generated_by?: string;
+          goal?: string;
+          id?: string;
+          level?: string;
+          status?: string;
+          updated_at?: string;
+          user_id?: string;
+          weeks?: Json;
+        };
+        Relationships: [];
+      };
+      workout_sessions: {
+        Row: {
+          created_at: string;
+          date: string;
+          day_number: number | null;
+          duration_min: number | null;
+          id: string;
+          kcal_est: number | null;
+          kind: string;
+          label: string | null;
+          notes: string | null;
+          performed: Json | null;
+          planned: Json | null;
+          program_id: string | null;
+          rpe: number | null;
+          status: string;
+          updated_at: string;
+          user_id: string;
+          week_number: number | null;
+        };
+        Insert: {
+          created_at?: string;
+          date?: string;
+          day_number?: number | null;
+          duration_min?: number | null;
+          id?: string;
+          kcal_est?: number | null;
+          kind?: string;
+          label?: string | null;
+          notes?: string | null;
+          performed?: Json | null;
+          planned?: Json | null;
+          program_id?: string | null;
+          rpe?: number | null;
+          status?: string;
+          updated_at?: string;
+          user_id: string;
+          week_number?: number | null;
+        };
+        Update: {
+          created_at?: string;
+          date?: string;
+          day_number?: number | null;
+          duration_min?: number | null;
+          id?: string;
+          kcal_est?: number | null;
+          kind?: string;
+          label?: string | null;
+          notes?: string | null;
+          performed?: Json | null;
+          planned?: Json | null;
+          program_id?: string | null;
+          rpe?: number | null;
+          status?: string;
+          updated_at?: string;
+          user_id?: string;
+          week_number?: number | null;
         };
         Relationships: [];
       };
