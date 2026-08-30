@@ -58,6 +58,13 @@ const ingredientSchema = z.object({
   unit: z.string().max(20).nullable(),
   grams: z.number().positive().max(20000).nullable(),
   food_id: z.uuid().nullable(),
+  section: z.string().max(60).nullable(),
+});
+
+const stepSchema = z.object({
+  text: z.string().min(3).max(600),
+  durationMin: z.number().int().min(1).max(720).nullable(),
+  section: z.string().max(60).nullable(),
 });
 
 const recipeSchema = z.object({
@@ -77,8 +84,11 @@ const recipeSchema = z.object({
   tags: z.array(z.string().max(30)).max(10),
   visibility: z.enum(["private", "famille", "community"]),
   versionKind: z.enum(["boutargue", "proteine"]),
+  icon: z.string().max(8).nullable(),
+  sourceUrl: z.url().max(500).nullable(),
+  sourceAuthor: z.string().max(120).nullable(),
   ingredients: z.array(ingredientSchema).min(1).max(30),
-  steps: z.array(z.string().min(3).max(600)).min(1).max(15),
+  steps: z.array(stepSchema).min(1).max(25),
 });
 
 export type RecipeInput = z.infer<typeof recipeSchema>;
@@ -196,6 +206,9 @@ export async function saveRecipe(raw: RecipeInput) {
         tags: input.tags,
         visibility: input.visibility,
         version_kind: input.versionKind,
+        icon: input.icon,
+        source_url: input.sourceUrl,
+        source_author: input.sourceAuthor,
         kashrut_class: classification.kashrutClass,
         is_fish: classification.isFish,
         kashrut_confidence: classification.confidence,
@@ -227,6 +240,9 @@ export async function saveRecipe(raw: RecipeInput) {
         tags: input.tags,
         visibility: input.visibility,
         version_kind: input.versionKind,
+        icon: input.icon,
+        source_url: input.sourceUrl,
+        source_author: input.sourceAuthor,
         kashrut_class: classification.kashrutClass,
         is_fish: classification.isFish,
         kashrut_confidence: classification.confidence,
@@ -248,15 +264,18 @@ export async function saveRecipe(raw: RecipeInput) {
       unit: ingredient.unit,
       grams: ingredient.grams,
       label_raw: ingredient.label,
+      section: ingredient.section,
     })),
   );
   if (ingError) throw new Error(ingError.message);
 
   const { error: stepError } = await supabase.from("recipe_steps").insert(
-    input.steps.map((text, position) => ({
+    input.steps.map((step, position) => ({
       recipe_id: recipeId!,
       position,
-      text,
+      text: step.text,
+      duration_sec: step.durationMin === null ? null : step.durationMin * 60,
+      section: step.section,
     })),
   );
   if (stepError) throw new Error(stepError.message);
@@ -313,6 +332,7 @@ export async function forkRecipe(id: string) {
       visibility: "private",
       version_kind: source.version_kind,
       parent_recipe_id: source.id,
+      icon: source.icon,
       kashrut_class: source.kashrut_class,
       is_fish: source.is_fish,
       kashrut_confidence: source.kashrut_confidence,
@@ -335,6 +355,7 @@ export async function forkRecipe(id: string) {
         unit: ingredient.unit,
         grams: ingredient.grams,
         label_raw: ingredient.label_raw,
+        section: ingredient.section,
       })),
     );
   }
@@ -344,6 +365,8 @@ export async function forkRecipe(id: string) {
         recipe_id: created.id,
         position: step.position,
         text: step.text,
+        duration_sec: step.duration_sec,
+        section: step.section,
       })),
     );
   }
@@ -396,6 +419,7 @@ export async function createProteinVersion(id: string) {
         unit: "g",
         grams: ingredient.grams,
         food_id: best?.id ?? null,
+        section: null,
       };
     }),
   );
@@ -424,6 +448,7 @@ export async function createProteinVersion(id: string) {
       visibility: "private",
       version_kind: "proteine",
       parent_recipe_id: source.id,
+      icon: source.icon,
       kashrut_class: classification.kashrutClass,
       is_fish: classification.isFish,
       kashrut_confidence: classification.confidence,
@@ -444,6 +469,7 @@ export async function createProteinVersion(id: string) {
       unit: ingredient.unit,
       grams: ingredient.grams,
       label_raw: ingredient.label,
+      section: ingredient.section,
     })),
   );
   await supabase.from("recipe_steps").insert(
