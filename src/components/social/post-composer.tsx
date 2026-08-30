@@ -77,7 +77,7 @@ export function PostComposer({ groupId }: { groupId?: string | null }) {
   return (
     <form
       onSubmit={submit}
-      className="flex flex-col gap-2 rounded-[20px] border-2 border-ink bg-paper p-3 shadow-sticker-sm"
+      className="flex flex-col gap-2 rounded-lg border bg-card p-3 shadow-soft"
     >
       {isFriday && !groupId && (
         <p className="text-xs font-semibold text-boutargue-deep">
@@ -90,7 +90,7 @@ export function PostComposer({ groupId }: { groupId?: string | null }) {
         placeholder={t.placeholder}
         rows={2}
         maxLength={1000}
-        className="rounded-[14px] border-2 border-ink-10 bg-paper px-3 py-2 text-sm"
+        className="rounded-[10px] border bg-card px-3 py-2 text-sm"
       />
 
       <div className="flex flex-wrap items-center gap-1.5 text-xs">
@@ -101,10 +101,10 @@ export function PostComposer({ groupId }: { groupId?: string | null }) {
             onClick={() => setKind(value)}
             aria-pressed={kind === value}
             className={cn(
-              "rounded-full border-2 px-2 py-0.5 font-semibold",
+              "rounded-full border px-2 py-0.5 font-semibold",
               kind === value && !recipe
-                ? "border-ink bg-boutargue-soft"
-                : "border-ink-10 bg-paper text-ink-70",
+                ? "border-ink bg-boutargue-tint"
+                : "bg-card text-ink-70",
             )}
           >
             {t.kinds[value]}
@@ -114,10 +114,10 @@ export function PostComposer({ groupId }: { groupId?: string | null }) {
           type="button"
           onClick={() => setSearchOpen((open) => !open)}
           className={cn(
-            "flex items-center gap-1 rounded-full border-2 px-2 py-0.5 font-semibold",
+            "flex items-center gap-1 rounded-full border px-2 py-0.5 font-semibold",
             recipe
-              ? "border-ink bg-boutargue-soft"
-              : "border-ink-10 bg-paper text-ink-70",
+              ? "border-ink bg-boutargue-tint"
+              : "bg-card text-ink-70",
           )}
         >
           <Link2 size={12} strokeWidth={2} aria-hidden />
@@ -126,7 +126,7 @@ export function PostComposer({ groupId }: { groupId?: string | null }) {
       </div>
 
       {recipe && (
-        <p className="flex items-center gap-2 rounded-[14px] border-2 border-ink-10 px-3 py-1.5 text-sm font-semibold">
+        <p className="flex items-center gap-2 rounded-[10px] border px-3 py-1.5 text-sm font-semibold">
           {recipe.icon && (
             <span className="text-lg leading-none" aria-hidden>
               {recipe.icon}
@@ -150,7 +150,7 @@ export function PostComposer({ groupId }: { groupId?: string | null }) {
             value={query}
             onChange={(e) => onQuery(e.target.value)}
             placeholder={t.searchRecipe}
-            className="rounded-[12px] border-2 border-ink bg-paper px-2.5 py-1.5 text-sm"
+            className="rounded-[10px] border bg-card px-2.5 py-1.5 text-sm"
           />
           {candidates.length > 0 && (
             <ul className="flex flex-col gap-1">
@@ -164,7 +164,7 @@ export function PostComposer({ groupId }: { groupId?: string | null }) {
                       setQuery("");
                       setCandidates([]);
                     }}
-                    className="flex w-full items-center gap-2 rounded-[12px] border-2 border-ink-10 px-2.5 py-1.5 text-left text-sm hover:border-ink"
+                    className="flex w-full items-center gap-2 rounded-[10px] border px-2.5 py-1.5 text-left text-sm hover:border-ink"
                   >
                     {candidate.icon && (
                       <span aria-hidden>{candidate.icon}</span>

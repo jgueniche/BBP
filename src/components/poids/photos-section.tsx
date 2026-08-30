@@ -92,14 +92,14 @@ export function PhotosSection({ userId }: { userId: string }) {
               width={96}
               height={128}
               unoptimized
-              className="h-32 w-24 rounded-[14px] border-2 border-ink object-cover"
+              className="h-32 w-24 rounded-lg border object-cover"
             />
             <button
               type="button"
               onClick={() => onDelete(photo.path)}
               aria-label={t.photoDeleted}
               disabled={busy}
-              className="absolute -right-2 -top-2 rounded-full border-2 border-ink bg-paper p-1 text-ink-70"
+              className="absolute -right-2 -top-2 rounded-full border bg-card p-1 text-ink-70"
             >
               <Trash2 size={14} strokeWidth={2} />
             </button>
@@ -110,7 +110,7 @@ export function PhotosSection({ userId }: { userId: string }) {
           variant="outline"
           onClick={() => fileInputRef.current?.click()}
           disabled={busy}
-          className="h-32 w-24 flex-col rounded-[14px]"
+          className="h-32 w-24 flex-col rounded-lg"
         >
           <Camera />
           <span className="text-xs">{t.photosAdd}</span>

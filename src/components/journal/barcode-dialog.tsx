@@ -46,7 +46,7 @@ export function BarcodeScanner({
   return (
     <video
       ref={videoRef}
-      className="aspect-[4/3] w-full rounded-[16px] border-2 border-ink bg-ink object-cover"
+      className="aspect-[4/3] w-full rounded-lg border bg-ink object-cover"
       muted
       playsInline
     />

@@ -95,9 +95,9 @@ export const emptyEditorInitial: EditorInitial = {
 };
 
 const selectClass =
-  "rounded-[14px] border-2 border-ink bg-paper px-3 py-2 text-sm font-medium";
+  "rounded-[10px] border bg-card px-3 py-2 text-sm font-medium";
 const smallInputClass =
-  "rounded-[12px] border-2 border-ink bg-paper px-2 py-2 text-sm";
+  "rounded-[10px] border bg-card px-2 py-2 text-sm";
 
 export function RecipeEditor({ initial }: { initial: EditorInitial }) {
   const router = useRouter();
@@ -223,7 +223,7 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
   return (
     <form onSubmit={submit} className="flex flex-col gap-4">
       {state.sourceUrl && (
-        <p className="flex flex-wrap items-center gap-1.5 rounded-[14px] border-2 border-ink-10 bg-ink-10/50 px-3 py-2 text-xs text-ink-70">
+        <p className="flex flex-wrap items-center gap-1.5 rounded-[10px] border bg-ink-10/50 px-3 py-2 text-xs text-ink-70">
           <span className="font-semibold">{t.importPage.credit} :</span>
           {state.sourceAuthor || "—"}
           <a
@@ -265,9 +265,9 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
             onClick={() => update("icon", emoji)}
             aria-pressed={state.icon === emoji}
             className={cn(
-              "rounded-[10px] border-2 px-1.5 py-0.5 text-lg leading-none",
+              "rounded-[10px] border px-1.5 py-0.5 text-lg leading-none",
               state.icon === emoji
-                ? "border-ink bg-boutargue-soft"
+                ? "border-ink bg-boutargue-tint"
                 : "border-transparent hover:border-ink-30",
             )}
           >
@@ -432,7 +432,7 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
                 onChange={(e) =>
                   updateIngredient(index, { grams: e.target.value })
                 }
-                className="w-16 rounded-[12px] border-2 border-ink bg-paper px-2 py-2 text-right font-mono text-sm"
+                className="w-16 rounded-[10px] border bg-card px-2 py-2 text-right font-mono text-sm"
                 aria-label={`${ingredient.label || f.ingredientLabel} (${f.grams})`}
               />
               <span className="text-xs text-ink-50">{f.grams}</span>
@@ -472,7 +472,7 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
                 : f.notLinked}
             </p>
             {suggestions?.index === index && suggestions.items.length > 0 && (
-              <ul className="absolute left-0 right-24 top-12 z-20 rounded-[14px] border-2 border-ink bg-paper shadow-sticker">
+              <ul className="absolute left-0 right-24 top-12 z-20 rounded-lg border bg-card shadow-pop">
                 {suggestions.items.map((candidate) => (
                   <li key={candidate.food_id}>
                     <button
@@ -531,7 +531,7 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
                 onChange={(e) => updateStep(index, { text: e.target.value })}
                 placeholder={f.stepPlaceholder}
                 rows={2}
-                className="rounded-[14px] border-2 border-ink bg-paper px-3 py-2 text-sm"
+                className="rounded-[10px] border bg-card px-3 py-2 text-sm"
               />
               <div className="flex items-center gap-2">
                 <input

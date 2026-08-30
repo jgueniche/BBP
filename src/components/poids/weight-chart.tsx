@@ -41,7 +41,7 @@ function ChartTooltip({
   if (!active || !payload || payload.length === 0 || !label) return null;
   const point = payload[0]!.payload;
   return (
-    <div className="rounded-[12px] border-2 border-ink bg-paper px-3 py-2 text-xs shadow-sticker-sm">
+    <div className="rounded-[10px] border bg-card px-3 py-2 text-xs shadow-soft">
       <p className="font-semibold first-letter:uppercase">
         {new Intl.DateTimeFormat("fr-FR", {
           weekday: "short",
@@ -77,8 +77,8 @@ export function WeightChart({ points }: { points: TrendPoint[] }) {
               type="button"
               onClick={() => setPeriod(p)}
               className={cn(
-                "rounded-full border-2 border-ink px-3 py-1 text-xs font-semibold",
-                period === p ? "bg-boutargue-soft" : "bg-paper",
+                "rounded-full border px-3 py-1 text-xs font-semibold",
+                period === p ? "border-ink bg-boutargue-tint" : "bg-card",
               )}
               aria-pressed={period === p}
             >

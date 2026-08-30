@@ -355,7 +355,7 @@ export function LogComposer({
               type="button"
               onClick={() => onFavorite(label)}
               disabled={busy}
-              className="rounded-full border-2 border-ink bg-boutargue-soft px-3 py-1 text-xs font-semibold text-[#0b0b0b]"
+              className="rounded-full border bg-boutargue-tint px-3 py-1 text-xs font-semibold text-[#0b0b0b]"
             >
               ★ {label}
             </button>
@@ -367,14 +367,14 @@ export function LogComposer({
       {busy && !draft && <p className="text-sm text-ink-50">{t.parsing}</p>}
 
       {draft && (
-        <div className="rounded-[20px] border-2 border-ink bg-paper p-4 shadow-sticker">
+        <div className="rounded-lg border bg-card p-4 shadow-soft">
           <div className="flex items-center justify-between gap-2">
             <h3 className="font-display text-lg font-bold">{t.confirmTitle}</h3>
             <select
               value={meal}
               onChange={(e) => setMeal(e.target.value as MealType)}
               aria-label={t.confirmMeal}
-              className="rounded-full border-2 border-ink bg-paper px-3 py-1.5 text-sm font-semibold"
+              className="rounded-full border bg-card px-3 py-1.5 text-sm font-semibold"
             >
               {Object.entries(t.meals).map(([value, label]) => (
                 <option key={value} value={value}>
@@ -387,7 +387,7 @@ export function LogComposer({
             {draft.map((item, index) => (
               <li
                 key={`${item.name}-${index}`}
-                className="flex items-center gap-2 rounded-[14px] border-2 border-ink-10 p-2"
+                className="flex items-center gap-2 rounded-[10px] border p-2"
               >
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">
@@ -414,7 +414,7 @@ export function LogComposer({
                     onChange={(e) =>
                       updateDraftGrams(index, parseFloat(e.target.value))
                     }
-                    className="w-16 rounded-[10px] border-2 border-ink bg-paper px-2 py-1 text-right font-mono text-sm"
+                    className="w-16 rounded-[10px] border bg-card px-2 py-1 text-right font-mono text-sm"
                     aria-label={`${item.name} (${t.grams})`}
                   />
                   <span className="text-xs text-ink-50">{t.grams}</span>

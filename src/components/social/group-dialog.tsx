@@ -86,9 +86,9 @@ export function GroupDialog() {
                   onClick={() => setIcon(emoji)}
                   aria-pressed={icon === emoji}
                   className={cn(
-                    "rounded-[10px] border-2 px-1.5 py-0.5 text-xl leading-none",
+                    "rounded-[10px] border px-1.5 py-0.5 text-xl leading-none",
                     icon === emoji
-                      ? "border-ink bg-boutargue-soft"
+                      ? "border-ink bg-boutargue-tint"
                       : "border-transparent hover:border-ink-30",
                   )}
                 >
