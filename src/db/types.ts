@@ -419,6 +419,168 @@ export type Database = {
         };
         Relationships: [];
       };
+      recipe_ingredients: {
+        Row: {
+          created_at: string;
+          food_id: string | null;
+          grams: number | null;
+          id: string;
+          label_raw: string;
+          position: number;
+          qty: number | null;
+          recipe_id: string;
+          section: string | null;
+          unit: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          food_id?: string | null;
+          grams?: number | null;
+          id?: string;
+          label_raw: string;
+          position?: number;
+          qty?: number | null;
+          recipe_id: string;
+          section?: string | null;
+          unit?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          food_id?: string | null;
+          grams?: number | null;
+          id?: string;
+          label_raw?: string;
+          position?: number;
+          qty?: number | null;
+          recipe_id?: string;
+          section?: string | null;
+          unit?: string | null;
+        };
+        Relationships: [];
+      };
+      recipe_steps: {
+        Row: {
+          created_at: string;
+          duration_sec: number | null;
+          id: string;
+          photo_path: string | null;
+          position: number;
+          recipe_id: string;
+          text: string;
+        };
+        Insert: {
+          created_at?: string;
+          duration_sec?: number | null;
+          id?: string;
+          photo_path?: string | null;
+          position?: number;
+          recipe_id: string;
+          text: string;
+        };
+        Update: {
+          created_at?: string;
+          duration_sec?: number | null;
+          id?: string;
+          photo_path?: string | null;
+          position?: number;
+          recipe_id?: string;
+          text?: string;
+        };
+        Relationships: [];
+      };
+      recipes: {
+        Row: {
+          author_id: string | null;
+          category: string | null;
+          cook_min: number | null;
+          created_at: string;
+          description: string | null;
+          difficulty: string | null;
+          id: string;
+          is_fish: boolean;
+          kashrut_class: string | null;
+          kashrut_confidence: number | null;
+          kosher_flags: string[];
+          nutrition_per_serving: Json;
+          origin: string | null;
+          parent_recipe_id: string | null;
+          photo_paths: string[];
+          prep_min: number | null;
+          search: unknown;
+          servings: number;
+          slug: string;
+          source_author: string | null;
+          source_url: string | null;
+          status: string;
+          substitutions: Json | null;
+          tags: string[];
+          title: string;
+          updated_at: string;
+          version_kind: string;
+          visibility: string;
+        };
+        Insert: {
+          author_id?: string | null;
+          category?: string | null;
+          cook_min?: number | null;
+          created_at?: string;
+          description?: string | null;
+          difficulty?: string | null;
+          id?: string;
+          is_fish?: boolean;
+          kashrut_class?: string | null;
+          kashrut_confidence?: number | null;
+          kosher_flags?: string[];
+          nutrition_per_serving?: Json;
+          origin?: string | null;
+          parent_recipe_id?: string | null;
+          photo_paths?: string[];
+          prep_min?: number | null;
+          search?: unknown;
+          servings?: number;
+          slug: string;
+          source_author?: string | null;
+          source_url?: string | null;
+          status?: string;
+          substitutions?: Json | null;
+          tags?: string[];
+          title: string;
+          updated_at?: string;
+          version_kind?: string;
+          visibility?: string;
+        };
+        Update: {
+          author_id?: string | null;
+          category?: string | null;
+          cook_min?: number | null;
+          created_at?: string;
+          description?: string | null;
+          difficulty?: string | null;
+          id?: string;
+          is_fish?: boolean;
+          kashrut_class?: string | null;
+          kashrut_confidence?: number | null;
+          kosher_flags?: string[];
+          nutrition_per_serving?: Json;
+          origin?: string | null;
+          parent_recipe_id?: string | null;
+          photo_paths?: string[];
+          prep_min?: number | null;
+          search?: unknown;
+          servings?: number;
+          slug?: string;
+          source_author?: string | null;
+          source_url?: string | null;
+          status?: string;
+          substitutions?: Json | null;
+          tags?: string[];
+          title?: string;
+          updated_at?: string;
+          version_kind?: string;
+          visibility?: string;
+        };
+        Relationships: [];
+      };
       tdee_proposals: {
         Row: {
           avg_intake_kcal: number;
@@ -556,6 +718,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      compute_recipe_nutrition: {
+        Args: { rid: string };
+        Returns: Json;
+      };
       search_foods: {
         Args: { max_results?: number; q: string };
         Returns: {
