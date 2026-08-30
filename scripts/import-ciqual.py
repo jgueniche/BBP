@@ -22,7 +22,7 @@ NUTRIENTS = {
 NON_KOSHER_SEA = ["crevette", "moule", "huître", "huitre", "crabe", "homard", "langoustine",
     "calamar", "calmar", "encornet", "seiche", "poulpe", "pieuvre", "escargot", "bulot",
     "coquille saint-jacques", "saint-jacques", "gambas", "écrevisse", "oursin", "langouste",
-    "surimi", "araignée de mer", "palourde", "coque,", "vernis", "amande de mer", "ormeau", "telline"]
+    "surimi", "araignée de mer", "palourde", "coque", "amande de mer", "ormeau", "telline"]
 NON_KOSHER_MEAT = ["porc", "lard", "bacon", "sanglier", "cheval", "lapin", "lièvre",
     "grenouille", "boudin", "andouille", "rillettes", "chorizo"]
 NON_KOSHER_FISH = ["anguille", "esturgeon", "requin", "roussette", "raie", "silure",
@@ -59,7 +59,7 @@ def parse_val(v):
 
 
 def has(name, words):
-    return any(w in name for w in words)
+    return any(re.search(r"\b" + re.escape(w) + r"s?\b", name) for w in words)
 
 
 def classify(grp, ssgrp, name):
@@ -122,9 +122,18 @@ def classify(grp, ssgrp, name):
         return "parve", False, "vérifier les ingrédients"
 
     if "aliments infantiles" in g:
-        if "lait" in sg or "lait" in n:
+        if "lait" in sg or has(n, ["lait", "lacté", "lactée"]):
             return "halavi", False, None
         return None, False, "à vérifier"
+
+    if has(n, ["fromage", "crème", "creme", "yaourt", "beurre"]) and not has(
+        n, ["crème de marron", "crème de sésame", "beurre de cacahuète", "beurre de cacao"]
+    ):
+        return "halavi", False, "vérifier les ingrédients"
+    if has(n, ["lait"]) and not has(
+        n, ["lait de coco", "lait d'amande", "lait de soja", "lait d'avoine", "lait de riz"]
+    ):
+        return "halavi", False, "vérifier les ingrédients"
 
     return "parve", False, None
 
@@ -150,6 +159,7 @@ def main():
     os.makedirs(OUT_DIR, exist_ok=True)
     df = pd.read_excel(SRC)
     df = df[df["alim_code"].notna()]
+    df = df.drop_duplicates(subset=["alim_code"], keep="first")
     rows = []
     stats = {"bassari": 0, "halavi": 0, "parve": 0, "unknown": 0, "fish": 0}
     for _, r in df.iterrows():
