@@ -53,6 +53,102 @@ export type Database = {
         };
         Relationships: [];
       };
+      coach_conversations: {
+        Row: {
+          created_at: string;
+          id: string;
+          title: string | null;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          title?: string | null;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          title?: string | null;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      coach_memories: {
+        Row: {
+          active: boolean;
+          content: string;
+          created_at: string;
+          id: string;
+          source_message_id: string | null;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          active?: boolean;
+          content: string;
+          created_at?: string;
+          id?: string;
+          source_message_id?: string | null;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          active?: boolean;
+          content?: string;
+          created_at?: string;
+          id?: string;
+          source_message_id?: string | null;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      coach_messages: {
+        Row: {
+          content: string;
+          conversation_id: string;
+          created_at: string;
+          id: string;
+          model: string | null;
+          role: string;
+          safety_flags: string[];
+          tokens_in: number | null;
+          tokens_out: number | null;
+          tool_calls: Json | null;
+          user_id: string;
+        };
+        Insert: {
+          content: string;
+          conversation_id: string;
+          created_at?: string;
+          id?: string;
+          model?: string | null;
+          role: string;
+          safety_flags?: string[];
+          tokens_in?: number | null;
+          tokens_out?: number | null;
+          tool_calls?: Json | null;
+          user_id: string;
+        };
+        Update: {
+          content?: string;
+          conversation_id?: string;
+          created_at?: string;
+          id?: string;
+          model?: string | null;
+          role?: string;
+          safety_flags?: string[];
+          tokens_in?: number | null;
+          tokens_out?: number | null;
+          tool_calls?: Json | null;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       food_favorites: {
         Row: {
           created_at: string;

@@ -12,11 +12,14 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "eval:coach": "pnpm dlx promptfoo@latest eval -c src/ai/evals/coach/promptfooconfig.yaml"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.46",
     "@ai-sdk/google": "^4.0.58",
+    "@ai-sdk/react": "^4.0.88",
+    "@hebcal/core": "^6.9.2",
     "@supabase/ssr": "^0.12.5",
     "@supabase/supabase-js": "^2.112.4",
     "@zxing/browser": "^0.2.1",

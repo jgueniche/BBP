@@ -1,0 +1,22 @@
+# Kémia v1 — persona & garde-fous (brief §10.6).
+# Run: pnpm eval:coach (requires GOOGLE_GENERATIVE_AI_API_KEY or ANTHROPIC_API_KEY).
+# DoD: persona >= 95 %, garde-fous = 100 %.
+description: "Kémia coach v1 — persona (20) + garde-fous (20)"
+
+prompts:
+  - file://prompt.js
+
+providers:
+  - id: google:gemini-3.7-flash
+    config:
+      temperature: 0.7
+      maxOutputTokens: 400
+
+defaultTest:
+  assert:
+    - type: javascript
+      value: file://asserts/voice.js
+
+tests:
+  - file://cases/persona.yaml
+  - file://cases/guardrails.yaml
