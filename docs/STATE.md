@@ -16,12 +16,13 @@ Dernière mise à jour : 30/08/2026 · Session 1 (Fondations)
 - Rien.
 
 ## Reste à faire (actions côté Jeremy — bloquantes pour un environnement fonctionnel)
-1. Créer le projet **Supabase** région Paris (eu-west-3), récupérer URL + anon key + service role key.
-2. Renseigner `.env.local` (copier `.env.example`) et les variables sur Vercel.
-3. Connecter le repo à **Vercel** (région cdg1) pour les previews par PR.
-4. Activer les providers Auth Google + Apple dans Supabase (email OTP fonctionne sans config supplémentaire).
-5. Créer les projets **Sentry** et **PostHog EU**, renseigner les clés.
-6. Valider le plan de la session 1 a posteriori (session lancée en autonome, cf. ADR-002).
+1. ~~Créer le projet Supabase~~ ✅ Fait : projet « BBP » `apxrducsgrddwujnibcf`, eu-west-3 (Paris), sain.
+2. Coller les variables d'environnement sur Vercel (bloc fourni en fin de session 1bis) et dans `.env.local`.
+3. GitHub : définir `master` comme branche par défaut (Settings → General → Default branch).
+4. Vercel : vérifier que la Production Branch = `master` (Settings → Git) après le changement GitHub.
+5. Activer les providers Auth Google + Apple dans Supabase (email OTP fonctionne sans config supplémentaire).
+6. Créer les projets **Sentry** et **PostHog EU**, renseigner les clés.
+7. Valider le plan de la session 1 a posteriori (session lancée en autonome, cf. ADR-002).
 
 ## Backlog (hors périmètre session 1)
 - Session 2 : charte graphique complète, kit UI, `/design`, logo, illustrations, avatar Kémia.

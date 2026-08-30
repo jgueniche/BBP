@@ -14,6 +14,12 @@ Supabase (projet Paris), Vercel, Sentry, PostHog et OAuth Google/Apple exigent d
 inaccessibles depuis cette session. Le code (clients Supabase, auth OTP, `.env.example`, CI) est
 livré fonctionnel à la configuration près ; les actions sont listées dans `STATE.md › Reste à faire`.
 
+## ADR-005 — Branche de production : `master` (30/08/2026)
+Demande explicite de Jeremy : la prod vit sur `master` (git + Vercel), pas sur `main`.
+Trunk-based conservé : les branches de session (`claude/…`, `feat/…`) partent de `master`
+et y reviennent par PR. CI sur `master`, `claude/**` et toutes les PR.
+À faire côté GitHub : définir `master` comme branche par défaut (Settings → General).
+
 ## ADR-004 — Migrations dans `supabase/migrations/`, miroir documentaire dans `src/db/` (30/08/2026)
 Le CLI Supabase impose `supabase/migrations/` comme emplacement des migrations SQL.
 `src/db/` (arborescence du brief §6) garde `types.ts` (types générés) et `seed/`.
