@@ -1,5 +1,12 @@
 # DECISIONS.md — ADR courts (≤ 5 lignes chacun)
 
+## ADR-022 — Refonte « pro & chaleureux » : deux espaces, desktop d'abord (30/08/2026)
+Sur demande de Jeremy (maquettes validées, canevas « Refonte BBP ») : abandon du style sticker
+(bordures ink 2 px, ombres dures) pour filets 1 px, ombres douces, radius 14 px, coquille chaude,
+orange rationné — les teintes de marque et pastilles casher ne bougent pas ; la chaleur vient de
+Kémia, plus des bordures. Navigation scindée MON SUIVI / CUISINE & COMMUNAUTÉ (sidebar desktop
++ 5 onglets mobile), `/accueil` nouveau hub, `/poids` fusionné dans `/progres` (redirection).
+
 ## ADR-021 — Calendrier juif : moteur unique + cache par utilisateur (30/08/2026)
 Toute lecture calendaire passe par `engine.ts` (ville → coordonnées/fuseau réels via une liste
 d'~45 villes, option Israël, jeûnes mineurs opt-in, délai bougies) ; les pages lisent le cache
