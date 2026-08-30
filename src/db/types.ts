@@ -14,6 +14,45 @@ export type Database = {
   };
   public: {
     Tables: {
+      body_measurements: {
+        Row: {
+          arm_cm: number | null;
+          chest_cm: number | null;
+          created_at: string;
+          date: string;
+          hips_cm: number | null;
+          id: string;
+          thigh_cm: number | null;
+          updated_at: string;
+          user_id: string;
+          waist_cm: number | null;
+        };
+        Insert: {
+          arm_cm?: number | null;
+          chest_cm?: number | null;
+          created_at?: string;
+          date?: string;
+          hips_cm?: number | null;
+          id?: string;
+          thigh_cm?: number | null;
+          updated_at?: string;
+          user_id: string;
+          waist_cm?: number | null;
+        };
+        Update: {
+          arm_cm?: number | null;
+          chest_cm?: number | null;
+          created_at?: string;
+          date?: string;
+          hips_cm?: number | null;
+          id?: string;
+          thigh_cm?: number | null;
+          updated_at?: string;
+          user_id?: string;
+          waist_cm?: number | null;
+        };
+        Relationships: [];
+      };
       food_favorites: {
         Row: {
           created_at: string;
@@ -281,6 +320,54 @@ export type Database = {
           username?: string | null;
           visibility?: string;
           xp?: number;
+        };
+        Relationships: [];
+      };
+      tdee_proposals: {
+        Row: {
+          avg_intake_kcal: number;
+          created_at: string;
+          days_with_logs: number;
+          id: string;
+          new_calorie_target: number | null;
+          new_tdee: number;
+          old_calorie_target: number | null;
+          old_tdee: number;
+          status: string;
+          trend_change_kg: number;
+          updated_at: string;
+          user_id: string;
+          week_start: string;
+        };
+        Insert: {
+          avg_intake_kcal: number;
+          created_at?: string;
+          days_with_logs: number;
+          id?: string;
+          new_calorie_target?: number | null;
+          new_tdee: number;
+          old_calorie_target?: number | null;
+          old_tdee: number;
+          status?: string;
+          trend_change_kg: number;
+          updated_at?: string;
+          user_id: string;
+          week_start: string;
+        };
+        Update: {
+          avg_intake_kcal?: number;
+          created_at?: string;
+          days_with_logs?: number;
+          id?: string;
+          new_calorie_target?: number | null;
+          new_tdee?: number;
+          old_calorie_target?: number | null;
+          old_tdee?: number;
+          status?: string;
+          trend_change_kg?: number;
+          updated_at?: string;
+          user_id?: string;
+          week_start?: string;
         };
         Relationships: [];
       };
