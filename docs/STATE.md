@@ -1,6 +1,14 @@
 # STATE.md — État du projet BBP
 
-Dernière mise à jour : 30/08/2026 · Sessions 1 à 7
+Dernière mise à jour : 30/08/2026 · Sessions 1 à 8
+
+## Fait — Session 8 (Import de recettes + Carnet social, inspiré ReciMe/Pepper/Crouton)
+- **Import multi-sources** (`/recettes/importer`, migration `202608301810`) : lien (oEmbed officiel TikTok/YouTube, Instagram si `INSTAGRAM_OEMBED_TOKEN` sinon collage de légende — jamais de scraping authentifié), sites web via **JSON-LD schema.org** (phases HowToSection + durées ISO 8601), texte collé, **photo** (vision). Normalisation par l'agent `recipe_importer` (prompt versionné) avec **fallback sans IA** : parseur d'ingrédients FR (g/kg/cl/càs/càc/fractions) + heuristique de légende — 12 tests. Crédit auteur + lien source obligatoires, affichés et verrouillés (ADR-014).
+- **Carnets (collections)** : icône emoji + couleur + description, une recette dans plusieurs carnets, **partage par lien d'invitation** (`join_collection` RPC, `/recettes/carnets/rejoindre/[token]`), membres collaboratifs (ajout/retrait de recettes), quitter/supprimer. Les recettes privées d'un carnet partagé deviennent visibles à ses membres (ADR-015 — le vrai « famille »).
+- **Social v1** : ❤️ likes (animation, optimiste), **enregistrer dans Mon carnet**, commentaires (suppression par l'auteur du commentaire ou de la recette), **note perso privée** par recette, vue `recipe_social_stats` (compteurs RLS-aware), noms d'auteurs (profils publics uniquement, sinon « Membre BBP »).
+- `/recettes` en **3 onglets** : Découvrir (feed communauté + tri Populaires + filtres), Mon carnet (créées + enregistrées), Carnets. Icône emoji par recette (suggestions dans l'éditeur).
+- **Phases & minuteurs** : sections d'ingrédients et d'étapes + durée par étape (éditeur enrichi, import automatique), affichage groupé, **Mode cuisine** plein écran étape par étape avec minuteurs multiples simultanés, barre de progression et wake lock (`/recettes/[slug]/cuisine`).
+- Lint + typecheck + build verts, 71 tests. Advisors : WARN attendus sur les 4 fonctions `security definer` (helpers auto-scopés `auth.uid()`, gardés) — voir section Advisors.
 
 ## Fait — Session 7 (Recettes)
 - Modèle complet : `recipes` (origine, catégorie, difficulté, temps, portions, tags, visibilité privée/famille/communauté, **versions Boutargue/Protéine liées** via `parent_recipe_id` + `version_kind`, fork, statut), `recipe_ingredients` (liés à `foods`, grammes canoniques), `recipe_steps` — RLS complet, recherche FR, migration `202608301715`.
@@ -81,7 +89,11 @@ Dernière mise à jour : 30/08/2026 · Sessions 1 à 7
 - Presets « repas de chabbat type » dans le journal (avec session 13).
 - Auth : OTP email et OAuth Google/Apple repoussés (ADR-006).
 - Sentry + PostHog : instrumentation code (clés requises d'abord).
-- Photos de recettes : colonnes prêtes (`photo_paths`, `photo_path` par étape), upload UI à venir (session 8 ou 11).
+- Photos de recettes : colonnes prêtes (`photo_paths`, `photo_path` par étape), upload UI à venir (session 11).
+- Profil : ajouter un interrupteur « profil visible par la communauté » (aujourd'hui `visibility` reste `private` → les recettes affichent « Membre BBP » au lieu du prénom).
+- Import Instagram sans collage : poser `INSTAGRAM_OEMBED_TOKEN` (app Meta, facultatif).
+- Liste de courses générée depuis un carnet (façon ReciMe) : prévue avec le planning (session 9).
+- Fil d'amis, abonnements, notifications sociales : session 11.
 
 ## Bugs connus
 - Aucun.
@@ -95,7 +107,8 @@ Dernière mise à jour : 30/08/2026 · Sessions 1 à 7
 | CI verte | ✅ lint + typecheck + test + build verts en local ; workflow poussé |
 | `STATE.md` rempli | ✅ |
 
-## Advisors Supabase (30/08/2026, post-sessions 3-4)
+## Advisors Supabase (30/08/2026, post-session 8)
 - ✅ Aucune erreur ; RLS active sur toutes les tables.
 - Corrigé : `set_updated_at` avec `search_path` fixé (migration `202608301605`).
+- WARN assumés : les 4 fonctions `security definer` de la session 8 (`is_collection_owner/member`, `can_view_via_collection`, `join_collection`) sont exposées en RPC — sans risque : elles ne renvoient que des booléens scoppés sur `auth.uid()` (ou null pour anon) et servent aux policies RLS (EXECUTE requis). À re-durcir si le modèle change.
 - Restant (mineur) : extension `pg_trgm` dans le schéma public (déplacement disruptif, à traiter session 15) ; « Leaked password protection » à activer dans le dashboard Auth (1 clic, avec les réglages email de l'étape 2).

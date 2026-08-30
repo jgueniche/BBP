@@ -1,5 +1,19 @@
 # DECISIONS.md — ADR courts (≤ 5 lignes chacun)
 
+## ADR-015 — Social v1 : likes/saves/commentaires, carnets partagés par lien (30/08/2026)
+Le réseau social des recettes démarre avec likes, « enregistrer dans mon carnet », commentaires
+plats et carnets collaboratifs rejoints par lien d'invitation (token UUID, RPC security definer).
+Une recette privée placée dans un carnet partagé devient visible aux membres — c'est la
+concrétisation du palier « famille ». Compteurs via vue `security_invoker` (RLS respecté).
+Fil d'amis, abonnements et notifications : session 11.
+
+## ADR-014 — Import de recettes : oEmbed social, JSON-LD web, IA avec fallback (30/08/2026)
+Réseaux sociaux : oEmbed officiel uniquement (TikTok/YouTube ouverts ; Instagram derrière
+`INSTAGRAM_OEMBED_TOKEN`, sinon collage de légende) — jamais de scraping authentifié (brief §9).
+Sites ouverts : extraction JSON-LD schema.org/Recipe (standard des sites de cuisine). L'agent
+`recipe_importer` normalise (grammes, phases, durées) ; sans clé IA, parseur FR + heuristique.
+Crédit auteur + lien source obligatoires et non éditables ; brouillon privé par défaut.
+
 ## ADR-013 — Nutrition des recettes calculée en SQL, proxys Ciqual assumés (30/08/2026)
 `compute_recipe_nutrition(rid)` (SQL, stable) somme grammes × `per_100g` des ingrédients liés
 et divise par les portions ; miroir TypeScript (`lib/nutrition/recipe.ts`) pour l'app et les
