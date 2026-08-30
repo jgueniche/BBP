@@ -21,17 +21,15 @@ export async function logWeight(date: string, weightKg: number) {
   const weight = z.number().min(20).max(500).parse(weightKg);
   const { supabase, user } = await requireUser();
 
-  const { error } = await supabase
-    .from("weight_logs")
-    .upsert(
-      {
-        user_id: user.id,
-        date: cleanDate,
-        weight_kg: weight,
-        source: "manual",
-      },
-      { onConflict: "user_id,date" },
-    );
+  const { error } = await supabase.from("weight_logs").upsert(
+    {
+      user_id: user.id,
+      date: cleanDate,
+      weight_kg: weight,
+      source: "manual",
+    },
+    { onConflict: "user_id,date" },
+  );
   if (error) throw new Error(error.message);
 
   revalidatePath("/poids");

@@ -90,8 +90,27 @@ export const fr = {
   },
   coach: {
     title: "Kémia",
-    empty: "Kémia est en cuisine, elle arrive très vite.",
-    soon: "Le coach arrive à la session 6.",
+    inputPlaceholder: "Parle à Kémia…",
+    send: "Envoyer",
+    thinking: "Kémia réfléchit…",
+    disclaimer: "Réponses générées par IA — jamais un avis médical.",
+    fallback: "Kémia est en cuisine, réessaie dans une minute.",
+    quotaReached:
+      "Vous avez bien papoté aujourd'hui ! Kémia revient demain (30 messages par jour en version gratuite).",
+    aiOff:
+      "Kémia arrive dès que la clé IA est configurée sur le serveur. En attendant, ton journal et ton poids fonctionnent.",
+    greeting:
+      "Salut {name} ! Moi c'est Kémia, ta coach. Raconte-moi ta journée, demande ton bilan de la semaine ou un coup de main sur un repas — yalla, on s'y met ?",
+    greetingFallbackName: "ma boulette",
+    memoriesLink: "Ce que Kémia sait de toi",
+    memoriesTitle: "Ce que Kémia sait de toi",
+    memoriesHint:
+      "Les petits faits que Kémia retient pour mieux te coacher. Supprime ce que tu veux : elle oubliera, promis.",
+    memoriesEmpty:
+      "Rien pour l'instant — ça se remplira au fil de vos discussions.",
+    memoryDelete: "Oublier",
+    memoryDeleted: "C'est oublié.",
+    back: "Retour au chat",
   },
   planning: {
     title: "Planning",
