@@ -1,5 +1,12 @@
 # DECISIONS.md — ADR courts (≤ 5 lignes chacun)
 
+## ADR-018 — Sport : kcal MET indicatives, jamais recomptées dans le TDEE (30/08/2026)
+Les kcal de séance (MET × poids × durée) sont affichées pour motiver, mais ne sont ni
+ajoutées au journal ni au TDEE : le TDEE adaptatif observe déjà la dépense réelle via
+apports − 7700 × Δtendance, sport inclus — les compter deux fois gonflerait les cibles.
+Comme le planning, le programme sportif est validé programmatiquement (ids de la
+bibliothèque, volume borné) et l'IA retombe sur un générateur déterministe sans clé.
+
 ## ADR-017 — Pratique religieuse opt-out, casher-natif par défaut (30/08/2026)
 Demande de Jeremy : l'app reste casher-native (défauts activés) mais chaque personne peut
 désactiver les règles de cacherout et/ou le calendrier juif (Profil › Ma pratique,

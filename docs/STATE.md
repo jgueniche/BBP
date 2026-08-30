@@ -1,6 +1,13 @@
 # STATE.md — État du projet BBP
 
-Dernière mise à jour : 30/08/2026 · Sessions 1 à 9
+Dernière mise à jour : 30/08/2026 · Sessions 1 à 10
+
+## Fait — Session 10 (Sport)
+- **Bibliothèque de 188 exercices FR** en base (migration `202608302030`, seed `scripts/seed-exercises.py` chargé par data migration épinglée) : 117 muscu / 27 cardio / 24 mobilité / 20 fonctionnel, avec groupes musculaires, matériel, niveau, MET, consignes et erreurs fréquentes. Lecture publique.
+- **Programmes 4 semaines** : agent `workout_planner` (prompt versionné, 2 tentatives avec erreurs réinjectées) + **générateur déterministe sans IA** (splits full body / haut-bas / PPL selon la fréquence, séries×reps selon l'objectif, montée semaines 1-3 + deload semaine 4) — **validateur programmatique** (ids de la bibliothèque uniquement, volume borné) : DoD testée sur 96 combinaisons objectif×fréquence×matériel (6 tests, 93 verts au total).
+- **Page `/sport`** : génération (objectif/fréquence/matériel/niveau/durée), programme par semaines dépliables, **records perso** (charge max par exercice), historique, kcal sport de la semaine, **log rapide** (« marche 30 min », « foot 1h » → kcal via MET × poids), liens depuis Journal et Profil.
+- **Séance guidée plein écran une main** (`/sport/seance`) : grosses pastilles de séries cochables, charge par exercice, **minuteur de repos automatique** (vibration discrète à zéro), consignes affichées, barre de progression, wake lock, écran RPE, **réaction de Kémia** en fin de séance (IA légère, sinon 6 phrases maison).
+- Outil Kémia `create_workout_program` branché (programme réel + lien). TDEE adaptatif : **pas de double comptage** — le sport est déjà capté par la dépense observée (apports − Δpoids), les kcal de séance sont affichées à titre informatif (ADR-018).
 
 ## Fait — Session 9bis (Pratique à la carte — demande de Jeremy)
 - Deux interrupteurs dans **Profil › Ma pratique** (migration `202608301950`, défaut : activés) : **règles de cacherout** et **calendrier juif** — pour les utilisateurs non pratiquants.
@@ -105,6 +112,7 @@ Dernière mise à jour : 30/08/2026 · Sessions 1 à 9
 - Profil : ajouter un interrupteur « profil visible par la communauté » (aujourd'hui `visibility` reste `private` → les recettes affichent « Membre BBP » au lieu du prénom).
 - Import Instagram sans collage : poser `INSTAGRAM_OEMBED_TOKEN` (app Meta, facultatif).
 - Fil d'amis, abonnements, notifications sociales : session 11.
+- Sport : graphique de volume par groupe musculaire ; page détail d'un exercice (erreurs fréquentes affichées en séance) ; sons discrets réels (v1 = vibration) ; bouton Sport dans la bottom bar à arbitrer (5 places prises) ; éval promptfoo du workout_planner avec clé IA.
 - Planning : vue mois avec dates hébraïques ; verrouillage de créneaux dans l'UI (le moteur le gère déjà) ; drag & drop tactile (v1 = souris/HTML5 + boutons swap) ; quota fin « 2 plannings/semaine free » à calibrer (garde-fou à 20 aujourd'hui) ; éval promptfoo du meal_planner dès la clé IA posée.
 
 ## Bugs connus
