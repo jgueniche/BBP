@@ -1,26 +1,38 @@
-import { Clock, Plus } from "lucide-react";
+import { Download, Plus, Users } from "lucide-react";
 import Link from "next/link";
 
+import { CollectionDialog } from "@/components/recipes/collection-dialog";
+import {
+  RecipeCard,
+  type RecipeCardData,
+} from "@/components/recipes/recipe-card";
 import { IlluCouscoussier } from "@/components/illustrations";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
-import { KashrutPill } from "@/components/ui/kashrut-pill";
 import { fr } from "@/i18n/fr";
-import type { KashrutClass } from "@/lib/kashrut/meal";
+import {
+  COLLECTION_COLOR_CLASSES,
+  type CollectionColor,
+} from "@/lib/collections/colors";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
+import { cn } from "@/lib/utils/cn";
 
 const t = fr.recettes;
 
 type Filters = {
+  tab?: string;
   q?: string;
   casher?: string;
   origine?: string;
   version?: string;
   tmax?: string;
+  tri?: string;
 };
+
+const CARD_SELECT =
+  "id, title, slug, icon, origin, kashrut_class, is_fish, tags, prep_min, cook_min, version_kind, visibility, author_id";
 
 function filterHref(current: Filters, patch: Partial<Filters>): string {
   const params = new URLSearchParams();
@@ -32,12 +44,20 @@ function filterHref(current: Filters, patch: Partial<Filters>): string {
   return qs ? `/recettes?${qs}` : "/recettes";
 }
 
+function chipClass(active: boolean): string {
+  return `rounded-full border-2 border-ink px-2.5 py-1 font-semibold ${active ? "bg-boutargue-soft" : "bg-paper"}`;
+}
+
 export default async function RecettesPage({
   searchParams,
 }: {
   searchParams: Promise<Filters>;
 }) {
   const filters = await searchParams;
+  const tab =
+    filters.tab === "carnet" || filters.tab === "carnets"
+      ? filters.tab
+      : "decouvrir";
 
   if (!isSupabaseConfigured) {
     return (
@@ -51,50 +71,124 @@ export default async function RecettesPage({
   }
 
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  return (
+    <section className="flex flex-col gap-4">
+      <header className="flex items-center justify-between gap-2">
+        <h1 className="font-display text-4xl font-extrabold tracking-tight">
+          {t.title}
+        </h1>
+        <div className="flex gap-2">
+          <Button asChild variant="secondary" size="sm">
+            <Link href="/recettes/importer">
+              <Download />
+              {t.importCta}
+            </Link>
+          </Button>
+          <Button asChild size="sm">
+            <Link href="/recettes/nouvelle">
+              <Plus />
+              {t.newRecipe}
+            </Link>
+          </Button>
+        </div>
+      </header>
+
+      <nav
+        aria-label={t.title}
+        className="flex gap-1 rounded-full border-2 border-ink bg-paper p-1"
+      >
+        {(
+          [
+            ["decouvrir", t.tabs.discover, "/recettes"],
+            ["carnet", t.tabs.book, "/recettes?tab=carnet"],
+            ["carnets", t.tabs.collections, "/recettes?tab=carnets"],
+          ] as const
+        ).map(([key, label, href]) => (
+          <Link
+            key={key}
+            href={href}
+            aria-current={tab === key ? "page" : undefined}
+            className={cn(
+              "flex-1 rounded-full px-3 py-1.5 text-center text-sm font-bold",
+              tab === key ? "bg-ink text-paper" : "text-ink-70",
+            )}
+          >
+            {label}
+          </Link>
+        ))}
+      </nav>
+
+      {tab === "decouvrir" && <DiscoverTab filters={filters} />}
+      {tab === "carnet" && <BookTab userId={user?.id ?? null} />}
+      {tab === "carnets" && <CollectionsTab userId={user?.id ?? null} />}
+    </section>
+  );
+}
+
+async function DiscoverTab({ filters }: { filters: Filters }) {
+  const supabase = await createClient();
   let query = supabase
     .from("recipes")
-    .select(
-      "id, title, slug, description, origin, kashrut_class, is_fish, tags, prep_min, cook_min, version_kind, visibility",
-    )
+    .select(CARD_SELECT)
     .eq("status", "published")
+    .eq("visibility", "community")
     .order("created_at", { ascending: false })
     .limit(100);
 
-  if (filters.q) {
-    query = query.ilike("title", `%${filters.q}%`);
-  }
-  if (filters.casher) {
-    query = query.eq("kashrut_class", filters.casher);
-  }
-  if (filters.origine) {
-    query = query.eq("origin", filters.origine);
-  }
-  if (filters.version) {
-    query = query.eq("version_kind", filters.version);
-  }
+  if (filters.q) query = query.ilike("title", `%${filters.q}%`);
+  if (filters.casher) query = query.eq("kashrut_class", filters.casher);
+  if (filters.origine) query = query.eq("origin", filters.origine);
+  if (filters.version) query = query.eq("version_kind", filters.version);
 
   const { data } = await query;
   const maxTime = filters.tmax ? parseInt(filters.tmax, 10) : null;
-  const recipes = (data ?? []).filter(
+  let recipes = (data ?? []).filter(
     (recipe) =>
       maxTime === null ||
       (recipe.prep_min ?? 0) + (recipe.cook_min ?? 0) <= maxTime,
   );
 
-  return (
-    <section className="flex flex-col gap-4">
-      <header className="flex items-center justify-between">
-        <h1 className="font-display text-4xl font-extrabold tracking-tight">
-          {t.title}
-        </h1>
-        <Button asChild size="sm">
-          <Link href="/recettes/nouvelle">
-            <Plus />
-            {t.newRecipe}
-          </Link>
-        </Button>
-      </header>
+  const ids = recipes.map((r) => r.id);
+  const authorIds = [
+    ...new Set(
+      recipes.map((r) => r.author_id).filter((id): id is string => id !== null),
+    ),
+  ];
+  const [{ data: stats }, { data: authors }] = await Promise.all([
+    ids.length > 0
+      ? supabase
+          .from("recipe_social_stats")
+          .select("recipe_id, likes")
+          .in("recipe_id", ids)
+      : Promise.resolve({ data: [] }),
+    authorIds.length > 0
+      ? supabase
+          .from("profiles")
+          .select("id, display_name, username")
+          .in("id", authorIds)
+      : Promise.resolve({ data: [] }),
+  ]);
+  const likesById = new Map(
+    (stats ?? []).map((s) => [s.recipe_id, s.likes] as const),
+  );
+  const authorById = new Map(
+    (authors ?? []).map(
+      (p) => [p.id, p.display_name ?? p.username ?? null] as const,
+    ),
+  );
 
+  if (filters.tri === "top") {
+    recipes = [...recipes].sort(
+      (a, b) => (likesById.get(b.id) ?? 0) - (likesById.get(a.id) ?? 0),
+    );
+  }
+
+  return (
+    <>
       <form action="/recettes" className="flex gap-2">
         <Input
           name="q"
@@ -104,13 +198,21 @@ export default async function RecettesPage({
       </form>
 
       <div className="flex flex-wrap gap-1.5 text-xs">
+        <Link
+          href={filterHref(filters, {
+            tri: filters.tri === "top" ? undefined : "top",
+          })}
+          className={chipClass(filters.tri === "top")}
+        >
+          {t.sortTop}
+        </Link>
         {(["bassari", "halavi", "parve"] as const).map((k) => (
           <Link
             key={k}
             href={filterHref(filters, {
               casher: filters.casher === k ? undefined : k,
             })}
-            className={`rounded-full border-2 border-ink px-2.5 py-1 font-semibold ${filters.casher === k ? "bg-boutargue-soft" : "bg-paper"}`}
+            className={chipClass(filters.casher === k)}
           >
             {fr.kashrut[k]}
           </Link>
@@ -122,7 +224,7 @@ export default async function RecettesPage({
               href={filterHref(filters, {
                 origine: filters.origine === o ? undefined : o,
               })}
-              className={`rounded-full border-2 border-ink px-2.5 py-1 font-semibold ${filters.origine === o ? "bg-boutargue-soft" : "bg-paper"}`}
+              className={chipClass(filters.origine === o)}
             >
               {t.origins[o]}
             </Link>
@@ -134,7 +236,7 @@ export default async function RecettesPage({
             href={filterHref(filters, {
               version: filters.version === v ? undefined : v,
             })}
-            className={`rounded-full border-2 border-ink px-2.5 py-1 font-semibold ${filters.version === v ? "bg-boutargue-soft" : "bg-paper"}`}
+            className={chipClass(filters.version === v)}
           >
             {t.versions[v]}
           </Link>
@@ -143,7 +245,7 @@ export default async function RecettesPage({
           href={filterHref(filters, {
             tmax: filters.tmax === "30" ? undefined : "30",
           })}
-          className={`rounded-full border-2 border-ink px-2.5 py-1 font-semibold ${filters.tmax === "30" ? "bg-boutargue-soft" : "bg-paper"}`}
+          className={chipClass(filters.tmax === "30")}
         >
           ≤ 30 {t.minutes}
         </Link>
@@ -158,45 +260,165 @@ export default async function RecettesPage({
         <ul className="flex flex-col gap-3">
           {recipes.map((recipe) => (
             <li key={recipe.id}>
-              <Link
-                href={`/recettes/${recipe.slug}`}
-                className="flex items-center gap-3 rounded-[20px] border-2 border-ink bg-paper p-3 shadow-sticker-sm transition-all active:translate-x-[2px] active:translate-y-[2px]"
-              >
-                <span className="flex size-14 shrink-0 items-center justify-center rounded-[14px] bg-ink-10 text-ink-70">
-                  <IlluCouscoussier size={40} />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate font-display text-base font-bold">
-                    {recipe.title}
-                  </span>
-                  <span className="mt-1 flex flex-wrap items-center gap-1.5">
-                    {recipe.kashrut_class && (
-                      <KashrutPill
-                        kind={recipe.kashrut_class as KashrutClass}
-                        isFish={recipe.is_fish}
-                        className="scale-90"
-                      />
-                    )}
-                    {recipe.version_kind === "proteine" && (
-                      <Badge className="scale-90">{t.versions.proteine}</Badge>
-                    )}
-                    {recipe.origin && (
-                      <span className="text-xs text-ink-50">
-                        {t.origins[recipe.origin as keyof typeof t.origins]}
-                      </span>
-                    )}
-                    <span className="flex items-center gap-0.5 text-xs text-ink-50">
-                      <Clock size={12} strokeWidth={2} aria-hidden />
-                      {(recipe.prep_min ?? 0) + (recipe.cook_min ?? 0)}{" "}
-                      {t.minutes}
-                    </span>
-                  </span>
-                </span>
-              </Link>
+              <RecipeCard
+                recipe={recipe as RecipeCardData}
+                likes={likesById.get(recipe.id) ?? 0}
+                author={authorById.get(recipe.author_id ?? "") ?? null}
+              />
             </li>
           ))}
         </ul>
       )}
-    </section>
+    </>
+  );
+}
+
+async function BookTab({ userId }: { userId: string | null }) {
+  if (!userId) return null;
+  const supabase = await createClient();
+
+  const [{ data: mine }, { data: saves }] = await Promise.all([
+    supabase
+      .from("recipes")
+      .select(CARD_SELECT)
+      .eq("author_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(100),
+    supabase
+      .from("recipe_saves")
+      .select("recipe_id")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(100),
+  ]);
+
+  const savedIds = (saves ?? []).map((s) => s.recipe_id);
+  const { data: savedRecipes } =
+    savedIds.length > 0
+      ? await supabase.from("recipes").select(CARD_SELECT).in("id", savedIds)
+      : { data: [] };
+  const savedById = new Map((savedRecipes ?? []).map((r) => [r.id, r]));
+  const orderedSaved = savedIds
+    .map((id) => savedById.get(id))
+    .filter((r): r is NonNullable<typeof r> => r !== undefined)
+    .filter((r) => r.author_id !== userId);
+
+  if ((mine ?? []).length === 0 && orderedSaved.length === 0) {
+    return (
+      <EmptyState
+        illustration={<IlluCouscoussier size={64} />}
+        title={t.bookEmpty}
+      />
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-5">
+      {(mine ?? []).length > 0 && (
+        <div className="flex flex-col gap-2">
+          <h2 className="font-display text-lg font-extrabold">{t.myRecipes}</h2>
+          <ul className="flex flex-col gap-3">
+            {(mine ?? []).map((recipe) => (
+              <li key={recipe.id}>
+                <RecipeCard recipe={recipe as RecipeCardData} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {orderedSaved.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <h2 className="font-display text-lg font-extrabold">
+            {t.savedRecipes}
+          </h2>
+          <ul className="flex flex-col gap-3">
+            {orderedSaved.map((recipe) => (
+              <li key={recipe.id}>
+                <RecipeCard recipe={recipe as RecipeCardData} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+async function CollectionsTab({ userId }: { userId: string | null }) {
+  if (!userId) return null;
+  const supabase = await createClient();
+
+  const { data: collections } = await supabase
+    .from("collections")
+    .select("id, name, icon, color, description, owner_id")
+    .order("created_at");
+  const ids = (collections ?? []).map((c) => c.id);
+  const { data: links } =
+    ids.length > 0
+      ? await supabase
+          .from("collection_recipes")
+          .select("collection_id")
+          .in("collection_id", ids)
+      : { data: [] };
+  const counts = new Map<string, number>();
+  for (const link of links ?? []) {
+    counts.set(link.collection_id, (counts.get(link.collection_id) ?? 0) + 1);
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      <CollectionDialog
+        trigger={
+          <Button variant="secondary" size="sm" className="self-start">
+            <Plus />
+            {t.collections.new}
+          </Button>
+        }
+      />
+      {(collections ?? []).length === 0 ? (
+        <EmptyState
+          illustration={<IlluCouscoussier size={64} />}
+          title={t.collections.empty}
+        />
+      ) : (
+        <ul className="grid grid-cols-2 gap-3">
+          {(collections ?? []).map((collection) => {
+            const count = counts.get(collection.id) ?? 0;
+            return (
+              <li key={collection.id}>
+                <Link
+                  href={`/recettes/carnets/${collection.id}`}
+                  className={cn(
+                    "flex h-full flex-col gap-2 rounded-[20px] border-2 border-ink p-4 shadow-sticker-sm transition-all active:translate-x-[2px] active:translate-y-[2px]",
+                    COLLECTION_COLOR_CLASSES[
+                      collection.color as CollectionColor
+                    ] ?? "bg-paper",
+                  )}
+                >
+                  <span className="text-3xl leading-none" aria-hidden>
+                    {collection.icon}
+                  </span>
+                  <span className="font-display text-base font-extrabold leading-tight">
+                    {collection.name}
+                  </span>
+                  <span className="mt-auto flex items-center gap-2 text-xs text-ink-70">
+                    {count}{" "}
+                    {count === 1
+                      ? t.collections.recipeLabel
+                      : t.collections.recipesLabel}
+                    {collection.owner_id !== userId && (
+                      <span className="inline-flex items-center gap-0.5 font-semibold">
+                        <Users size={12} strokeWidth={2} aria-hidden />
+                        {t.collections.sharedWithMe}
+                      </span>
+                    )}
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
   );
 }

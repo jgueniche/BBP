@@ -33,12 +33,12 @@ export default async function EditRecipePage({
   const [{ data: ingredients }, { data: steps }] = await Promise.all([
     supabase
       .from("recipe_ingredients")
-      .select("label_raw, grams, food_id")
+      .select("label_raw, grams, food_id, section")
       .eq("recipe_id", recipe.id)
       .order("position"),
     supabase
       .from("recipe_steps")
-      .select("text")
+      .select("text, duration_sec, section")
       .eq("recipe_id", recipe.id)
       .order("position"),
   ]);
@@ -68,6 +68,9 @@ export default async function EditRecipePage({
     tags: recipe.tags.join(", "),
     visibility: recipe.visibility as EditorInitial["visibility"],
     versionKind: recipe.version_kind as EditorInitial["versionKind"],
+    icon: recipe.icon ?? "",
+    sourceUrl: recipe.source_url,
+    sourceAuthor: recipe.source_author ?? "",
     ingredients: (ingredients ?? []).map((ingredient) => ({
       label: ingredient.label_raw,
       grams: ingredient.grams === null ? "" : `${ingredient.grams}`,
@@ -75,8 +78,16 @@ export default async function EditRecipePage({
       foodName: ingredient.food_id
         ? (foodNames.get(ingredient.food_id) ?? null)
         : null,
+      section: ingredient.section ?? "",
     })),
-    steps: (steps ?? []).map((step) => step.text),
+    steps: (steps ?? []).map((step) => ({
+      text: step.text,
+      durationMin:
+        step.duration_sec === null
+          ? ""
+          : `${Math.round(step.duration_sec / 60)}`,
+      section: step.section ?? "",
+    })),
   };
 
   return (

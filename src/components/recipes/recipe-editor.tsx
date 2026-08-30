@@ -1,6 +1,6 @@
 "use client";
 
-import { Link2, Plus, X } from "lucide-react";
+import { ExternalLink, Link2, Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
@@ -19,11 +19,37 @@ import { cn } from "@/lib/utils/cn";
 const t = fr.recettes;
 const f = t.fields;
 
+const ICON_SUGGESTIONS = [
+  "🍲",
+  "🥘",
+  "🍛",
+  "🥗",
+  "🍞",
+  "🥩",
+  "🐟",
+  "🍆",
+  "🍅",
+  "🌶️",
+  "🍋",
+  "🫒",
+  "🥚",
+  "🍰",
+  "🍪",
+  "🍹",
+];
+
 type EditorIngredient = {
   label: string;
   grams: string;
   food_id: string | null;
   foodName: string | null;
+  section: string;
+};
+
+type EditorStep = {
+  text: string;
+  durationMin: string;
+  section: string;
 };
 
 export type EditorInitial = {
@@ -39,8 +65,11 @@ export type EditorInitial = {
   tags: string;
   visibility: RecipeInput["visibility"];
   versionKind: RecipeInput["versionKind"];
+  icon: string;
+  sourceUrl: string | null;
+  sourceAuthor: string;
   ingredients: EditorIngredient[];
-  steps: string[];
+  steps: EditorStep[];
 };
 
 export const emptyEditorInitial: EditorInitial = {
@@ -56,12 +85,19 @@ export const emptyEditorInitial: EditorInitial = {
   tags: "",
   visibility: "community",
   versionKind: "boutargue",
-  ingredients: [{ label: "", grams: "", food_id: null, foodName: null }],
-  steps: [""],
+  icon: "",
+  sourceUrl: null,
+  sourceAuthor: "",
+  ingredients: [
+    { label: "", grams: "", food_id: null, foodName: null, section: "" },
+  ],
+  steps: [{ text: "", durationMin: "", section: "" }],
 };
 
 const selectClass =
   "rounded-[14px] border-2 border-ink bg-paper px-3 py-2 text-sm font-medium";
+const smallInputClass =
+  "rounded-[12px] border-2 border-ink bg-paper px-2 py-2 text-sm";
 
 export function RecipeEditor({ initial }: { initial: EditorInitial }) {
   const router = useRouter();
@@ -89,6 +125,15 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
     }));
   }
 
+  function updateStep(index: number, patch: Partial<EditorStep>) {
+    setState((prev) => ({
+      ...prev,
+      steps: prev.steps.map((step, i) =>
+        i === index ? { ...step, ...patch } : step,
+      ),
+    }));
+  }
+
   function onLabelChange(index: number, value: string) {
     updateIngredient(index, { label: value, food_id: null, foodName: null });
     if (searchTimer.current) clearTimeout(searchTimer.current);
@@ -110,6 +155,14 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
     setSuggestions(null);
   }
 
+  const knownSections = [
+    ...new Set(
+      [...state.steps, ...state.ingredients]
+        .map((item) => item.section.trim())
+        .filter(Boolean),
+    ),
+  ];
+
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     setPending(true);
@@ -130,6 +183,9 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
           .filter(Boolean),
         visibility: state.visibility,
         versionKind: state.versionKind,
+        icon: state.icon.trim() || null,
+        sourceUrl: state.sourceUrl,
+        sourceAuthor: state.sourceAuthor.trim() || null,
         ingredients: state.ingredients
           .filter((ing) => ing.label.trim().length > 0)
           .map((ing) => {
@@ -140,9 +196,20 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
               unit: "g",
               grams: Number.isFinite(grams) ? grams : null,
               food_id: ing.food_id,
+              section: ing.section.trim() || null,
             };
           }),
-        steps: state.steps.map((s) => s.trim()).filter((s) => s.length > 2),
+        steps: state.steps
+          .filter((step) => step.text.trim().length > 2)
+          .map((step) => {
+            const duration = parseInt(step.durationMin, 10);
+            return {
+              text: step.text.trim(),
+              durationMin:
+                Number.isFinite(duration) && duration > 0 ? duration : null,
+              section: step.section.trim() || null,
+            };
+          }),
       };
       const result = await saveRecipe(payload);
       router.push(`/recettes/${result.slug}`);
@@ -155,14 +222,60 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-4">
-      <label className="flex flex-col gap-1.5 text-sm font-medium">
-        {f.title}
-        <Input
-          value={state.title}
-          onChange={(e) => update("title", e.target.value)}
-          required
-        />
-      </label>
+      {state.sourceUrl && (
+        <p className="flex flex-wrap items-center gap-1.5 rounded-[14px] border-2 border-ink-10 bg-ink-10/50 px-3 py-2 text-xs text-ink-70">
+          <span className="font-semibold">{t.importPage.credit} :</span>
+          {state.sourceAuthor || "—"}
+          <a
+            href={state.sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-0.5 font-medium underline underline-offset-2"
+          >
+            {t.viewOriginal}
+            <ExternalLink size={11} strokeWidth={2} aria-hidden />
+          </a>
+        </p>
+      )}
+
+      <div className="flex items-end gap-3">
+        <label className="flex w-20 flex-col gap-1.5 text-sm font-medium">
+          {f.icon}
+          <Input
+            value={state.icon}
+            onChange={(e) => update("icon", e.target.value)}
+            maxLength={4}
+            className="text-center text-xl"
+          />
+        </label>
+        <label className="flex flex-1 flex-col gap-1.5 text-sm font-medium">
+          {f.title}
+          <Input
+            value={state.title}
+            onChange={(e) => update("title", e.target.value)}
+            required
+          />
+        </label>
+      </div>
+      <div className="flex flex-wrap gap-1">
+        {ICON_SUGGESTIONS.map((emoji) => (
+          <button
+            key={emoji}
+            type="button"
+            onClick={() => update("icon", emoji)}
+            aria-pressed={state.icon === emoji}
+            className={cn(
+              "rounded-[10px] border-2 px-1.5 py-0.5 text-lg leading-none",
+              state.icon === emoji
+                ? "border-ink bg-boutargue-soft"
+                : "border-transparent hover:border-ink-30",
+            )}
+          >
+            {emoji}
+          </button>
+        ))}
+      </div>
+
       <label className="flex flex-col gap-1.5 text-sm font-medium">
         {f.description}
         <Input
@@ -319,10 +432,20 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
                 onChange={(e) =>
                   updateIngredient(index, { grams: e.target.value })
                 }
-                className="w-20 rounded-[12px] border-2 border-ink bg-paper px-2 py-2 text-right font-mono text-sm"
+                className="w-16 rounded-[12px] border-2 border-ink bg-paper px-2 py-2 text-right font-mono text-sm"
                 aria-label={`${ingredient.label || f.ingredientLabel} (${f.grams})`}
               />
               <span className="text-xs text-ink-50">{f.grams}</span>
+              <input
+                value={ingredient.section}
+                onChange={(e) =>
+                  updateIngredient(index, { section: e.target.value })
+                }
+                list="recipe-sections"
+                placeholder={f.phase}
+                className={cn(smallInputClass, "hidden w-28 sm:block")}
+                aria-label={`${f.phase} — ${ingredient.label || f.ingredientLabel}`}
+              />
               <button
                 type="button"
                 onClick={() =>
@@ -373,7 +496,13 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
           onClick={() =>
             update("ingredients", [
               ...state.ingredients,
-              { label: "", grams: "", food_id: null, foodName: null },
+              {
+                label: "",
+                grams: "",
+                food_id: null,
+                foodName: null,
+                section: "",
+              },
             ])
           }
         >
@@ -386,23 +515,48 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
         <legend className="mb-1 font-display text-base font-extrabold">
           {t.steps}
         </legend>
+        <datalist id="recipe-sections">
+          {knownSections.map((section) => (
+            <option key={section} value={section} />
+          ))}
+        </datalist>
         {state.steps.map((step, index) => (
           <div key={index} className="flex items-start gap-2">
             <span className="mt-2.5 font-mono text-xs font-bold text-ink-50">
               {index + 1}.
             </span>
-            <textarea
-              value={step}
-              onChange={(e) =>
-                update(
-                  "steps",
-                  state.steps.map((s, i) => (i === index ? e.target.value : s)),
-                )
-              }
-              placeholder={f.stepPlaceholder}
-              rows={2}
-              className="flex-1 rounded-[14px] border-2 border-ink bg-paper px-3 py-2 text-sm"
-            />
+            <div className="flex min-w-0 flex-1 flex-col gap-1">
+              <textarea
+                value={step.text}
+                onChange={(e) => updateStep(index, { text: e.target.value })}
+                placeholder={f.stepPlaceholder}
+                rows={2}
+                className="rounded-[14px] border-2 border-ink bg-paper px-3 py-2 text-sm"
+              />
+              <div className="flex items-center gap-2">
+                <input
+                  value={step.section}
+                  onChange={(e) =>
+                    updateStep(index, { section: e.target.value })
+                  }
+                  list="recipe-sections"
+                  placeholder={f.phasePlaceholder}
+                  className={cn(smallInputClass, "w-40")}
+                  aria-label={`${f.phase} — ${t.steps} ${index + 1}`}
+                />
+                <input
+                  inputMode="numeric"
+                  value={step.durationMin}
+                  onChange={(e) =>
+                    updateStep(index, { durationMin: e.target.value })
+                  }
+                  placeholder="—"
+                  className={cn(smallInputClass, "w-14 text-right font-mono")}
+                  aria-label={`${f.stepDuration} — ${t.steps} ${index + 1}`}
+                />
+                <span className="text-xs text-ink-50">{f.stepDuration}</span>
+              </div>
+            </div>
             <button
               type="button"
               onClick={() =>
@@ -423,7 +577,12 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
           variant="ghost"
           size="sm"
           className="self-start"
-          onClick={() => update("steps", [...state.steps, ""])}
+          onClick={() =>
+            update("steps", [
+              ...state.steps,
+              { text: "", durationMin: "", section: "" },
+            ])
+          }
         >
           <Plus />
           {f.addStep}
