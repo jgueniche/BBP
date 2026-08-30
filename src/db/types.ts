@@ -437,6 +437,102 @@ export type Database = {
         };
         Relationships: [];
       };
+      meal_plan_slots: {
+        Row: {
+          created_at: string;
+          date: string;
+          has_hametz: boolean;
+          has_kitniyot: boolean;
+          icon: string | null;
+          id: string;
+          is_fish: boolean;
+          is_leftover: boolean;
+          kashrut_class: string | null;
+          kcal: number | null;
+          locked: boolean;
+          meal: string;
+          plan_id: string;
+          protein_g: number | null;
+          recipe_id: string | null;
+          servings: number;
+          tags: string[];
+          time_min: number | null;
+          title: string;
+        };
+        Insert: {
+          created_at?: string;
+          date: string;
+          has_hametz?: boolean;
+          has_kitniyot?: boolean;
+          icon?: string | null;
+          id?: string;
+          is_fish?: boolean;
+          is_leftover?: boolean;
+          kashrut_class?: string | null;
+          kcal?: number | null;
+          locked?: boolean;
+          meal: string;
+          plan_id: string;
+          protein_g?: number | null;
+          recipe_id?: string | null;
+          servings?: number;
+          tags?: string[];
+          time_min?: number | null;
+          title: string;
+        };
+        Update: {
+          created_at?: string;
+          date?: string;
+          has_hametz?: boolean;
+          has_kitniyot?: boolean;
+          icon?: string | null;
+          id?: string;
+          is_fish?: boolean;
+          is_leftover?: boolean;
+          kashrut_class?: string | null;
+          kcal?: number | null;
+          locked?: boolean;
+          meal?: string;
+          plan_id?: string;
+          protein_g?: number | null;
+          recipe_id?: string | null;
+          servings?: number;
+          tags?: string[];
+          time_min?: number | null;
+          title?: string;
+        };
+        Relationships: [];
+      };
+      meal_plans: {
+        Row: {
+          created_at: string;
+          generation_count: number;
+          id: string;
+          share_token: string;
+          updated_at: string;
+          user_id: string;
+          week_start: string;
+        };
+        Insert: {
+          created_at?: string;
+          generation_count?: number;
+          id?: string;
+          share_token?: string;
+          updated_at?: string;
+          user_id: string;
+          week_start: string;
+        };
+        Update: {
+          created_at?: string;
+          generation_count?: number;
+          id?: string;
+          share_token?: string;
+          updated_at?: string;
+          user_id?: string;
+          week_start?: string;
+        };
+        Relationships: [];
+      };
       profiles: {
         Row: {
           avatar_url: string | null;
@@ -752,6 +848,42 @@ export type Database = {
         };
         Relationships: [];
       };
+      shopping_items: {
+        Row: {
+          aisle: string;
+          checked: boolean;
+          created_at: string;
+          grams: number | null;
+          id: string;
+          kosher_note: boolean;
+          label: string;
+          plan_id: string;
+          position: number;
+        };
+        Insert: {
+          aisle?: string;
+          checked?: boolean;
+          created_at?: string;
+          grams?: number | null;
+          id?: string;
+          kosher_note?: boolean;
+          label: string;
+          plan_id: string;
+          position?: number;
+        };
+        Update: {
+          aisle?: string;
+          checked?: boolean;
+          created_at?: string;
+          grams?: number | null;
+          id?: string;
+          kosher_note?: boolean;
+          label?: string;
+          plan_id?: string;
+          position?: number;
+        };
+        Relationships: [];
+      };
       tdee_proposals: {
         Row: {
           avg_intake_kcal: number;
@@ -916,6 +1048,10 @@ export type Database = {
       join_collection: {
         Args: { token: string };
         Returns: string | null;
+      };
+      shopping_list_by_token: {
+        Args: { token: string };
+        Returns: Json;
       };
       search_foods: {
         Args: { max_results?: number; q: string };
