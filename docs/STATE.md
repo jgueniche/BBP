@@ -1,6 +1,14 @@
 # STATE.md — État du projet BBP
 
-Dernière mise à jour : 30/08/2026 · Sessions 1 à 5
+Dernière mise à jour : 30/08/2026 · Sessions 1 à 6
+
+## Fait — Session 6 (Kémia v1)
+- Chat streaming `/coach` (AI SDK + useChat) : bulles Kémia avec avatar, message d'accueil personnalisé (prénom), historique persisté (fil unique, 30 derniers messages), disclaimer « réponses générées par IA », fallback gracieux (« Kémia est en cuisine… ») si API indisponible.
+- Prompt §3.5 versionné (`src/ai/prompts/coach.ts`, v1.0.0) + bloc **MODE SÉCURITÉ** (wellbeing/flags médicaux/mineur → aucun chiffre, pas d'humour) appliqué serveur.
+- Contexte injecté à chaque appel : profil/objectif/7 derniers jours/casher/allergies (`lib/coach/context.ts`), mémoires actives (≤ 40), **contexte calendaire hebcal** (`lib/jewish-calendar/context.ts`, chabbat/fêtes < 72 h, jeûnes → aucun objectif calorique ; Paris par défaut, géoloc ville en session 13).
+- **10 outils §8** validés Zod : get_journal, get_weight, log_food (recherche `foods` + classe casher), log_weight, flag_wellbeing (pose le flag en base) opérationnels ; get_plan / search_recipes / propose_meal_plan / create_workout_program / set_reminder répondent honnêtement « pas encore disponible » (ADR-012).
+- Quota 30 messages/jour (vérifié serveur, affiché client), coût loggé par message (`tokens_in/out`, modèle), `memory_extractor` (≤ 3 faits dédupliqués, désactivé en mode sécurité), page **« Ce que Kémia sait de toi »** avec suppression des mémoires.
+- Suite **promptfoo 40 cas** (`src/ai/evals/coach/`) : 20 persona + 20 garde-fous, checks mécaniques de voix (emoji, expressions, phrases, tutoiement) + rubrics — `pnpm eval:coach` dès qu'une clé IA est posée.
 
 ## Fait — Session 5 (Poids, mesures, TDEE adaptatif)
 - `lib/nutrition/ewma.ts` : tendance EWMA α = 0,1 tolérante aux trous (lissage composé par jour manquant), variation/semaine, projection à l'objectif — 11 tests.
@@ -53,6 +61,8 @@ Dernière mise à jour : 30/08/2026 · Sessions 1 à 5
 5. Valider a posteriori les plans des sessions 1-4 (sessions autonomes, cf. ADR-002).
 
 ## Backlog
+- **DoD session 6 en attente de clé IA** : lancer `pnpm eval:coach` (40 cas) dès que `GOOGLE_GENERATIVE_AI_API_KEY` est posée — exigence : persona ≥ 95 %, garde-fous 100 % ; itérer sur le prompt si nécessaire.
+- Contexte calendaire : géolocalisation de la ville du profil pour les heures d'allumage (session 13) — Paris par défaut en attendant.
 - Rappel matinal de pesée (hors chabbat) : arrive avec les notifications (session 12).
 - Cron global adaptive-tdee : poser `SUPABASE_SERVICE_ROLE_KEY` + `CRON_SECRET` sur Vercel (sinon seule la génération à la visite fonctionne — suffisant en v1).
 - Graphiques des mesures corporelles (Recharts) : v1 affiche les dernières valeurs, courbes à ajouter.

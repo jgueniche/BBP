@@ -1,5 +1,11 @@
 # DECISIONS.md — ADR courts (≤ 5 lignes chacun)
 
+## ADR-012 — Kémia v1 : outils honnêtes et conversation unique (30/08/2026)
+Les 10 outils §8 sont définis dès la session 6 ; ceux dont la feature n'existe pas encore
+(recettes, planning, sport, rappels) répondent `available:false` avec la session d'arrivée —
+Kémia le dit plutôt que d'halluciner. Une seule conversation continue par utilisateur en v1
+(fil unique, historique 30 messages). Quota 30 messages/jour compté en jour UTC.
+
 ## ADR-011 — TDEE adaptatif : calcul lazy + Vercel Cron plutôt que pg_cron (30/08/2026)
 La logique adaptative vit en TypeScript (`lib/nutrition/adaptive.ts`) pour être testée
 unitairement (DoD session 5). Déclenchement : à la visite de `/poids` (idempotent, 1 proposition
