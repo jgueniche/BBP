@@ -37,7 +37,7 @@ export function QuickLog() {
   return (
     <form
       onSubmit={submit}
-      className="flex items-center gap-2 rounded-[20px] border-2 border-ink bg-paper p-3 shadow-sticker-sm"
+      className="flex items-center gap-2 rounded-lg border bg-card p-3 shadow-soft"
     >
       <Zap
         size={18}

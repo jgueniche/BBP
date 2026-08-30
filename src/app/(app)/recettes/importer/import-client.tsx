@@ -157,7 +157,7 @@ export function ImportClient() {
   if (initial) {
     return (
       <div className="flex flex-col gap-3">
-        <p className="flex items-start gap-2 rounded-[16px] border-2 border-ink bg-boutargue-soft px-3 py-2 text-sm text-[#3d3d3d]">
+        <p className="flex items-start gap-2 rounded-lg border bg-boutargue-tint px-3 py-2 text-sm text-[#3d3d3d]">
           <Sparkles
             size={16}
             strokeWidth={2}
@@ -173,7 +173,7 @@ export function ImportClient() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex gap-1 rounded-full border-2 border-ink bg-paper p-1 text-sm font-bold">
+      <div className="flex gap-1 rounded-full border bg-card p-1 text-sm font-bold">
         {(
           [
             ["url", t.urlTab, Link2],
@@ -215,7 +215,7 @@ export function ImportClient() {
       {mode === "text" && (
         <form onSubmit={submitText} className="flex flex-col gap-2">
           {needCaption && (
-            <p className="rounded-[14px] border-2 border-ink-10 bg-ink-10/50 px-3 py-2 text-xs text-ink-70">
+            <p className="rounded-lg border bg-ink-10/50 px-3 py-2 text-xs text-ink-70">
               {t.needCaption}
             </p>
           )}
@@ -226,7 +226,7 @@ export function ImportClient() {
             rows={10}
             minLength={20}
             required
-            className="rounded-[14px] border-2 border-ink bg-paper px-3 py-2 text-sm"
+            className="rounded-[10px] border bg-card px-3 py-2 text-sm"
           />
           <Button
             type="submit"
@@ -240,7 +240,7 @@ export function ImportClient() {
 
       {mode === "photo" && (
         <div className="flex flex-col gap-2">
-          <label className="flex cursor-pointer flex-col items-center gap-2 rounded-[20px] border-2 border-dashed border-ink-30 p-8 text-sm font-medium text-ink-70">
+          <label className="flex cursor-pointer flex-col items-center gap-2 rounded-lg border border-dashed border-ink-30/70 p-8 text-sm font-medium text-ink-70">
             <Camera size={28} strokeWidth={2} aria-hidden />
             {pending ? t.analyzing : t.photoCta}
             <input

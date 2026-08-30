@@ -108,7 +108,7 @@ export function NotificationsCard({
   }
 
   return (
-    <div className="rounded-[20px] border-2 border-ink bg-paper p-4 shadow-sticker">
+    <div className="rounded-lg border bg-card p-4 shadow-soft">
       <p className="flex items-center gap-2 font-display text-lg font-extrabold">
         <Bell size={18} strokeWidth={2} aria-hidden />
         {t.title}

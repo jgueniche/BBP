@@ -121,7 +121,7 @@ export function CoachChat({
           }
           return (
             <div key={message.id} className="flex justify-end">
-              <p className="max-w-[80%] rounded-[20px] rounded-br-[4px] border-2 border-ink bg-ink-10 px-4 py-3 text-[15px]">
+              <p className="max-w-[80%] rounded-lg rounded-br-[4px] border bg-ink-10 px-4 py-3 text-[15px]">
                 {text}
               </p>
             </div>
@@ -131,12 +131,12 @@ export function CoachChat({
         {busy && <p className="text-sm text-ink-50">{t.thinking}</p>}
         {error && <CoachBubble expression="douce">{t.fallback}</CoachBubble>}
         {quotaReached && (
-          <p className="rounded-[16px] bg-boutargue-soft p-3 text-sm text-[#3d3d3d]">
+          <p className="rounded-lg bg-boutargue-tint p-3 text-sm text-[#3d3d3d]">
             {t.quotaReached}
           </p>
         )}
         {!aiEnabled && (
-          <p className="rounded-[16px] bg-ink-10 p-3 text-sm text-ink-70">
+          <p className="rounded-lg bg-ink-10 p-3 text-sm text-ink-70">
             {t.aiOff}
           </p>
         )}

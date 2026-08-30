@@ -77,7 +77,7 @@ export default async function SharedCoursesPage({
             {items.map((item, index) => (
               <li
                 key={index}
-                className="flex items-center gap-2 rounded-[14px] border-2 border-ink-10 bg-paper px-3 py-2 text-sm"
+                className="flex items-center gap-2 rounded-lg border bg-card px-3 py-2 text-sm"
               >
                 <span
                   className={
@@ -89,7 +89,7 @@ export default async function SharedCoursesPage({
                   {item.label}
                 </span>
                 {item.kosher_note && (
-                  <span className="rounded-full bg-boutargue-soft px-1.5 py-0.5 text-[10px] font-semibold text-[#3d3d3d]">
+                  <span className="rounded-full bg-boutargue-tint px-1.5 py-0.5 text-[10px] font-semibold text-[#3d3d3d]">
                     {t.kosherNote}
                   </span>
                 )}

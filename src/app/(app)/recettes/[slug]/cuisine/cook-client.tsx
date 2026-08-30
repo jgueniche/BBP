@@ -134,12 +134,12 @@ export function CookClient({
   const progress = done ? 1 : index / Math.max(steps.length, 1);
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-paper">
-      <header className="flex items-center gap-3 border-b-2 border-ink px-4 py-3">
+    <div className="fixed inset-0 z-50 flex flex-col bg-background">
+      <header className="flex items-center gap-3 border-b px-4 py-3">
         <Link
           href={`/recettes/${slug}`}
           aria-label={t.cook.exit}
-          className="rounded-full border-2 border-ink p-1.5 shadow-sticker-sm"
+          className="rounded-full border p-1.5 shadow-soft"
         >
           <X size={16} strokeWidth={2} />
         </Link>
@@ -203,7 +203,7 @@ export function CookClient({
             </p>
 
             {step.durationSec !== null && (
-              <div className="flex items-center gap-3 rounded-[20px] border-2 border-ink bg-paper p-4 shadow-sticker-sm">
+              <div className="flex items-center gap-3 rounded-lg border bg-card p-4 shadow-soft">
                 <Timer size={22} strokeWidth={2} aria-hidden />
                 <p className="flex-1 font-mono text-3xl font-bold tabular-nums">
                   {formatTime(timer?.remaining ?? step.durationSec)}
@@ -228,7 +228,7 @@ export function CookClient({
               </div>
             )}
 
-            <details className="mt-auto rounded-[16px] border-2 border-ink-10 px-3 py-2">
+            <details className="mt-auto rounded-lg border px-3 py-2">
               <summary className="cursor-pointer text-sm font-bold">
                 {t.cook.ingredients}
               </summary>
@@ -248,7 +248,7 @@ export function CookClient({
       </main>
 
       {!done && (
-        <footer className="flex gap-2 border-t-2 border-ink px-4 py-3">
+        <footer className="flex gap-2 border-t px-4 py-3">
           <Button
             variant="secondary"
             className="flex-1"

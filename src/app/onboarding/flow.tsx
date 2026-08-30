@@ -104,12 +104,12 @@ function splitList(value: string): string[] {
 
 const optionCardClass = (active: boolean) =>
   cn(
-    "w-full rounded-[20px] border-2 border-ink bg-paper p-4 text-left transition-all",
-    active ? "bg-boutargue-soft shadow-sticker-sm" : "hover:bg-ink-10",
+    "w-full rounded-lg border bg-card p-4 text-left transition-colors",
+    active ? "bg-boutargue-tint shadow-soft" : "hover:bg-ink-10",
   );
 
 const checkboxRowClass =
-  "flex items-center gap-3 rounded-[16px] border-2 border-ink-10 p-3 text-sm font-medium";
+  "flex items-center gap-3 rounded-[10px] border p-3 text-sm font-medium";
 
 export function OnboardingFlow() {
   const [step, setStep] = useState<Step>("welcome");
@@ -237,7 +237,7 @@ export function OnboardingFlow() {
 
   if (tooYoung) {
     return (
-      <section className="rounded-[20px] border-2 border-ink bg-paper p-6 shadow-sticker">
+      <section className="rounded-lg border bg-card p-6 shadow-soft">
         <h1 className="font-display text-2xl font-extrabold">
           {t.tooYoungTitle}
         </h1>
@@ -275,7 +275,7 @@ export function OnboardingFlow() {
             {t.consentTitle}
           </h1>
           <p className="text-sm text-ink-70">{t.consentBody}</p>
-          <p className="rounded-[16px] bg-ink-10 p-3 text-xs text-ink-70">
+          <p className="rounded-lg bg-ink-10 p-3 text-xs text-ink-70">
             {t.consentDisclaimer}
           </p>
           <label className={checkboxRowClass}>
@@ -332,8 +332,8 @@ export function OnboardingFlow() {
                   type="button"
                   onClick={() => update("gender", g)}
                   className={cn(
-                    "flex-1 rounded-full border-2 border-ink px-3 py-2 text-sm font-semibold",
-                    state.gender === g ? "bg-boutargue-soft" : "bg-paper",
+                    "flex-1 rounded-full border px-3 py-2 text-sm font-semibold",
+                    state.gender === g ? "bg-boutargue-tint" : "bg-card",
                   )}
                 >
                   {t.genders[g]}
@@ -379,7 +379,7 @@ export function OnboardingFlow() {
             />
           </label>
           {age !== null && age >= 16 && age < 18 && (
-            <p className="rounded-[16px] bg-boutargue-soft p-3 text-sm text-[#3d3d3d]">
+            <p className="rounded-lg bg-boutargue-tint p-3 text-sm text-[#3d3d3d]">
               {t.minorNote}
             </p>
           )}
@@ -432,7 +432,7 @@ export function OnboardingFlow() {
             </>
           )}
           {generalMode && (
-            <p className="rounded-[16px] bg-boutargue-soft p-3 text-sm text-[#3d3d3d]">
+            <p className="rounded-lg bg-boutargue-tint p-3 text-sm text-[#3d3d3d]">
               {t.recapNoTarget}
             </p>
           )}
@@ -511,10 +511,10 @@ export function OnboardingFlow() {
                   type="button"
                   onClick={() => update("meatWaitHours", h)}
                   className={cn(
-                    "rounded-full border-2 border-ink px-2 py-2 text-sm font-semibold",
+                    "rounded-full border px-2 py-2 text-sm font-semibold",
                     state.meatWaitHours === h
-                      ? "bg-boutargue-soft"
-                      : "bg-paper",
+                      ? "bg-boutargue-tint"
+                      : "bg-card",
                   )}
                 >
                   {t.meatWaitOptions[`${h}` as keyof typeof t.meatWaitOptions]}
@@ -582,7 +582,7 @@ export function OnboardingFlow() {
             {t.recapTitle}
           </h1>
           {preview && (
-            <div className="rounded-[20px] border-2 border-ink bg-paper p-4 shadow-sticker">
+            <div className="rounded-lg border bg-card p-4 shadow-soft">
               <dl className="flex flex-col gap-2 text-sm">
                 <div className="flex justify-between">
                   <dt className="text-ink-70">{t.recapTdee}</dt>
@@ -610,7 +610,7 @@ export function OnboardingFlow() {
                 )}
               </dl>
               {preview.clamped && (
-                <p className="mt-3 rounded-[12px] bg-boutargue-soft p-2 text-xs text-[#3d3d3d]">
+                <p className="mt-3 rounded-[10px] bg-boutargue-tint p-2 text-xs text-[#3d3d3d]">
                   {t.recapClamped}
                 </p>
               )}

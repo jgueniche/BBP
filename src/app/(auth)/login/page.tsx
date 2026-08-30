@@ -84,7 +84,7 @@ export default function LoginPage() {
   }
 
   return (
-    <section className="rounded-[20px] border-2 border-ink bg-paper p-6 shadow-sticker">
+    <section className="rounded-lg border bg-card p-6 shadow-soft">
       <Logo variant="ink" height={32} className="mb-4" />
       <h1 className="font-display text-3xl font-extrabold tracking-tight">
         {fr.auth.title}
@@ -92,7 +92,7 @@ export default function LoginPage() {
       <p className="mt-2 text-ink-70">{fr.auth.subtitle}</p>
 
       {!isSupabaseConfigured && (
-        <p className="mt-4 rounded-[16px] bg-boutargue-soft p-3 text-sm text-[#3d3d3d]">
+        <p className="mt-4 rounded-lg bg-boutargue-tint p-3 text-sm text-[#3d3d3d]">
           {fr.auth.notConfigured}
         </p>
       )}

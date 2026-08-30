@@ -190,7 +190,7 @@ export function PlanningGrid({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2 rounded-[20px] border-2 border-ink bg-paper p-3 shadow-sticker-sm">
+      <div className="flex flex-col gap-2 rounded-lg border bg-card p-3 shadow-soft">
         <div className="flex gap-2">
           <Input
             value={constraints}
@@ -220,8 +220,8 @@ export function PlanningGrid({
             <section
               key={day.date}
               className={cn(
-                "rounded-[20px] border-2 border-ink bg-paper p-3 shadow-sticker-sm",
-                day.isChabbat && "bg-boutargue-soft/40",
+                "rounded-lg border bg-card p-3 shadow-soft",
+                day.isChabbat && "bg-boutargue-tint",
               )}
             >
               <header className="flex flex-wrap items-baseline justify-between gap-1">
@@ -259,7 +259,7 @@ export function PlanningGrid({
                     type="button"
                     onClick={() => onAddDay(day.date)}
                     aria-label={`${t.addDayToJournal} — ${day.label}`}
-                    className="rounded-full border-2 border-ink bg-paper p-1 shadow-sticker-sm"
+                    className="rounded-full border bg-card p-1 shadow-soft"
                     title={t.addDayToJournal}
                   >
                     <BookOpenCheck size={13} strokeWidth={2} />
@@ -284,7 +284,7 @@ export function PlanningGrid({
                         onDragStart={() => {
                           dragged.current = slot.id;
                         }}
-                        className="flex min-w-0 flex-1 cursor-grab items-center gap-2 rounded-[14px] border-2 border-ink bg-paper px-2 py-1.5 active:cursor-grabbing"
+                        className="flex min-w-0 flex-1 cursor-grab items-center gap-2 rounded-lg border bg-card px-2 py-1.5 active:cursor-grabbing"
                       >
                         {slot.icon && (
                           <span className="text-lg leading-none" aria-hidden>
@@ -353,7 +353,7 @@ export function PlanningGrid({
                       <button
                         type="button"
                         onClick={() => setPicker({ date: day.date, meal })}
-                        className="flex flex-1 items-center gap-1 rounded-[14px] border-2 border-dashed border-ink-30 px-2 py-1.5 text-left text-sm text-ink-50 hover:border-ink"
+                        className="flex flex-1 items-center gap-1 rounded-lg border border-dashed border-ink-30/70 px-2 py-1.5 text-left text-sm text-ink-50 hover:border-ink"
                       >
                         <Plus size={14} strokeWidth={2} aria-hidden />
                         {t.emptySlot}
@@ -396,7 +396,7 @@ export function PlanningGrid({
                   <button
                     type="button"
                     onClick={() => onPick(candidate)}
-                    className="flex w-full items-center gap-2 rounded-[14px] border-2 border-ink-10 bg-paper px-3 py-2 text-left text-sm font-semibold hover:border-ink"
+                    className="flex w-full items-center gap-2 rounded-lg border bg-card px-3 py-2 text-left text-sm font-semibold hover:border-ink"
                   >
                     {candidate.icon && (
                       <span className="text-lg leading-none" aria-hidden>

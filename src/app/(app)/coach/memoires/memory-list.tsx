@@ -28,14 +28,14 @@ export function MemoryList({
       {memories.map((memory) => (
         <li
           key={memory.id}
-          className="flex items-center gap-2 rounded-[16px] border-2 border-ink bg-paper p-3 text-sm shadow-sticker-sm"
+          className="flex items-center gap-2 rounded-lg border bg-card p-3 text-sm shadow-soft"
         >
           <span className="flex-1">{memory.content}</span>
           <button
             type="button"
             onClick={() => onDelete(memory.id)}
             aria-label={t.memoryDelete}
-            className="flex items-center gap-1 rounded-full border-2 border-ink px-2 py-0.5 text-xs font-semibold text-ink-70"
+            className="flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-semibold text-ink-70"
           >
             <X size={12} strokeWidth={2.5} />
             {t.memoryDelete}
