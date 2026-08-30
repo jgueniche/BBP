@@ -8,9 +8,9 @@ export function StickerCard({
   return (
     <div
       className={cn(
-        "rounded-[20px] border-2 border-ink bg-card p-4 text-card-foreground shadow-sticker",
+        "rounded-lg border bg-card p-4 text-card-foreground shadow-soft",
         interactive &&
-          "cursor-pointer transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-sticker-sm",
+          "cursor-pointer transition-colors hover:border-ink-30/70 active:bg-ink-10/40",
         className,
       )}
       {...props}
