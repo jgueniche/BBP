@@ -8,6 +8,8 @@ import type { Database } from "@/db/types";
 import { classifyMeal, type KashrutClass } from "@/lib/kashrut/meal";
 import { computeTotals, type FoodLogItem } from "@/lib/nutrition/items";
 import { computeTrend, weeklyTrendChange } from "@/lib/nutrition/ewma";
+import { generateAndStoreWeek } from "@/lib/planning/generate";
+import { toDateString, weekStartOf } from "@/lib/planning/week";
 
 const NOT_AVAILABLE = (session: string) => ({
   available: false,
@@ -171,14 +173,45 @@ export function buildCoachTools(params: {
     }),
 
     get_plan: tool({
-      description: "Lit le planning de repas de la semaine.",
+      description:
+        "Lit le planning de repas d'une semaine (par défaut la semaine en cours).",
       inputSchema: z.object({
         week: z
           .string()
           .regex(/^\d{4}-\d{2}-\d{2}$/)
           .optional(),
       }),
-      execute: async () => NOT_AVAILABLE("9 (planning)"),
+      execute: async ({ week }) => {
+        const weekStart = weekStartOf(week ?? toDateString(new Date()));
+        const { data: plan } = await supabase
+          .from("meal_plans")
+          .select("id")
+          .eq("user_id", userId)
+          .eq("week_start", weekStart)
+          .maybeSingle();
+        if (!plan) return { weekStart, meals: [], url: "/planning" };
+        const { data: slots } = await supabase
+          .from("meal_plan_slots")
+          .select(
+            "date, meal, title, kcal, servings, kashrut_class, is_leftover",
+          )
+          .eq("plan_id", plan.id)
+          .order("date");
+        return {
+          weekStart,
+          meals: (slots ?? []).map((slot) => ({
+            date: slot.date,
+            meal: slot.meal,
+            title: slot.title,
+            kcal:
+              slot.kcal === null ? null : Math.round(slot.kcal * slot.servings),
+            kashrut_class: slot.kashrut_class,
+            is_leftover: slot.is_leftover,
+          })),
+          url: `/planning?semaine=${weekStart}`,
+          note: safeMode ? "Mode sécurité : ne cite aucun chiffre." : undefined,
+        };
+      },
     }),
 
     search_recipes: tool({
@@ -207,7 +240,7 @@ export function buildCoachTools(params: {
 
     propose_meal_plan: tool({
       description:
-        "Génère un planning de repas hebdomadaire sous contraintes casher.",
+        "Génère (ou régénère) le planning de repas d'une semaine sous contraintes casher, et l'enregistre. À utiliser quand la personne demande un planning ou un menu de la semaine.",
       inputSchema: z.object({
         week: z
           .string()
@@ -215,7 +248,31 @@ export function buildCoachTools(params: {
           .optional(),
         constraints: z.string().max(300).optional(),
       }),
-      execute: async () => NOT_AVAILABLE("9 (planning)"),
+      execute: async ({ week, constraints }) => {
+        const weekStart = weekStartOf(week ?? toDateString(new Date()));
+        const result = await generateAndStoreWeek(
+          supabase,
+          userId,
+          weekStart,
+          constraints ?? null,
+        );
+        if (!result.ok) {
+          return {
+            ok: false,
+            reason:
+              result.code === "quota"
+                ? "Quota de générations atteint pour cette semaine."
+                : "Pas assez de recettes disponibles pour planifier.",
+          };
+        }
+        return {
+          ok: true,
+          weekStart,
+          mealsPlanned: result.mealsPlanned,
+          url: `/planning?semaine=${weekStart}`,
+          note: "Planning validé par les règles casher. Invite la personne à le voir sur la page Planning.",
+        };
+      },
     }),
 
     create_workout_program: tool({
