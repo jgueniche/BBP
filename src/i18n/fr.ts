@@ -37,6 +37,26 @@ export const fr = {
   },
   journal: {
     title: "Journal",
+    fastBanner: "Jour de jeûne",
+    fastAdvice:
+      "Aucun objectif aujourd'hui. Hydrate-toi bien avant et après, et prévois un repas léger et doux pour la sortie du jeûne.",
+    pessahBanner: "Pessah — le hametz fait sa valise",
+    pessahClean: "Rien à signaler dans ton journal du jour, que du bon.",
+    pessahHametz: "Belek, hametz repéré :",
+    pessahKitniyot: "Kitniyot repérés (ton profil les évite à Pessah) :",
+    pessahOffNote:
+      "Produit scanné ? Vérifie toujours la mention « cacher léPessah » sur l'emballage.",
+    quietBanner: "Chabbat / fête en cours — profite, on se retrouve après.",
+    postFeastBanner:
+      "Semaine après-fêtes : recadrage tout doux, zéro culpabilité. On reprend le rythme tranquillement, à ton allure.",
+    quietHavdalah: "Sortie vers",
+    chabbatPresets: [
+      "Couscous boulettes",
+      "Dafina",
+      "Salade méchouia",
+      "Poulet rôti et pommes de terre",
+      "Challah",
+    ],
     empty: "Rien dans l'assiette ? Raconte-moi ton petit-déj.",
     inputPlaceholder: "Dis-moi ce que tu as mangé…",
     send: "Ajouter",
@@ -85,6 +105,8 @@ export const fr = {
   },
   recettes: {
     title: "Recettes",
+    filterPessah: "Spécial Pessah",
+    pessahSuggestion: "C'est Pessah — envie de voir les recettes sans hametz ?",
     searchPlaceholder: "Couscous, brik, kémia…",
     newRecipe: "Nouvelle recette",
     empty: "Aucune recette avec ces filtres. Élargis un peu, ya hasra.",
@@ -310,6 +332,7 @@ export const fr = {
   },
   planning: {
     title: "Planning",
+    budgetKiff: "Budget kiff 🎉",
     empty: "Semaine vierge. Lance Kémia ou pose tes plats toi-même.",
     weekOf: "Semaine du",
     prevWeek: "Semaine précédente",
@@ -637,6 +660,23 @@ export const fr = {
       visibility: "Profil visible par la communauté",
       visibilityHint:
         "Ton prénom apparaît sur tes publications et recettes. Sinon tu restes « Membre BBP ».",
+      city: "Ma ville",
+      cityHint:
+        "Pour les heures d'allumage et de sortie. Ville inconnue = horaires de Paris.",
+      israel: "Calendrier d'Israël",
+      israelHint:
+        "Yom tov d'un seul jour (automatique si ta ville est en Israël).",
+      minorFasts: "Jeûnes mineurs",
+      minorFastsHint:
+        "Guedalia, 10 Tevet, Esther, 17 Tamouz. Kippour et Ticha BeAv restent toujours affichés.",
+      candleOffset: "Allumage des bougies",
+      candleOffsetHint: "Minutes avant le coucher du soleil.",
+      kitniyot: "Kitniyot à Pessah",
+      kitniyotHint:
+        "Riz, maïs, légumineuses (minhag séfarade : autorisés). Désactive si tu les évites.",
+      noFishMeat: "Pas de poisson avec la viande",
+      noFishMeatHint:
+        "Le planning ne mettra pas poisson et viande dans le même repas.",
       saved: "C'est noté, l'app s'adapte.",
     },
     redoOnboarding: "Refaire mon parcours d'accueil",

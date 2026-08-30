@@ -15,6 +15,10 @@ import {
   COLLECTION_COLOR_CLASSES,
   type CollectionColor,
 } from "@/lib/collections/colors";
+import {
+  getCalendarDays,
+  loadCalendarSettings,
+} from "@/lib/jewish-calendar/cache";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils/cn";
@@ -29,6 +33,7 @@ type Filters = {
   version?: string;
   tmax?: string;
   tri?: string;
+  pessah?: string;
 };
 
 const CARD_SELECT =
@@ -143,6 +148,28 @@ async function DiscoverTab({ filters }: { filters: Filters }) {
   if (filters.casher) query = query.eq("kashrut_class", filters.casher);
   if (filters.origine) query = query.eq("origin", filters.origine);
   if (filters.version) query = query.eq("version_kind", filters.version);
+  if (filters.pessah) query = query.contains("tags", ["pessah"]);
+
+  // During Pessah, suggest the hametz-free filter (session 13).
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  let pessahNow = false;
+  if (user) {
+    const userCalendar = await loadCalendarSettings(supabase, user.id);
+    if (userCalendar.enabled) {
+      const todayKey = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Europe/Paris",
+      }).format(new Date());
+      const [dayInfo] = await getCalendarDays(
+        supabase,
+        user.id,
+        todayKey,
+        todayKey,
+      );
+      pessahNow = dayInfo?.isPessah ?? false;
+    }
+  }
 
   const { data } = await query;
   const maxTime = filters.tmax ? parseInt(filters.tmax, 10) : null;
@@ -206,6 +233,14 @@ async function DiscoverTab({ filters }: { filters: Filters }) {
         >
           {t.sortTop}
         </Link>
+        <Link
+          href={filterHref(filters, {
+            pessah: filters.pessah ? undefined : "1",
+          })}
+          className={chipClass(Boolean(filters.pessah))}
+        >
+          {t.filterPessah}
+        </Link>
         {(["bassari", "halavi", "parve"] as const).map((k) => (
           <Link
             key={k}
@@ -250,6 +285,18 @@ async function DiscoverTab({ filters }: { filters: Filters }) {
           ≤ 30 {t.minutes}
         </Link>
       </div>
+
+      {pessahNow && !filters.pessah && (
+        <p className="text-xs text-ink-50">
+          {t.pessahSuggestion}{" "}
+          <Link
+            href={filterHref(filters, { pessah: "1" })}
+            className="font-semibold underline underline-offset-2"
+          >
+            {t.filterPessah}
+          </Link>
+        </p>
+      )}
 
       {recipes.length === 0 ? (
         <EmptyState

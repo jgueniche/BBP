@@ -1,9 +1,12 @@
 import {
+  CalendarHeart,
   ChevronLeft,
   ChevronRight,
+  Droplets,
   Dumbbell,
   Scale,
   Timer,
+  Wheat,
 } from "lucide-react";
 import Link from "next/link";
 import { z } from "zod";
@@ -15,6 +18,12 @@ import { KemiaAvatar } from "@/components/illustrations/kemia-avatar";
 import { EmptyState } from "@/components/ui/empty-state";
 import { MacroRing } from "@/components/ui/macro-ring";
 import { fr } from "@/i18n/fr";
+import {
+  getCalendarDays,
+  loadCalendarSettings,
+} from "@/lib/jewish-calendar/cache";
+import { activePostFeast } from "@/lib/jewish-calendar/engine";
+import { isQuietTime } from "@/lib/jewish-calendar/quiet";
 import { meatWaitStatus, type KashrutClass } from "@/lib/kashrut/meal";
 import { foodLogItemSchema, type Totals } from "@/lib/nutrition/items";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -89,10 +98,33 @@ export default async function JournalPage({
       .maybeSingle(),
     supabase
       .from("user_settings")
-      .select("meat_to_dairy_wait_hours, mode, kashrut_enabled")
+      .select("meat_to_dairy_wait_hours, mode, kashrut_enabled, kitniyot")
       .maybeSingle(),
     supabase.from("food_favorites").select("label").order("created_at"),
   ]);
+
+  // Jewish-calendar overlay for the displayed day (session 13): fast banner,
+  // Pessah hametz check, chabbat quiet notice, après-fêtes mode and presets.
+  const userCalendar = user
+    ? await loadCalendarSettings(supabase, user.id)
+    : null;
+  const calendarEnabled = userCalendar?.enabled ?? true;
+  let dayInfo = null;
+  let postFeast = false;
+  if (user && userCalendar && calendarEnabled) {
+    const windowDays = await getCalendarDays(
+      supabase,
+      user.id,
+      shiftDate(date, -10),
+      date,
+    );
+    dayInfo = windowDays.at(-1) ?? null;
+    postFeast = activePostFeast(windowDays, date) !== null;
+  }
+  const quietNow =
+    date === today && userCalendar && calendarEnabled
+      ? isQuietTime(new Date(), userCalendar.settings)
+      : false;
 
   const itemsSchema = z.array(foodLogItemSchema);
   const logs: MealLogView[] = (logsRes.data ?? []).map((log) => ({
@@ -115,6 +147,46 @@ export default async function JournalPage({
 
   const goal = goalRes.data;
   const settings = settingsRes.data;
+
+  // Fast day (Kippour, Ticha BeAv, minor fasts opted in): no calorie target.
+  const fastDay = dayInfo?.isFast ?? false;
+  const calorieTarget = fastDay ? null : (goal?.calorie_target ?? null);
+
+  // Pessah: flag logged hametz (and kitniyot for non-kitniyot profiles).
+  const pessahDay =
+    (settings?.kashrut_enabled ?? true) && (dayInfo?.isPessah ?? false);
+  let hametzNames: string[] = [];
+  let kitniyotNames: string[] = [];
+  if (pessahDay) {
+    const foodIds = [
+      ...new Set(
+        logs
+          .flatMap((log) => log.items)
+          .map((item) => item.food_id)
+          .filter((id): id is string => id !== null),
+      ),
+    ];
+    if (foodIds.length > 0) {
+      const { data: flaggedFoods } = await supabase
+        .from("foods")
+        .select("id, name_fr, hametz, kitniyot")
+        .in("id", foodIds);
+      hametzNames = (flaggedFoods ?? [])
+        .filter((f) => f.hametz)
+        .map((f) => f.name_fr);
+      if (settings?.kitniyot === false) {
+        kitniyotNames = (flaggedFoods ?? [])
+          .filter((f) => f.kitniyot && !f.hametz)
+          .map((f) => f.name_fr);
+      }
+    }
+  }
+
+  // Chabbat/fête presets in the composer chips (Friday, Saturday, chag).
+  const weekday = new Date(`${date}T12:00:00Z`).getUTCDay();
+  const showChabbatPresets =
+    calendarEnabled &&
+    (weekday === 5 || weekday === 6 || (dayInfo?.isChag ?? false));
 
   let meatBanner: string | null = null;
   if (date === today && user && (settings?.kashrut_enabled ?? true)) {
@@ -169,16 +241,20 @@ export default async function JournalPage({
       </header>
 
       <div className="flex items-center justify-center gap-6">
-        {goal?.calorie_target ? (
+        {calorieTarget ? (
           <MacroRing
             value={dayTotals.kcal ?? 0}
-            max={goal.calorie_target}
+            max={calorieTarget}
             label={t.totalsKcal}
           />
         ) : (
           <MacroRing
             value={dayTotals.kcal ?? 0}
-            max={goal?.tdee_estimate ?? Math.max(dayTotals.kcal ?? 0, 1)}
+            max={
+              fastDay
+                ? Math.max(dayTotals.kcal ?? 0, 1)
+                : (goal?.tdee_estimate ?? Math.max(dayTotals.kcal ?? 0, 1))
+            }
             label={t.totalsKcal}
           />
         )}
@@ -189,7 +265,7 @@ export default async function JournalPage({
           unit="g"
         />
       </div>
-      {!goal?.calorie_target && (
+      {!calorieTarget && !fastDay && (
         <p className="text-center text-xs text-ink-50">{t.noTargets}</p>
       )}
 
@@ -210,6 +286,69 @@ export default async function JournalPage({
         </Link>
       </div>
 
+      {quietNow && (
+        <p className="flex items-center gap-2 rounded-[16px] border-2 border-ink bg-paper p-3 text-sm font-medium">
+          <CalendarHeart size={18} strokeWidth={2} aria-hidden />
+          {t.quietBanner}
+          {dayInfo?.havdalahTime && (
+            <span className="text-ink-50">
+              {t.quietHavdalah} {dayInfo.havdalahTime}.
+            </span>
+          )}
+        </p>
+      )}
+
+      {postFeast && !fastDay && (
+        <p className="flex items-center gap-2 rounded-[16px] border-2 border-ink bg-paper p-3 text-sm">
+          <CalendarHeart size={18} strokeWidth={2} aria-hidden />
+          {t.postFeastBanner}
+        </p>
+      )}
+
+      {fastDay && (
+        <div className="flex items-start gap-2 rounded-[16px] border-2 border-ink bg-paper p-3 text-sm">
+          <Droplets
+            size={18}
+            strokeWidth={2}
+            className="mt-0.5 shrink-0"
+            aria-hidden
+          />
+          <p>
+            <span className="font-bold">
+              {dayInfo?.fastName ?? t.fastBanner}.
+            </span>{" "}
+            {t.fastAdvice}
+          </p>
+        </div>
+      )}
+
+      {pessahDay && (
+        <div className="flex items-start gap-2 rounded-[16px] border-2 border-ink bg-paper p-3 text-sm">
+          <Wheat
+            size={18}
+            strokeWidth={2}
+            className="mt-0.5 shrink-0"
+            aria-hidden
+          />
+          <div>
+            <p className="font-bold">{t.pessahBanner}</p>
+            {hametzNames.length > 0 ? (
+              <p className="text-warn">
+                {t.pessahHametz} {hametzNames.join(", ")}.
+              </p>
+            ) : (
+              <p className="text-ink-70">{t.pessahClean}</p>
+            )}
+            {kitniyotNames.length > 0 && (
+              <p className="text-ink-70">
+                {t.pessahKitniyot} {kitniyotNames.join(", ")}.
+              </p>
+            )}
+            <p className="text-xs text-ink-50">{t.pessahOffNote}</p>
+          </div>
+        </div>
+      )}
+
       {meatBanner && (
         <p className="flex items-center gap-2 rounded-[16px] border-2 border-ink bg-boutargue-soft p-3 text-sm font-medium text-[#0b0b0b]">
           <Timer size={18} strokeWidth={2} aria-hidden />
@@ -219,7 +358,10 @@ export default async function JournalPage({
 
       <LogComposer
         date={date}
-        favorites={(favoritesRes.data ?? []).map((f) => f.label)}
+        favorites={[
+          ...(showChabbatPresets ? t.chabbatPresets : []),
+          ...(favoritesRes.data ?? []).map((f) => f.label),
+        ]}
         aiEnabled={isAiConfigured()}
       />
 
