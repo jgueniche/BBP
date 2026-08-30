@@ -38,7 +38,8 @@ const targetWeightSchema = z.number().min(30).max(300);
  */
 export async function updateTargetWeight(rawTarget: number) {
   const parsed = targetWeightSchema.safeParse(rawTarget);
-  if (!parsed.success) return { ok: false as const, reason: "invalid" as const };
+  if (!parsed.success)
+    return { ok: false as const, reason: "invalid" as const };
   const { supabase, user } = await requireUser();
 
   const [{ data: goal }, { data: profile }] = await Promise.all([

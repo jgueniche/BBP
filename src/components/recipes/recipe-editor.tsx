@@ -96,8 +96,7 @@ export const emptyEditorInitial: EditorInitial = {
 
 const selectClass =
   "rounded-[10px] border bg-card px-3 py-2 text-sm font-medium";
-const smallInputClass =
-  "rounded-[10px] border bg-card px-2 py-2 text-sm";
+const smallInputClass = "rounded-[10px] border bg-card px-2 py-2 text-sm";
 
 export function RecipeEditor({ initial }: { initial: EditorInitial }) {
   const router = useRouter();

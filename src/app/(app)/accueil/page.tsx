@@ -13,12 +13,7 @@ import { IlluBoutargueDemiTranchee } from "@/components/illustrations";
 import { KemiaAvatar } from "@/components/illustrations/kemia-avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MacroRing } from "@/components/ui/macro-ring";
 import { Progress } from "@/components/ui/progress";
 import { fr } from "@/i18n/fr";
@@ -169,7 +164,10 @@ export default async function AccueilPage() {
 
   // Day totals from today's logs.
   const dayTotals: Totals = {};
-  const mealsByType = new Map<string, { kcal: number; kashrut: string | null }>();
+  const mealsByType = new Map<
+    string,
+    { kcal: number; kashrut: string | null }
+  >();
   for (const log of logsRes.data ?? []) {
     const totals = (log.totals ?? {}) as Totals;
     for (const [key, value] of Object.entries(totals)) {
@@ -275,7 +273,10 @@ export default async function AccueilPage() {
                 {Math.round(proteinEaten)}
               </span>
               {proteinTarget && (
-                <span className="text-sm text-ink-50"> / {proteinTarget} g</span>
+                <span className="text-sm text-ink-50">
+                  {" "}
+                  / {proteinTarget} g
+                </span>
               )}
             </p>
             {proteinTarget && (
@@ -437,7 +438,9 @@ export default async function AccueilPage() {
                       {weekSessions.length}
                     </span>{" "}
                     <span className="text-sm text-ink-50">
-                      {weekSessions.length > 1 ? t.sportSessions : t.sportSession}{" "}
+                      {weekSessions.length > 1
+                        ? t.sportSessions
+                        : t.sportSession}{" "}
                       {t.sportThisWeek}
                     </span>
                   </p>

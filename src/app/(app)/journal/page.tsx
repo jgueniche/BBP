@@ -346,7 +346,8 @@ export default async function JournalPage({
                   max={
                     fastDay
                       ? Math.max(dayTotals.kcal ?? 0, 1)
-                      : (goal?.tdee_estimate ?? Math.max(dayTotals.kcal ?? 0, 1))
+                      : (goal?.tdee_estimate ??
+                        Math.max(dayTotals.kcal ?? 0, 1))
                   }
                   label={t.totalsKcal}
                 />
@@ -354,7 +355,8 @@ export default async function JournalPage({
               <MacroRing
                 value={dayTotals.protein_g ?? 0}
                 max={
-                  goal?.protein_target_g ?? Math.max(dayTotals.protein_g ?? 0, 1)
+                  goal?.protein_target_g ??
+                  Math.max(dayTotals.protein_g ?? 0, 1)
                 }
                 label={t.protein}
                 unit="g"

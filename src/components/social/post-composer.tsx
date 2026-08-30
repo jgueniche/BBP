@@ -115,9 +115,7 @@ export function PostComposer({ groupId }: { groupId?: string | null }) {
           onClick={() => setSearchOpen((open) => !open)}
           className={cn(
             "flex items-center gap-1 rounded-full border px-2 py-0.5 font-semibold",
-            recipe
-              ? "border-ink bg-boutargue-tint"
-              : "bg-card text-ink-70",
+            recipe ? "border-ink bg-boutargue-tint" : "bg-card text-ink-70",
           )}
         >
           <Link2 size={12} strokeWidth={2} aria-hidden />

@@ -14,7 +14,8 @@ const buttonVariants = cva(
         secondary:
           "border border-input bg-card text-foreground shadow-soft hover:bg-ink-10/60",
         destructive: "bg-destructive text-paper shadow-soft hover:opacity-90",
-        outline: "border border-input bg-transparent text-ink hover:bg-ink-10/60",
+        outline:
+          "border border-input bg-transparent text-ink hover:bg-ink-10/60",
         ghost: "hover:bg-ink-10/60",
         link: "text-boutargue-deep underline-offset-4 hover:underline",
       },

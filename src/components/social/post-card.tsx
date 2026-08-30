@@ -299,9 +299,7 @@ export function PostCard({
             aria-label={t.reactions[kind]}
             className={cn(
               "flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-bold transition-transform active:scale-110",
-              myReaction === kind
-                ? "border-ink bg-boutargue-tint"
-                : "bg-card",
+              myReaction === kind ? "border-ink bg-boutargue-tint" : "bg-card",
             )}
           >
             <span aria-hidden>{REACTION_EMOJI[kind]}</span>

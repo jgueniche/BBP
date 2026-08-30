@@ -391,10 +391,7 @@ export default async function RecipePage({
                 ["L", nutrition.fat_g, "g"],
               ] as const
             ).map(([label, value, unit]) => (
-              <div
-                key={label}
-                className="rounded-lg border p-2"
-              >
+              <div key={label} className="rounded-lg border p-2">
                 <p className="font-mono text-sm font-semibold">
                   {typeof value === "number" ? Math.round(value) : "—"}
                   {unit}

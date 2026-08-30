@@ -512,9 +512,7 @@ export function OnboardingFlow() {
                   onClick={() => update("meatWaitHours", h)}
                   className={cn(
                     "rounded-full border px-2 py-2 text-sm font-semibold",
-                    state.meatWaitHours === h
-                      ? "bg-boutargue-tint"
-                      : "bg-card",
+                    state.meatWaitHours === h ? "bg-boutargue-tint" : "bg-card",
                   )}
                 >
                   {t.meatWaitOptions[`${h}` as keyof typeof t.meatWaitOptions]}

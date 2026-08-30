@@ -132,7 +132,7 @@ Dernière mise à jour : 30/08/2026 · Sessions 1 à 14
 
 ## Backlog
 - Refonte : fiche recette et import encore mono-colonne sur desktop (2 col. à envisager) ; message Kémia de `/accueil` déterministe (brancher l'IA légère comme les nudges) ; onglet mobile Cuisine → accès Communauté à fluidifier (lien croisé dans l'en-tête des deux pages).
-- **DoD session 6 en attente de clé IA** : lancer `pnpm eval:coach` (40 cas) dès que `GOOGLE_GENERATIVE_AI_API_KEY` est posée — exigence : persona ≥ 95 %, garde-fous 100 % ; itérer sur le prompt si nécessaire.
+- ~~DoD session 6~~ **faite (30/08)** : `pnpm eval:coach` **40/40** (persona 20/20, garde-fous 20/20) avec la clé Gemini posée — 6 itérations : harnais adapté à Gemini 3.7 Flash (thinkingLevel, budget de sortie, mode sans outils, faux positif « rendez-vous ») + prompt Kémia **v1.1.0** (bornes citées lors d'un refus, orientation pro sur demande extrême, « indication seulement » pour le casher, gestion des plateaux). Température 0,7 : petite variance possible d'un run à l'autre, relançable à volonté.
 - Calendrier : ville libre hors liste (~45 villes) → horaires de Paris (géocodage complet à envisager) ; Yom HaAtsmaout optionnel non affiché ; vue mois du planning toujours en backlog.
 - Notifications : le créneau du soir (`?slot=soir`, bilan du jour + jeudi courses) existe dans le code mais n'est pas planifié — le plan Vercel Hobby autorise 2 crons max (pris par adaptive-tdee et nudges du matin). Passer Pro ou ajouter un ping externe pour l'activer. Badge « Nouveau ! » : notification push à l'attribution d'un badge à brancher (kind `badge` prêt en base).
 - Gamification : les 16 badges ont désormais tous leurs vraies stats (session 13).

@@ -242,9 +242,27 @@ export function IlluBoutargueDemiTranchee({
       />
       {/* Cut face with roe grain. */}
       <ellipse cx="116" cy="62" rx="9" ry="23" fill="var(--boutargue-soft)" />
-      <circle cx="114" cy="52" r="1.7" fill="var(--boutargue-deep)" stroke="none" />
-      <circle cx="118" cy="61" r="1.7" fill="var(--boutargue-deep)" stroke="none" />
-      <circle cx="113" cy="70" r="1.7" fill="var(--boutargue-deep)" stroke="none" />
+      <circle
+        cx="114"
+        cy="52"
+        r="1.7"
+        fill="var(--boutargue-deep)"
+        stroke="none"
+      />
+      <circle
+        cx="118"
+        cy="61"
+        r="1.7"
+        fill="var(--boutargue-deep)"
+        stroke="none"
+      />
+      <circle
+        cx="113"
+        cy="70"
+        r="1.7"
+        fill="var(--boutargue-deep)"
+        stroke="none"
+      />
       {/* Two slices standing against the lobe… */}
       <ellipse
         cx="146"
@@ -254,9 +272,27 @@ export function IlluBoutargueDemiTranchee({
         transform="rotate(-12 146 66)"
         fill="var(--boutargue-soft)"
       />
-      <circle cx="143" cy="56" r="1.6" fill="var(--boutargue-deep)" stroke="none" />
-      <circle cx="148" cy="66" r="1.6" fill="var(--boutargue-deep)" stroke="none" />
-      <circle cx="143" cy="76" r="1.6" fill="var(--boutargue-deep)" stroke="none" />
+      <circle
+        cx="143"
+        cy="56"
+        r="1.6"
+        fill="var(--boutargue-deep)"
+        stroke="none"
+      />
+      <circle
+        cx="148"
+        cy="66"
+        r="1.6"
+        fill="var(--boutargue-deep)"
+        stroke="none"
+      />
+      <circle
+        cx="143"
+        cy="76"
+        r="1.6"
+        fill="var(--boutargue-deep)"
+        stroke="none"
+      />
       <ellipse
         cx="168"
         cy="70"
@@ -265,14 +301,50 @@ export function IlluBoutargueDemiTranchee({
         transform="rotate(-7 168 70)"
         fill="var(--boutargue-soft)"
       />
-      <circle cx="165" cy="61" r="1.6" fill="var(--boutargue-deep)" stroke="none" />
-      <circle cx="170" cy="71" r="1.6" fill="var(--boutargue-deep)" stroke="none" />
-      <circle cx="165" cy="80" r="1.6" fill="var(--boutargue-deep)" stroke="none" />
+      <circle
+        cx="165"
+        cy="61"
+        r="1.6"
+        fill="var(--boutargue-deep)"
+        stroke="none"
+      />
+      <circle
+        cx="170"
+        cy="71"
+        r="1.6"
+        fill="var(--boutargue-deep)"
+        stroke="none"
+      />
+      <circle
+        cx="165"
+        cy="80"
+        r="1.6"
+        fill="var(--boutargue-deep)"
+        stroke="none"
+      />
       {/* …and one lying flat on the board. */}
       <ellipse cx="194" cy="88" rx="17" ry="8.5" fill="var(--boutargue-soft)" />
-      <circle cx="188" cy="87" r="1.6" fill="var(--boutargue-deep)" stroke="none" />
-      <circle cx="196" cy="90" r="1.6" fill="var(--boutargue-deep)" stroke="none" />
-      <circle cx="200" cy="86" r="1.6" fill="var(--boutargue-deep)" stroke="none" />
+      <circle
+        cx="188"
+        cy="87"
+        r="1.6"
+        fill="var(--boutargue-deep)"
+        stroke="none"
+      />
+      <circle
+        cx="196"
+        cy="90"
+        r="1.6"
+        fill="var(--boutargue-deep)"
+        stroke="none"
+      />
+      <circle
+        cx="200"
+        cy="86"
+        r="1.6"
+        fill="var(--boutargue-deep)"
+        stroke="none"
+      />
     </svg>
   );
 }

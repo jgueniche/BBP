@@ -97,60 +97,60 @@ export default async function ProfilPage() {
           <div className="grid items-start gap-4 md:grid-cols-2">
             <div className="rounded-lg border bg-card p-4 shadow-soft">
               <dl className="flex flex-col gap-2 text-sm">
-              {mode && (
-                <div className="flex items-center justify-between">
-                  <dt className="text-ink-70">{t.mode}</dt>
-                  <dd>
-                    <Badge>
-                      {mode === "proteine"
-                        ? fr.onboarding.modeProteine
-                        : fr.onboarding.modeBoutargue}
-                    </Badge>
-                  </dd>
-                </div>
-              )}
-              {goal && (
-                <div className="flex justify-between">
-                  <dt className="text-ink-70">{t.goal}</dt>
-                  <dd className="font-semibold">
-                    {
-                      fr.onboarding.goalTypes[
-                        goal.type as keyof typeof fr.onboarding.goalTypes
-                      ]
-                    }
-                  </dd>
-                </div>
-              )}
-              {goal?.tdee_estimate && (
-                <div className="flex justify-between">
-                  <dt className="text-ink-70">{t.tdee}</dt>
-                  <dd className="font-mono font-semibold">
-                    ~{goal.tdee_estimate} kcal
-                  </dd>
-                </div>
-              )}
-              {goal?.calorie_target && (
-                <div className="flex justify-between">
-                  <dt className="text-ink-70">{t.calorieTarget}</dt>
-                  <dd className="font-mono font-semibold">
-                    {goal.calorie_target} kcal/j
-                  </dd>
-                </div>
-              )}
-              {goal?.protein_target_g && (
-                <div className="flex justify-between">
-                  <dt className="text-ink-70">{t.proteinTarget}</dt>
-                  <dd className="font-mono font-semibold">
-                    {goal.protein_target_g} g/j
-                  </dd>
-                </div>
-              )}
-              {meatWait !== null && (
-                <div className="flex justify-between">
-                  <dt className="text-ink-70">{t.meatWait}</dt>
-                  <dd className="font-mono font-semibold">{meatWait} h</dd>
-                </div>
-              )}
+                {mode && (
+                  <div className="flex items-center justify-between">
+                    <dt className="text-ink-70">{t.mode}</dt>
+                    <dd>
+                      <Badge>
+                        {mode === "proteine"
+                          ? fr.onboarding.modeProteine
+                          : fr.onboarding.modeBoutargue}
+                      </Badge>
+                    </dd>
+                  </div>
+                )}
+                {goal && (
+                  <div className="flex justify-between">
+                    <dt className="text-ink-70">{t.goal}</dt>
+                    <dd className="font-semibold">
+                      {
+                        fr.onboarding.goalTypes[
+                          goal.type as keyof typeof fr.onboarding.goalTypes
+                        ]
+                      }
+                    </dd>
+                  </div>
+                )}
+                {goal?.tdee_estimate && (
+                  <div className="flex justify-between">
+                    <dt className="text-ink-70">{t.tdee}</dt>
+                    <dd className="font-mono font-semibold">
+                      ~{goal.tdee_estimate} kcal
+                    </dd>
+                  </div>
+                )}
+                {goal?.calorie_target && (
+                  <div className="flex justify-between">
+                    <dt className="text-ink-70">{t.calorieTarget}</dt>
+                    <dd className="font-mono font-semibold">
+                      {goal.calorie_target} kcal/j
+                    </dd>
+                  </div>
+                )}
+                {goal?.protein_target_g && (
+                  <div className="flex justify-between">
+                    <dt className="text-ink-70">{t.proteinTarget}</dt>
+                    <dd className="font-mono font-semibold">
+                      {goal.protein_target_g} g/j
+                    </dd>
+                  </div>
+                )}
+                {meatWait !== null && (
+                  <div className="flex justify-between">
+                    <dt className="text-ink-70">{t.meatWait}</dt>
+                    <dd className="font-mono font-semibold">{meatWait} h</dd>
+                  </div>
+                )}
               </dl>
             </div>
 

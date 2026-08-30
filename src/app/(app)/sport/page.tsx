@@ -116,7 +116,9 @@ export default async function SportPage() {
                 <Badge variant="primary">
                   {t.goals[program.goal as keyof typeof t.goals]}
                 </Badge>
-                <Badge>{t.levels[program.level as keyof typeof t.levels]}</Badge>
+                <Badge>
+                  {t.levels[program.level as keyof typeof t.levels]}
+                </Badge>
                 <Badge>
                   {t.equipments[program.equipment as keyof typeof t.equipments]}
                 </Badge>
