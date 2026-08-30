@@ -6,6 +6,10 @@
     {
       "path": "/api/cron/adaptive-tdee",
       "schedule": "0 18 * * 0"
+    },
+    {
+      "path": "/api/cron/nudges",
+      "schedule": "0 7 * * *"
     }
   ]
 }
