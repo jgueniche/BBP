@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { ChallengeButton } from "./challenge-button";
 
 import { KemiaAvatar } from "@/components/illustrations/kemia-avatar";
+import { GoalCard, type GoalCardView } from "@/components/progres/goal-card";
 import { MeasurementsForm } from "@/components/poids/measurements-form";
 import { PhotosSection } from "@/components/poids/photos-section";
 import {
@@ -20,6 +21,11 @@ import {
   projectTargetDate,
   weeklyTrendChange,
 } from "@/lib/nutrition/ewma";
+import {
+  buildGoalPlan,
+  gapToPlanKg,
+  goalProgressRatio,
+} from "@/lib/nutrition/goal-plan";
 import { maybeGenerateTdeeProposal } from "@/lib/nutrition/proposals";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
@@ -83,7 +89,7 @@ export default async function ProgresPage() {
       .order("date"),
     supabase
       .from("goals")
-      .select("target_weight_kg")
+      .select("target_weight_kg, weekly_rate_pct, created_at, type")
       .eq("status", "active")
       .maybeSingle(),
     supabase
@@ -121,12 +127,38 @@ export default async function ProgresPage() {
   const trendPoints = computeTrend(weightsRes.data ?? []);
   const last = trendPoints.at(-1) ?? null;
   const weeklyChange = weeklyTrendChange(trendPoints);
-  const targetWeight = goalRes.data?.target_weight_kg ?? null;
+  const goal = goalRes.data;
+  const targetWeight = goal?.target_weight_kg ?? null;
   const projection =
     last && targetWeight !== null
       ? projectTargetDate(last.trend_kg, targetWeight, weeklyChange)
       : null;
   const lastMeasures = measuresRes.data;
+
+  // Planned trajectory implied by the active goal, compared to reality.
+  const plan =
+    goal && targetWeight !== null && goal.weekly_rate_pct !== null
+      ? buildGoalPlan({
+          createdAt: goal.created_at,
+          targetKg: targetWeight,
+          weeklyRatePct: goal.weekly_rate_pct,
+          weights: weightsRes.data ?? [],
+        })
+      : null;
+  const goalView: GoalCardView | null = plan
+    ? {
+        startKg: plan.startKg,
+        targetKg: plan.targetKg,
+        currentKg: last?.trend_kg ?? null,
+        progressRatio: goalProgressRatio(plan, last),
+        plannedWeeklyKg: plan.plannedWeeklyKg,
+        actualWeeklyKg: weeklyChange,
+        plannedDate: plan.plannedDate,
+        estimatedDate: projection ? projection.toISOString() : null,
+        gapKg: gapToPlanKg(plan, last),
+        losing: plan.targetKg < plan.startKg,
+      }
+    : null;
 
   const earnedAt = new Map(
     (myBadges ?? []).map((b) => [b.badge_slug, b.awarded_at]),
@@ -172,40 +204,23 @@ export default async function ProgresPage() {
 
       {/* Weight tracking (formerly /poids), merged here by the redesign. */}
       <section className="flex flex-col gap-4">
-        {trendPoints.length > 0 && (
-          <dl className="grid grid-cols-3 gap-3 text-center sm:max-w-2xl">
-            <div className="rounded-lg border bg-card p-3 shadow-soft">
-              <dt className="text-xs text-ink-50">{tp.trendNow}</dt>
-              <dd className="mt-1 font-mono text-lg font-semibold">
-                {last!.trend_kg.toLocaleString("fr-FR")} {tp.kg}
-              </dd>
-            </div>
-            <div className="rounded-lg border bg-card p-3 shadow-soft">
-              <dt className="text-xs text-ink-50">{tp.weeklyChange}</dt>
-              <dd
-                className={cn(
-                  "mt-1 font-mono text-lg font-semibold",
-                  weeklyChange !== null && weeklyChange < 0 && "text-ok",
-                )}
-              >
-                {weeklyChange === null
-                  ? tp.projectionNone
-                  : `${weeklyChange > 0 ? "+" : ""}${weeklyChange.toLocaleString("fr-FR")} ${tp.kg}`}
-              </dd>
-            </div>
-            <div className="rounded-lg border bg-card p-3 shadow-soft">
-              <dt className="text-xs text-ink-50">{tp.projection}</dt>
-              <dd className="mt-1 font-mono text-lg font-semibold">
-                {projection
-                  ? new Intl.DateTimeFormat("fr-FR", {
-                      month: "short",
-                      year: "2-digit",
-                    }).format(projection)
-                  : tp.projectionNone}
-              </dd>
-            </div>
-          </dl>
-        )}
+        {goalView ? (
+          <GoalCard view={goalView} />
+        ) : targetWeight !== null ? (
+          <section className="rounded-lg border bg-card p-5 shadow-soft">
+            <h2 className="font-display text-lg font-extrabold">
+              {t.goal.title}
+              <span className="ml-3 font-mono text-base font-semibold text-boutargue-deep">
+                {targetWeight.toLocaleString("fr-FR")} kg
+              </span>
+            </h2>
+            <p className="mt-2 text-sm text-ink-70">{t.goal.noPlanYet}</p>
+          </section>
+        ) : goal ? (
+          <p className="rounded-lg border bg-card p-4 text-sm text-ink-70 shadow-soft">
+            {t.goal.generalMode}
+          </p>
+        ) : null}
 
         <div className="grid items-start gap-4 xl:grid-cols-3">
           <div className="flex flex-col gap-4 xl:col-span-2">
@@ -216,7 +231,7 @@ export default async function ProgresPage() {
                 hint={tp.emptyHint}
               />
             ) : (
-              <WeightChart points={trendPoints} />
+              <WeightChart points={trendPoints} plan={plan?.points} />
             )}
           </div>
           <div className="flex flex-col gap-4">

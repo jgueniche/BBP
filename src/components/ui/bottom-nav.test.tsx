@@ -11,7 +11,7 @@ describe("BottomNav", () => {
   it("renders the five main tabs and marks the active one", () => {
     render(<BottomNav />);
 
-    for (const label of ["Accueil", "Journal", "Cuisine", "Kémia", "Moi"]) {
+    for (const label of ["Accueil", "Journal", "Progrès", "Cuisine", "Kémia"]) {
       expect(screen.getByRole("link", { name: label })).toBeInTheDocument();
     }
 

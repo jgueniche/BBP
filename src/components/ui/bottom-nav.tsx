@@ -2,24 +2,25 @@
 
 import {
   BookOpen,
+  ChartLine,
   CookingPot,
   House,
   MessageCircleHeart,
-  UserRound,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { fr } from "@/i18n/fr";
 
-// Mobile mirror of the two-space architecture: Accueil + Journal cover the
-// tracking space, Cuisine gathers recipes and community, Kémia and Moi close.
+// Mobile mirror of the two-space architecture: Accueil, Journal and Progrès
+// cover the tracking space, Cuisine gathers recipes and community, Kémia
+// closes. Moi is reached from the avatar in the Accueil header.
 const items = [
   { href: "/accueil", label: fr.nav.accueilMobile, icon: House },
   { href: "/journal", label: fr.nav.journal, icon: BookOpen },
+  { href: "/progres", label: fr.nav.progres, icon: ChartLine },
   { href: "/recettes", label: fr.nav.cuisine, icon: CookingPot },
   { href: "/coach", label: fr.nav.coach, icon: MessageCircleHeart },
-  { href: "/profil", label: fr.nav.profil, icon: UserRound },
 ] as const;
 
 function isActive(pathname: string, href: string): boolean {
@@ -27,6 +28,9 @@ function isActive(pathname: string, href: string): boolean {
     return (
       pathname.startsWith("/recettes") || pathname.startsWith("/communaute")
     );
+  }
+  if (href === "/progres") {
+    return pathname.startsWith("/progres") || pathname.startsWith("/poids");
   }
   return pathname.startsWith(href);
 }
