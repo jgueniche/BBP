@@ -3,11 +3,24 @@
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { updatePracticeSettings, updateProfileVisibility } from "./actions";
+import {
+  updateCalendarSettings,
+  updatePracticeSettings,
+  updateProfileVisibility,
+} from "./actions";
 import { fr } from "@/i18n/fr";
 import { cn } from "@/lib/utils/cn";
 
 const t = fr.profil.practice;
+
+export type CalendarPrefs = {
+  city: string;
+  israelCalendar: boolean;
+  minorFasts: boolean;
+  kitniyot: boolean;
+  noFishWithMeat: boolean;
+  candleOffsetMin: number;
+};
 
 function Toggle({
   checked,
@@ -45,14 +58,41 @@ export function PracticeToggles({
   initialKashrut,
   initialCalendar,
   initialPublicProfile,
+  initialPrefs,
+  knownCities,
 }: {
   initialKashrut: boolean;
   initialCalendar: boolean;
   initialPublicProfile: boolean;
+  initialPrefs: CalendarPrefs;
+  knownCities: string[];
 }) {
   const [kashrut, setKashrut] = useState(initialKashrut);
   const [calendar, setCalendar] = useState(initialCalendar);
   const [publicProfile, setPublicProfile] = useState(initialPublicProfile);
+  const [prefs, setPrefs] = useState(initialPrefs);
+  const [savingPrefs, setSavingPrefs] = useState(false);
+
+  async function savePrefs(next: CalendarPrefs) {
+    const previous = prefs;
+    setPrefs(next);
+    setSavingPrefs(true);
+    try {
+      await updateCalendarSettings({
+        city: next.city,
+        israelCalendar: next.israelCalendar,
+        minorFasts: next.minorFasts,
+        kitniyot: next.kitniyot,
+        noFishWithMeat: next.noFishWithMeat,
+        candleOffsetMin: next.candleOffsetMin,
+      });
+      toast(t.saved);
+    } catch {
+      setPrefs(previous);
+    } finally {
+      setSavingPrefs(false);
+    }
+  }
 
   async function saveVisibility(next: boolean) {
     setPublicProfile(next);
@@ -107,6 +147,110 @@ export function PracticeToggles({
             label={t.calendar}
           />
         </div>
+        {calendar && (
+          <div className="flex flex-col gap-3 rounded-[16px] border-2 border-ink-10 p-3">
+            <div>
+              <label htmlFor="practice-city" className="text-sm font-semibold">
+                {t.city}
+              </label>
+              <p className="text-xs text-ink-50">{t.cityHint}</p>
+              <input
+                id="practice-city"
+                list="practice-cities"
+                defaultValue={prefs.city}
+                disabled={savingPrefs}
+                onBlur={(event) => {
+                  const value = event.target.value.trim();
+                  if (value !== prefs.city)
+                    savePrefs({ ...prefs, city: value });
+                }}
+                className="mt-1.5 w-full rounded-[12px] border-2 border-ink bg-paper px-3 py-1.5 text-sm"
+                placeholder="Paris"
+              />
+              <datalist id="practice-cities">
+                {knownCities.map((name) => (
+                  <option key={name} value={name} />
+                ))}
+              </datalist>
+            </div>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold">{t.israel}</p>
+                <p className="text-xs text-ink-50">{t.israelHint}</p>
+              </div>
+              <Toggle
+                checked={prefs.israelCalendar}
+                onChange={(next) =>
+                  savePrefs({ ...prefs, israelCalendar: next })
+                }
+                label={t.israel}
+              />
+            </div>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold">{t.minorFasts}</p>
+                <p className="text-xs text-ink-50">{t.minorFastsHint}</p>
+              </div>
+              <Toggle
+                checked={prefs.minorFasts}
+                onChange={(next) => savePrefs({ ...prefs, minorFasts: next })}
+                label={t.minorFasts}
+              />
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold">{t.candleOffset}</p>
+                <p className="text-xs text-ink-50">{t.candleOffsetHint}</p>
+              </div>
+              <select
+                aria-label={t.candleOffset}
+                value={prefs.candleOffsetMin}
+                disabled={savingPrefs}
+                onChange={(event) =>
+                  savePrefs({
+                    ...prefs,
+                    candleOffsetMin: parseInt(event.target.value, 10),
+                  })
+                }
+                className="rounded-[12px] border-2 border-ink bg-paper px-2 py-1 font-mono text-sm"
+              >
+                {[18, 20, 30, 40].map((minutes) => (
+                  <option key={minutes} value={minutes}>
+                    −{minutes} min
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
+        {kashrut && (
+          <div className="flex flex-col gap-3 rounded-[16px] border-2 border-ink-10 p-3">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold">{t.kitniyot}</p>
+                <p className="text-xs text-ink-50">{t.kitniyotHint}</p>
+              </div>
+              <Toggle
+                checked={prefs.kitniyot}
+                onChange={(next) => savePrefs({ ...prefs, kitniyot: next })}
+                label={t.kitniyot}
+              />
+            </div>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold">{t.noFishMeat}</p>
+                <p className="text-xs text-ink-50">{t.noFishMeatHint}</p>
+              </div>
+              <Toggle
+                checked={prefs.noFishWithMeat}
+                onChange={(next) =>
+                  savePrefs({ ...prefs, noFishWithMeat: next })
+                }
+                label={t.noFishMeat}
+              />
+            </div>
+          </div>
+        )}
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-sm font-semibold">{t.visibility}</p>

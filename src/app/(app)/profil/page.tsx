@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { fr } from "@/i18n/fr";
+import { KNOWN_CITIES } from "@/lib/jewish-calendar/locations";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
@@ -27,6 +28,14 @@ export default async function ProfilPage() {
   let kashrutEnabled = true;
   let jewishCalendarEnabled = true;
   let publicProfile = false;
+  let calendarPrefs = {
+    city: "",
+    israelCalendar: false,
+    minorFasts: false,
+    kitniyot: true,
+    noFishWithMeat: false,
+    candleOffsetMin: 18,
+  };
 
   if (isSupabaseConfigured) {
     const supabase = await createClient();
@@ -39,13 +48,13 @@ export default async function ProfilPage() {
       const [profileRes, settingsRes, goalRes] = await Promise.all([
         supabase
           .from("profiles")
-          .select("display_name, visibility")
+          .select("display_name, visibility, city")
           .eq("id", user.id)
           .maybeSingle(),
         supabase
           .from("user_settings")
           .select(
-            "mode, meat_to_dairy_wait_hours, kashrut_enabled, jewish_calendar_enabled",
+            "mode, meat_to_dairy_wait_hours, kashrut_enabled, jewish_calendar_enabled, israel_calendar, minor_fasts, kitniyot, no_fish_with_meat, candle_offset_min",
           )
           .maybeSingle(),
         supabase
@@ -60,6 +69,14 @@ export default async function ProfilPage() {
       meatWait = settingsRes.data?.meat_to_dairy_wait_hours ?? null;
       kashrutEnabled = settingsRes.data?.kashrut_enabled ?? true;
       jewishCalendarEnabled = settingsRes.data?.jewish_calendar_enabled ?? true;
+      calendarPrefs = {
+        city: profileRes.data?.city ?? "",
+        israelCalendar: settingsRes.data?.israel_calendar ?? false,
+        minorFasts: settingsRes.data?.minor_fasts ?? false,
+        kitniyot: settingsRes.data?.kitniyot ?? true,
+        noFishWithMeat: settingsRes.data?.no_fish_with_meat ?? false,
+        candleOffsetMin: settingsRes.data?.candle_offset_min ?? 18,
+      };
       goal = goalRes.data ?? null;
     }
   }
@@ -140,6 +157,8 @@ export default async function ProfilPage() {
             initialKashrut={kashrutEnabled}
             initialCalendar={jewishCalendarEnabled}
             initialPublicProfile={publicProfile}
+            initialPrefs={calendarPrefs}
+            knownCities={[...KNOWN_CITIES]}
           />
 
           <NotificationsCard

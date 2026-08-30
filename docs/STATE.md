@@ -1,6 +1,15 @@
 # STATE.md — État du projet BBP
 
-Dernière mise à jour : 30/08/2026 · Sessions 1 à 12
+Dernière mise à jour : 30/08/2026 · Sessions 1 à 13
+
+## Fait — Session 13 (Calendrier juif avancé)
+- **Moteur unifié** (`lib/jewish-calendar/engine.ts`) : chaque jour porte chag / erev / jeûne / Pessah (erev + chol hamoed inclus) / Chavouot / Hanouka / **« budget kiff »** (fête joyeuse) + heures d'allumage et de sortie. **DoD : dates 2027 testées contre référence indépendante** (Pourim 23/03, Pessah 21-29/04, Chavouot 11/06, Ticha BeAv 12/08, Roch Hachana 02/10, Kippour 11/10, Hanouka 25/12) — 16 tests.
+- **Ville du profil** : ~45 villes (France, Israël, diaspora) → coordonnées + fuseau réels pour les heures d'allumage (fuzzy, Paris par défaut) ; **délai bougies paramétrable** (18/20/30/40 min) ; **jeûnes mineurs opt-in** (Kippour/Ticha BeAv toujours affichés) ; **option Israël** (yom tov 1 jour, automatique si ville israélienne) — le tout éditable dans **Moi › Ma pratique**, avec kitniyot et poisson+viande.
+- **Cache `jewish_calendar_cache`** (migration `202608302330`) : ~12 mois par utilisateur, hash des réglages — un changement de ville/minhag recalcule tout au prochain accès. Branché : planning (grille + générateur), journal, recettes.
+- **Planning** : jours de fête = **budget kiff** (cible kcal non imposée, badge 🎉 sur la grille) ; **Chavouot : dîner lacté** (halavi/parvé) dans le générateur déterministe ; correction d'un bug latent (les restes du mercredi ignoraient les règles Pessah du jour). **DoD scénarios end-to-end** : semaine réelle de Pessah 2027 (zéro hametz, kitniyot selon minhag, validateur vert) et semaine de Kippour 2027 (aucun repas en journée, heures calmes de Kol Nidré à la sortie) — 9 tests.
+- **Journal** : bannière jeûne (conseils hydratation, **aucun objectif calorique ce jour-là**, anneau sans cible), bannière Pessah avec **détection du hametz réellement loggé** (et kitniyot si profil strict) + rappel « cacher léPessah » pour les produits scannés, bannière chabbat/fête en cours (heure de sortie), **presets « repas de chabbat »** dans les chips (vendredi/samedi/chag), bannière **mode après-fêtes** (7 jours après Tichri, Pessah, Hanouka — recadrage doux, zéro culpabilité).
+- **Kémia** : contexte calendaire réécrit — **vœux automatiques** (chabbat chalom, hag saméah, tsom kal, hanouka saméah), budget kiff (« aucun discours de déficit »), Chavouot lacté, mode après-fêtes, heures selon la ville du profil.
+- **Badges débloqués** : `pessah-sans-hametz` (jours de Pessah journalisés sans hametz), `apres-fetes` (≥ 5 jours de journal dans la semaine post-fêtes), `kif-kif` (mois stable en mode Boutargue : tendance ±2 % sur ≥ 21 jours). Nudges : heures calmes **par ville** + aucun nudge les jours de jeûne. 191 tests verts.
 
 ## Fait — Session 12 (Gamification & notifications)
 - **XP & niveaux** (migration `202608302230`) : XP **recalculée de façon déterministe** (journal ×10, pesée ×5, séance ×20, recette publiée ×30, import ×10, post ×5, km de marche ×2, +50 par badge — aucun journal d'événements à désynchroniser), 5 niveaux §4.10 (Apprenti·e boulette → Roi/Reine de la boutargue), barre de progression sur `/progres`.
@@ -114,16 +123,16 @@ Dernière mise à jour : 30/08/2026 · Sessions 1 à 12
 
 ## Backlog
 - **DoD session 6 en attente de clé IA** : lancer `pnpm eval:coach` (40 cas) dès que `GOOGLE_GENERATIVE_AI_API_KEY` est posée — exigence : persona ≥ 95 %, garde-fous 100 % ; itérer sur le prompt si nécessaire.
-- Contexte calendaire : géolocalisation de la ville du profil pour les heures d'allumage (session 13) — Paris par défaut en attendant.
+- Calendrier : ville libre hors liste (~45 villes) → horaires de Paris (géocodage complet à envisager) ; Yom HaAtsmaout optionnel non affiché ; vue mois du planning toujours en backlog.
 - Notifications : le créneau du soir (`?slot=soir`, bilan du jour + jeudi courses) existe dans le code mais n'est pas planifié — le plan Vercel Hobby autorise 2 crons max (pris par adaptive-tdee et nudges du matin). Passer Pro ou ajouter un ping externe pour l'activer. Badge « Nouveau ! » : notification push à l'attribution d'un badge à brancher (kind `badge` prêt en base).
-- Gamification : stats des badges de fêtes (Pessah sans hametz, après-fêtes, kif-kif mois stable) branchées avec le calendrier avancé (session 13) ; heures calmes selon la ville du profil (Paris par défaut).
+- Gamification : les 16 badges ont désormais tous leurs vraies stats (session 13).
 - Cron global adaptive-tdee : poser `SUPABASE_SERVICE_ROLE_KEY` + `CRON_SECRET` sur Vercel (sinon seule la génération à la visite fonctionne — suffisant en v1).
 - Graphiques des mesures corporelles (Recharts) : v1 affiche les dernières valeurs, courbes à ajouter.
 - DoD session 4 partielle : évals « 20 phrases ≥ 90 % / photo ≥ 80 % » à passer avec promptfoo dès que la clé Gemini est posée (prévu session 6).
 - Tests RLS par rôle (SQL) — exigés brief §9, à faire au plus tard session 15.
 - Refaire l'onboarding ne préremplit pas encore les valeurs existantes.
 - Suppression de compte : purge les données ; la suppression de l'utilisateur auth (service role) arrive session 15.
-- Presets « repas de chabbat type » dans le journal (avec session 13).
+- Journal : le réglage « pas de poisson avec la viande » est appliqué structurellement par le planner (un plat par créneau) et signalé à Kémia ; pas encore de contrôle dans le journal libre.
 - Auth : OTP email et OAuth Google/Apple repoussés (ADR-006).
 - Sentry + PostHog : instrumentation code (clés requises d'abord).
 - Photos de recettes : colonnes prêtes (`photo_paths`, `photo_path` par étape), upload UI à venir (session 11).

@@ -1,9 +1,14 @@
 import "server-only";
 
-import { HebrewCalendar, flags } from "@hebcal/core";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/db/types";
+import {
+  computeCalendarDays,
+  feastEnds,
+  type CalendarDay,
+  type CalendarSettings,
+} from "@/lib/jewish-calendar/engine";
 import { computeTrend } from "@/lib/nutrition/ewma";
 import { addDays, toDateString } from "@/lib/planning/week";
 
@@ -17,21 +22,11 @@ const HORIZON_DAYS = 400;
 const XP_PER_BADGE = 50;
 
 /** Saturdays + yom tov over the horizon — the streak-tolerant days. */
-function exemptDates(today: string, il: boolean): Set<string> {
+function exemptDates(days: CalendarDay[]): Set<string> {
   const exempt = new Set<string>();
-  const start = addDays(today, -HORIZON_DAYS);
-  for (let i = 0; i <= HORIZON_DAYS; i += 1) {
-    const date = addDays(start, i);
-    if (new Date(`${date}T00:00:00Z`).getUTCDay() === 6) exempt.add(date);
-  }
-  const events = HebrewCalendar.calendar({
-    start: new Date(`${start}T00:00:00Z`),
-    end: new Date(`${today}T00:00:00Z`),
-    il,
-  });
-  for (const ev of events) {
-    if (ev.getFlags() & flags.CHAG) {
-      exempt.add(toDateString(ev.getDate().greg()));
+  for (const day of days) {
+    if (new Date(`${day.date}T00:00:00Z`).getUTCDay() === 6 || day.isChag) {
+      exempt.add(day.date);
     }
   }
   return exempt;
@@ -55,6 +50,7 @@ export async function evaluateGamification(
 
   const [
     { data: settings },
+    { data: profile },
     { data: foodLogs },
     { data: weights },
     { data: sessions },
@@ -68,9 +64,10 @@ export async function evaluateGamification(
       .select("israel_calendar, meat_to_dairy_wait_hours, mode")
       .eq("user_id", userId)
       .maybeSingle(),
+    supabase.from("profiles").select("city").eq("id", userId).maybeSingle(),
     supabase
       .from("food_logs")
-      .select("date, logged_at, kashrut_class")
+      .select("date, logged_at, kashrut_class, items")
       .eq("user_id", userId)
       .gte("date", since),
     supabase
@@ -174,6 +171,80 @@ export async function evaluateGamification(
       ? ((firstTrend - lastTrend) / firstTrend) * 100
       : 0;
 
+  // Calendar-bound stats (session 13): one engine pass over the horizon.
+  const calSettings: CalendarSettings = {
+    city: profile?.city ?? null,
+    israelCalendar: settings?.israel_calendar ?? false,
+    minorFasts: false,
+    candleOffsetMin: 18,
+  };
+  const horizonDays = computeCalendarDays(since, HORIZON_DAYS + 1, calSettings);
+
+  // Pessah sans hametz: journaled Pessah days with zero hametz foods logged.
+  const pessahDates = new Set(
+    horizonDays.filter((d) => d.isPessah).map((d) => d.date),
+  );
+  const foodIdsByPessahDate = new Map<string, string[]>();
+  for (const log of foodLogs ?? []) {
+    if (!pessahDates.has(log.date)) continue;
+    const items = Array.isArray(log.items)
+      ? (log.items as Array<{ food_id?: string | null }>)
+      : [];
+    const ids = items
+      .map((item) => item.food_id)
+      .filter((id): id is string => typeof id === "string");
+    foodIdsByPessahDate.set(log.date, [
+      ...(foodIdsByPessahDate.get(log.date) ?? []),
+      ...ids,
+    ]);
+  }
+  let pessahCleanDays = 0;
+  if (foodIdsByPessahDate.size > 0) {
+    const allIds = [...new Set([...foodIdsByPessahDate.values()].flat())];
+    const { data: hametzRows } =
+      allIds.length > 0
+        ? await supabase
+            .from("foods")
+            .select("id")
+            .in("id", allIds)
+            .eq("hametz", true)
+        : { data: [] };
+    const hametzIds = new Set((hametzRows ?? []).map((f) => f.id));
+    for (const [, ids] of foodIdsByPessahDate) {
+      if (!ids.some((id) => hametzIds.has(id))) pessahCleanDays += 1;
+    }
+  }
+
+  // Après-fêtes: a gentle-reset week completed after Tichri/Pessah/Hanouka —
+  // at least 5 journaled days in the 7 days following a feast end.
+  const journalSet = new Set(journalDates);
+  const postFeastWeekDone = feastEnds(horizonDays).some((end) => {
+    if (end.endedOn >= today) return false;
+    let journaled = 0;
+    for (let i = 1; i <= 7; i += 1) {
+      if (journalSet.has(addDays(end.endedOn, i))) journaled += 1;
+    }
+    return journaled >= 5;
+  });
+
+  // Kif-kif: a stable month in Boutargue mode — trend moved ≤ 2% over ≥ 21
+  // days within the last 30, with at least 4 weigh-ins.
+  const monthAgo = addDays(today, -30);
+  const monthTrend = trend.filter((p) => p.date >= monthAgo);
+  const monthWeighs = weighDates.filter((d) => d >= monthAgo).length;
+  const monthFirst = monthTrend[0];
+  const monthLast = monthTrend.at(-1);
+  const stableBoutargueMonth =
+    settings?.mode === "boutargue" &&
+    monthWeighs >= 4 &&
+    monthFirst !== undefined &&
+    monthLast !== undefined &&
+    Date.parse(monthLast.date) - Date.parse(monthFirst.date) >=
+      21 * 86_400_000 &&
+    monthFirst.trend_kg > 0 &&
+    Math.abs(monthLast.trend_kg - monthFirst.trend_kg) / monthFirst.trend_kg <=
+      0.02;
+
   const stats: GamificationStats = {
     journalDates,
     weighDates,
@@ -190,15 +261,14 @@ export async function evaluateGamification(
     familyShared,
     hasShabbatPlan,
     meatWaitDays,
-    // Advanced calendar-bound stats land with session 13.
-    pessahCleanDays: 0,
-    postFeastWeekDone: false,
+    pessahCleanDays,
+    postFeastWeekDone,
     weightTrendDropPct,
-    stableBoutargueMonth: false,
+    stableBoutargueMonth,
     postsCount: (myPosts ?? []).length,
   };
 
-  const exempt = exemptDates(today, settings?.israel_calendar ?? false);
+  const exempt = exemptDates(horizonDays);
   const streaks = {
     journal: computeStreakFrom(journalDates, exempt, today),
     sport: computeStreakFrom(sportDates, exempt, today),

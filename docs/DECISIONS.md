@@ -1,5 +1,12 @@
 # DECISIONS.md — ADR courts (≤ 5 lignes chacun)
 
+## ADR-021 — Calendrier juif : moteur unique + cache par utilisateur (30/08/2026)
+Toute lecture calendaire passe par `engine.ts` (ville → coordonnées/fuseau réels via une liste
+d'~45 villes, option Israël, jeûnes mineurs opt-in, délai bougies) ; les pages lisent le cache
+`jewish_calendar_cache` (~12 mois, hash des réglages, recalcul paresseux au changement).
+« Budget kiff » = la cible kcal n'est pas imposée les jours de fête (validateur), jamais un
+événement caché. DoD : dates 2027 vs référence indépendante + scénarios Pessah/Kippour e2e.
+
 ## ADR-020 — Gamification recalculée, un seul cron de nudges (30/08/2026)
 XP, niveaux, badges et séries sont **recalculés** depuis les données brutes à chaque visite
 de `/progres` (fonctions pures testées) — pas de journal d'événements à désynchroniser ;
