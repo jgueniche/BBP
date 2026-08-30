@@ -2,8 +2,8 @@
 
 import {
   BookOpen,
-  CalendarDays,
   CookingPot,
+  House,
   MessageCircleHeart,
   UserRound,
 } from "lucide-react";
@@ -12,13 +12,24 @@ import { usePathname } from "next/navigation";
 
 import { fr } from "@/i18n/fr";
 
+// Mobile mirror of the two-space architecture: Accueil + Journal cover the
+// tracking space, Cuisine gathers recipes and community, Kémia and Moi close.
 const items = [
+  { href: "/accueil", label: fr.nav.accueilMobile, icon: House },
   { href: "/journal", label: fr.nav.journal, icon: BookOpen },
-  { href: "/recettes", label: fr.nav.recettes, icon: CookingPot },
+  { href: "/recettes", label: fr.nav.cuisine, icon: CookingPot },
   { href: "/coach", label: fr.nav.coach, icon: MessageCircleHeart },
-  { href: "/planning", label: fr.nav.planning, icon: CalendarDays },
   { href: "/profil", label: fr.nav.profil, icon: UserRound },
 ] as const;
+
+function isActive(pathname: string, href: string): boolean {
+  if (href === "/recettes") {
+    return (
+      pathname.startsWith("/recettes") || pathname.startsWith("/communaute")
+    );
+  }
+  return pathname.startsWith(href);
+}
 
 export function BottomNav() {
   const pathname = usePathname();
@@ -26,11 +37,11 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Navigation principale"
-      className="fixed inset-x-0 bottom-0 z-10 border-t-2 border-ink bg-paper pb-[env(safe-area-inset-bottom)]"
+      className="fixed inset-x-0 bottom-0 z-10 border-t bg-surface-raised pb-[env(safe-area-inset-bottom)] lg:hidden"
     >
       <ul className="mx-auto flex max-w-lg">
         {items.map(({ href, label, icon: Icon }) => {
-          const active = pathname.startsWith(href);
+          const active = isActive(pathname, href);
           return (
             <li key={href} className="flex-1">
               <Link
@@ -40,7 +51,7 @@ export function BottomNav() {
                   active ? "text-boutargue-deep" : "text-ink-70"
                 }`}
               >
-                <Icon size={24} strokeWidth={2} aria-hidden />
+                <Icon size={22} strokeWidth={2} aria-hidden />
                 <span>{label}</span>
               </Link>
             </li>
