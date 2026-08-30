@@ -54,7 +54,7 @@ export const fr = {
     parsing: "Kémia regarde ton assiette…",
     parseFailed: "Je n'ai rien reconnu, reformule ou cherche à la main.",
     aiOff:
-      "Mode sans IA : recherche directe dans la base (la clé Anthropic n'est pas encore configurée).",
+      "Mode sans IA : recherche directe dans la base (la clé Gemini n'est pas encore configurée).",
     confirmTitle: "C'est bien ça ?",
     confirmMeal: "Repas",
     confirmLog: "C'est noté",

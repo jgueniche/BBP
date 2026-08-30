@@ -39,7 +39,7 @@ Dernière mise à jour : 30/08/2026 · Sessions 1 à 4
 - Rien.
 
 ## Reste à faire (actions côté Jeremy)
-1. **`ANTHROPIC_API_KEY` sur Vercel** (+ `.env.local`) → active le parsing IA texte/photo du journal. Sans elle, mode dégradé (recherche directe) opérationnel.
+1. **`GOOGLE_GENERATIVE_AI_API_KEY` sur Vercel** (+ `.env.local`) → active le parsing IA texte/photo du journal sur Gemini 3.7 Flash (ADR-010). Clé gratuite sur https://aistudio.google.com/apikey. Sans elle, mode dégradé (recherche directe) opérationnel.
 2. Dashboard Supabase (2 min) : Authentication → Sign In / Providers → Email → décocher « Confirm email » ; URL Configuration → Site URL = `https://bbp-mu.vercel.app`.
 3. Tester le parcours complet en prod : inscription → onboarding → journal (log texte, favori, comme hier).
 4. Créer les projets **Sentry** et **PostHog EU**, renseigner les clés.

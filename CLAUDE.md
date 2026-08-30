@@ -14,7 +14,7 @@ Coach nutrition + sport + communauté, casher-natif, culturellement judéo-orien
 - UI : Tailwind v4 (tokens `@theme`), shadcn/ui re-thémé, Lucide, Framer Motion, Recharts.
 - Client : TanStack Query, Zustand (léger), Zod à toutes les frontières (API, IA, imports).
 - Backend : Supabase Paris (eu-west-3) — Postgres, Auth (email OTP + Google + Apple), Storage, Realtime, pg_cron, pgmq. RLS sur **toute** table. Migrations SQL versionnées `YYYYMMDDHHMM_description.sql` dans `supabase/migrations/` (ADR-004) ; types générés dans `src/db/types.ts`, régénérés à chaque migration.
-- IA : Anthropic via Vercel AI SDK. Défaut `claude-sonnet-5` (coach, extraction, planning) ; `claude-haiku-4-5` (classification, modération, mémoires). Prompts versionnés dans `src/ai/prompts/*.ts` avec `PROMPT_VERSION`.
+- IA : Vercel AI SDK multi-provider. Extraction/classification : `gemini-3.7-flash` par défaut (coût, ADR-010), Anthropic en fallback si seule sa clé est posée. Coach Kémia (session 6) : modèle à trancher avec Jeremy. Prompts versionnés dans `src/ai/prompts/*.ts` avec `PROMPT_VERSION`.
 - Calendrier juif : `@hebcal/core` (offline). Nutrition : Ciqual (table `foods`) + OpenFoodFacts (cache 30 j).
 - PWA : Serwist. Email : Resend. Observabilité : Sentry + PostHog EU. Tests : Vitest + Playwright + promptfoo. Hébergement : Vercel `cdg1`.
 

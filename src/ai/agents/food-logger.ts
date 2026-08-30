@@ -1,6 +1,7 @@
 import "server-only";
 
 import { anthropic } from "@ai-sdk/anthropic";
+import { google } from "@ai-sdk/google";
 import { generateObject } from "ai";
 import { z } from "zod";
 
@@ -27,10 +28,22 @@ const extractionSchema = z.object({
 
 export type FoodExtraction = z.infer<typeof extractionSchema>;
 
-const MODEL = "claude-sonnet-5";
+// ADR-010: Gemini Flash by default (cost), Claude as fallback provider.
+const GEMINI_MODEL = "gemini-3.7-flash";
+const ANTHROPIC_MODEL = "claude-sonnet-5";
+
+function pickModel() {
+  if (process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+    return google(GEMINI_MODEL);
+  }
+  if (process.env.ANTHROPIC_API_KEY) {
+    return anthropic(ANTHROPIC_MODEL);
+  }
+  return null;
+}
 
 export function isAiConfigured(): boolean {
-  return Boolean(process.env.ANTHROPIC_API_KEY);
+  return pickModel() !== null;
 }
 
 export async function extractFoodItems(input: {
@@ -38,11 +51,12 @@ export async function extractFoodItems(input: {
   imageBase64?: string;
   imageMediaType?: string;
 }): Promise<FoodExtraction | null> {
-  if (!isAiConfigured()) return null;
+  const model = pickModel();
+  if (!model) return null;
 
   try {
     const { object } = await generateObject({
-      model: anthropic(MODEL),
+      model,
       schema: extractionSchema,
       system: FOOD_LOGGER_SYSTEM,
       messages: [

@@ -1,5 +1,11 @@
 # DECISIONS.md — ADR courts (≤ 5 lignes chacun)
 
+## ADR-010 — IA d'extraction : Gemini 3.7 Flash par défaut (30/08/2026)
+Décision de Jeremy (coût) : le `food_logger` tourne sur `gemini-3.7-flash`
+(0,75 $/3,75 $ par Mtok en tarif de lancement) au lieu de `claude-sonnet-5` prévu au brief §6.
+Sélection par clé présente : `GOOGLE_GENERATIVE_AI_API_KEY` d'abord, sinon Anthropic, sinon
+mode dégradé sans IA. Le modèle du coach Kémia (session 6) reste à trancher.
+
 ## ADR-009 — Casher Ciqual : heuristique par groupes, indication seulement (30/08/2026)
 Les 3 185 aliments Ciqual reçoivent une classe bassari/halavi/parvé par règles (groupes ANSES
 + mots-clés à frontière de mot) ; plats composés, pâtisseries, confiseries → classe nulle avec
