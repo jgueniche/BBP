@@ -145,8 +145,8 @@ Dernière mise à jour : 30/08/2026 · Sessions 1 à 12
 | CI verte | ✅ lint + typecheck + test + build verts en local ; workflow poussé |
 | `STATE.md` rempli | ✅ |
 
-## Advisors Supabase (30/08/2026, post-session 8)
+## Advisors Supabase (30/08/2026, post-session 12)
 - ✅ Aucune erreur ; RLS active sur toutes les tables.
 - Corrigé : `set_updated_at` avec `search_path` fixé (migration `202608301605`).
-- WARN assumés : les 5 fonctions `security definer` exposées en RPC — les 4 de la session 8 (`is_collection_owner/member`, `can_view_via_collection`, `join_collection`, booléens scoppés sur `auth.uid()`, requises par les policies RLS) et `shopping_list_by_token` (session 9, volontairement publique : c'est le lien de partage de la liste de courses, gardé par un token UUID non devinable). À re-durcir si le modèle change.
+- WARN assumés : les fonctions `security definer` exposées en RPC — session 8 (`is_collection_owner/member`, `can_view_via_collection`, `join_collection` : booléens scoppés sur `auth.uid()`, requis par les policies RLS), `shopping_list_by_token` (session 9, volontairement publique : lien de partage gardé par un token UUID non devinable), session 11 (`is_admin`, `is_group_member`, `group_readable`, `admin_set_moderation` : auto-scopés ou gardés par `is_admin`) et `challenge_totals` (session 12 : agrégats anonymes des défis collectifs, zéro donnée personnelle). À re-durcir si le modèle change.
 - Restant (mineur) : extension `pg_trgm` dans le schéma public (déplacement disruptif, à traiter session 15) ; « Leaked password protection » à activer dans le dashboard Auth (1 clic, avec les réglages email de l'étape 2).
