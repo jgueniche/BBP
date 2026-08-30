@@ -103,6 +103,13 @@ export function pickReplacementSlot(
   if ((isFridayDinner || isSaturdayLunch) && ctx.shomerShabbat) {
     const chabbat = usable.filter((recipe) => recipe.tags.includes("chabbat"));
     candidates = chabbat.length > 0 ? chabbat : usable;
+  } else if (meal === "diner" && ctx.chavouotDates.has(date)) {
+    // Chavouot: dairy dinner tradition.
+    const dairy = usable.filter(
+      (recipe) =>
+        recipe.kashrutClass === "halavi" || recipe.kashrutClass === "parve",
+    );
+    candidates = dairy.length > 0 ? dairy : usable;
   } else if (!ctx.kashrutEnabled) {
     candidates = usable;
   } else if (meal === "diner") {
@@ -186,10 +193,16 @@ export function buildFallbackPlan(
     let lunchScheduled = false;
 
     // Lunch: Saturday reuses Friday night's chabbat dish (meal-prep, no
-    // cooking); Wednesday reuses Tuesday's dinner as leftovers.
+    // cooking); Wednesday reuses Tuesday's dinner as leftovers. A leftover
+    // must still pass the day's Pessah rules (e.g. hametz before erev).
     if (!fast) {
-      const leftover =
+      const leftoverCandidate =
         (isSaturday && ctx.shomerShabbat) || day === 2 ? previousDinner : null;
+      const leftover =
+        leftoverCandidate !== null &&
+        forDate(date, [leftoverCandidate]).length === 1
+          ? leftoverCandidate
+          : null;
       const recipe =
         leftover ?? pick(forDate(date, lunchPool), lunchBudget, lunchIndex);
       if (!leftover) lunchIndex += 1;
@@ -211,12 +224,19 @@ export function buildFallbackPlan(
           ? target * (MEAL_SHARES.dej + MEAL_SHARES.diner) - lunchPlanned
           : target * MEAL_SHARES.diner;
 
-    // Dinner: Friday night is the chabbat meal when available.
+    // Dinner: Friday night is the chabbat meal when available; a Chavouot
+    // evening goes dairy (halavi/parvé) per the tradition.
+    const chavouotPool = usable.filter(
+      (recipe) =>
+        recipe.kashrutClass === "halavi" || recipe.kashrutClass === "parve",
+    );
     const dinnerCandidates = forDate(
       date,
       isFriday && ctx.shomerShabbat && chabbatPool.length > 0
         ? chabbatPool
-        : dinnerPool,
+        : ctx.chavouotDates.has(date) && chavouotPool.length > 0
+          ? chavouotPool
+          : dinnerPool,
     );
     const dinner = pick(dinnerCandidates, dinnerBudget, dinnerIndex);
     dinnerIndex += 1;

@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { fr } from "@/i18n/fr";
-import { weekJewishCalendar } from "@/lib/jewish-calendar/week";
+import { getCalendarDays } from "@/lib/jewish-calendar/cache";
 import type { KashrutClass } from "@/lib/kashrut/meal";
 import type { PlanMeal } from "@/lib/planning/types";
 import { addDays, toDateString, weekStartOf } from "@/lib/planning/week";
@@ -111,14 +111,19 @@ export default async function PlanningPage({
   }));
 
   const calendarEnabled = settings?.jewish_calendar_enabled ?? true;
-  const calendar = weekJewishCalendar(weekStart, {
-    il: settings?.israel_calendar ?? false,
-  });
+  const calendar = await getCalendarDays(
+    supabase,
+    user.id,
+    weekStart,
+    addDays(weekStart, 6),
+  );
   const days: GridDay[] = calendar.map((day, index) => ({
     date: day.date,
     label: dayLabel(day.date),
     hebrewDate: calendarEnabled ? day.hebrewDate : "",
-    badges: calendarEnabled ? day.labels : [],
+    badges: calendarEnabled
+      ? [...day.labels, ...(day.isFeast ? [t.budgetKiff] : [])]
+      : [],
     candleTime: calendarEnabled ? day.candleTime : null,
     isFast: calendarEnabled && day.isFast,
     isChabbat: calendarEnabled && (index === 4 || index === 5),

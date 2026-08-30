@@ -100,8 +100,13 @@ export function validatePlan(
       }
     }
 
-    // Calorie target ±10% on the planned share of the day.
-    if (ctx.calorieTarget !== null && !ctx.fastDates.has(date)) {
+    // Calorie target ±10% on the planned share of the day — skipped on fast
+    // days and on feast days (« budget kiff », brief §10.13).
+    if (
+      ctx.calorieTarget !== null &&
+      !ctx.fastDates.has(date) &&
+      !ctx.feastDates.has(date)
+    ) {
       const withKcal = ordered.filter((slot) => slot.kcal !== null);
       if (withKcal.length === ordered.length && ordered.length > 0) {
         const share = ordered.reduce(

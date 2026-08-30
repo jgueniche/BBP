@@ -5,10 +5,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { generateWeekPlanAi } from "@/ai/agents/meal-planner";
 import type { Database } from "@/db/types";
 import type { KashrutClass } from "@/lib/kashrut/meal";
-import {
-  weekJewishCalendar,
-  type DayJewishInfo,
-} from "@/lib/jewish-calendar/week";
+import { getCalendarDays } from "@/lib/jewish-calendar/cache";
+import type { DayJewishInfo } from "@/lib/jewish-calendar/week";
 
 import { buildFallbackPlan } from "./fallback";
 import type { PlanContext, PlannerRecipe, PlanSlot } from "./types";
@@ -33,6 +31,8 @@ function calendarSummary(days: DayJewishInfo[]): string {
       if (day.candleTime) bits.push(`allumage ${day.candleTime}`);
       if (day.isFast) bits.push("JEÛNE");
       if (day.isPessah) bits.push("PESSAH");
+      if (day.isChavouot) bits.push("CHAVOUOT (repas lacté le soir)");
+      if (day.isFeast) bits.push("FÊTE (budget kiff : cible kcal non imposée)");
       return `${day.date} : ${bits.join(", ")}`;
     })
     .join("\n");
@@ -173,9 +173,14 @@ export async function buildPlanningData(
     ]);
 
   const calendarEnabled = settings?.jewish_calendar_enabled ?? true;
-  const calendar = weekJewishCalendar(weekStart, {
-    il: settings?.israel_calendar ?? false,
-  });
+  const weekEnd = new Date(
+    Date.parse(`${weekStart}T00:00:00Z`) + 6 * 86_400_000,
+  )
+    .toISOString()
+    .slice(0, 10);
+  // Cache-backed per-user calendar: profile city, Israel option, minor
+  // fasts and candle offset all flow from the user's settings (session 13).
+  const calendar = await getCalendarDays(supabase, userId, weekStart, weekEnd);
   // With the calendar disabled, chabbat/fast/Pessah rules vanish at the
   // source: empty date sets and no mandatory chabbat meals.
   const ctx: PlanContext = {
@@ -192,6 +197,12 @@ export async function buildPlanningData(
       : new Set(),
     fastDates: calendarEnabled
       ? new Set(calendar.filter((d) => d.isFast).map((d) => d.date))
+      : new Set(),
+    feastDates: calendarEnabled
+      ? new Set(calendar.filter((d) => d.isFeast).map((d) => d.date))
+      : new Set(),
+    chavouotDates: calendarEnabled
+      ? new Set(calendar.filter((d) => d.isChavouot).map((d) => d.date))
       : new Set(),
   };
 

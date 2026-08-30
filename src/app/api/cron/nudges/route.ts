@@ -4,6 +4,10 @@ import { NextResponse } from "next/server";
 import { generateNudgeBody, type NudgeSlot } from "@/ai/agents/nudger";
 import type { Database } from "@/db/types";
 import { fr } from "@/i18n/fr";
+import {
+  computeCalendarDays,
+  type CalendarSettings,
+} from "@/lib/jewish-calendar/engine";
 import { isQuietTime } from "@/lib/jewish-calendar/quiet";
 import {
   isPushConfigured,
@@ -115,23 +119,59 @@ export async function GET(request: Request) {
     return NextResponse.json({ slot, users: 0, sent: 0 });
   }
 
-  const [{ data: settings }, { data: recents }] = await Promise.all([
-    supabase
-      .from("user_settings")
-      .select("user_id, jewish_calendar_enabled")
-      .in("user_id", userIds),
-    supabase
-      .from("notifications")
-      .select("user_id, kind, created_at")
-      .in("user_id", userIds)
-      .gte(
-        "created_at",
-        new Date(now.getTime() - 36 * 3_600_000).toISOString(),
-      ),
-  ]);
-  const calendarByUser = new Map(
-    (settings ?? []).map((s) => [s.user_id, s.jewish_calendar_enabled]),
-  );
+  const [{ data: settings }, { data: recents }, { data: profileRows }] =
+    await Promise.all([
+      supabase
+        .from("user_settings")
+        .select(
+          "user_id, jewish_calendar_enabled, israel_calendar, minor_fasts, candle_offset_min",
+        )
+        .in("user_id", userIds),
+      supabase
+        .from("notifications")
+        .select("user_id, kind, created_at")
+        .in("user_id", userIds)
+        .gte(
+          "created_at",
+          new Date(now.getTime() - 36 * 3_600_000).toISOString(),
+        ),
+      supabase.from("profiles").select("id, city").in("id", userIds),
+    ]);
+  const settingsByUser = new Map((settings ?? []).map((s) => [s.user_id, s]));
+  const cityByUser = new Map((profileRows ?? []).map((p) => [p.id, p.city]));
+
+  // Quiet hours and fast days depend on city + minhag — memoize per combo.
+  const calendarStateCache = new Map<
+    string,
+    { quiet: boolean; isFast: boolean }
+  >();
+  function calendarStateFor(userId: string): {
+    quiet: boolean;
+    isFast: boolean;
+  } {
+    const row = settingsByUser.get(userId);
+    const calSettings: CalendarSettings = {
+      city: cityByUser.get(userId) ?? null,
+      israelCalendar: row?.israel_calendar ?? false,
+      minorFasts: row?.minor_fasts ?? false,
+      candleOffsetMin: row?.candle_offset_min ?? 18,
+    };
+    const key = [
+      calSettings.city ?? "",
+      calSettings.israelCalendar,
+      calSettings.minorFasts,
+      calSettings.candleOffsetMin,
+    ].join("|");
+    const cached = calendarStateCache.get(key);
+    if (cached) return cached;
+    const state = {
+      quiet: isQuietTime(now, calSettings),
+      isFast:
+        computeCalendarDays(parisDate, 1, calSettings)[0]?.isFast ?? false,
+    };
+    calendarStateCache.set(key, state);
+    return state;
+  }
   const subsByUser = new Map<string, PushSubscriptionRow[]>();
   for (const sub of subs ?? []) {
     const list = subsByUser.get(sub.user_id) ?? [];
@@ -139,17 +179,21 @@ export async function GET(request: Request) {
     subsByUser.set(sub.user_id, list);
   }
 
-  const quiet = isQuietTime(now);
   const goneEndpoints: string[] = [];
   let sent = 0;
   let skipped = 0;
 
   for (const userId of userIds) {
-    const calendarEnabled = calendarByUser.get(userId) ?? true;
-    // DoD: nothing leaves the building during chabbat/chag for observant users.
-    if (calendarEnabled && quiet) {
-      skipped += 1;
-      continue;
+    const calendarEnabled =
+      settingsByUser.get(userId)?.jewish_calendar_enabled ?? true;
+    // DoD: nothing leaves the building during chabbat/chag for observant
+    // users (per-city candle times), and fast days get no food/weigh nudges.
+    if (calendarEnabled) {
+      const state = calendarStateFor(userId);
+      if (state.quiet || state.isFast) {
+        skipped += 1;
+        continue;
+      }
     }
     if (slot === "dafina" && !calendarEnabled) {
       skipped += 1;
@@ -199,7 +243,6 @@ export async function GET(request: Request) {
 
   return NextResponse.json({
     slot,
-    quiet,
     users: userIds.length,
     sent,
     skipped,

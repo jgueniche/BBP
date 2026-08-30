@@ -17,6 +17,8 @@ function ctx(overrides: Partial<PlanContext> = {}): PlanContext {
     eatsKitniyot: true,
     pessahDates: new Set(),
     fastDates: new Set(),
+    feastDates: new Set(),
+    chavouotDates: new Set(),
     ...overrides,
   };
 }

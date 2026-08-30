@@ -13,6 +13,7 @@ import { pickModel } from "@/ai/provider";
 import { buildCoachTools } from "@/ai/tools/coach-tools";
 import { buildCoachContext } from "@/lib/coach/context";
 import { DAILY_MESSAGE_QUOTA } from "@/lib/coach/quota";
+import { loadCalendarSettings } from "@/lib/jewish-calendar/cache";
 import { buildCalendarContext } from "@/lib/jewish-calendar/context";
 import { createClient } from "@/lib/supabase/server";
 
@@ -62,19 +63,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "quota_exceeded" }, { status: 429 });
   }
 
-  const [context, settingsRes] = await Promise.all([
+  const [context, userCalendar] = await Promise.all([
     buildCoachContext(supabase, user.id),
-    supabase
-      .from("user_settings")
-      .select("israel_calendar, jewish_calendar_enabled")
-      .maybeSingle(),
+    loadCalendarSettings(supabase, user.id),
   ]);
-  const calendar =
-    (settingsRes.data?.jewish_calendar_enabled ?? true)
-      ? buildCalendarContext(new Date(), {
-          il: settingsRes.data?.israel_calendar ?? false,
-        })
-      : { text: "", isFastToday: false };
+  const calendar = userCalendar.enabled
+    ? buildCalendarContext(new Date(), userCalendar.settings)
+    : { text: "", isFastToday: false };
 
   let conversationId: string;
   const { data: existing } = await supabase

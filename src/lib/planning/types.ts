@@ -34,6 +34,10 @@ export type PlanContext = {
   eatsKitniyot: boolean;
   pessahDates: ReadonlySet<string>;
   fastDates: ReadonlySet<string>;
+  /** Feast days (chag, Hanouka, Pourim) — « budget kiff », kcal not enforced. */
+  feastDates: ReadonlySet<string>;
+  /** Chavouot — dairy dinner tradition, fallback planner prefers halavi. */
+  chavouotDates: ReadonlySet<string>;
 };
 
 /** A recipe as seen by the planners (already visible to the user). */
