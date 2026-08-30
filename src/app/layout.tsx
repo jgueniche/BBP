@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, Inter, JetBrains_Mono } from "next/font/google";
 
+import { Toaster } from "@/components/ui/sonner";
 import { fr } from "@/i18n/fr";
 
 import "./globals.css";
@@ -36,6 +37,7 @@ export default function RootLayout({
         className={`${bricolage.variable} ${inter.variable} ${jetbrains.variable} font-sans antialiased`}
       >
         {children}
+        <Toaster />
       </body>
     </html>
   );

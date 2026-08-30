@@ -1,27 +1,123 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+/* BBP palette (brief §2.2) — raw values live here so dark mode can flip them. */
+:root {
+  --ink: #0b0b0b;
+  --paper: #fbfaf6;
+  --boutargue: #f26a1b;
+  --boutargue-deep: #c24f0e;
+  --boutargue-soft: #ffd9bf;
+  --ink-70: #3d3d3d;
+  --ink-50: #7a7a7a;
+  --ink-30: #b8b8b8;
+  --ink-10: #ebeae5;
+  --ok: #2e7d4f;
+  --warn: #b54708;
+  --halavi: #5b7db1;
+  --bassari: #a63d2f;
+  --parve: #7a7a7a;
+
+  /* Hard sticker shadows use this; in dark mode they become paper at 30%. */
+  --shadow-ink: var(--ink);
+
+  /* shadcn semantic tokens mapped to the BBP palette. */
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--paper);
+  --card-foreground: var(--ink);
+  --popover: var(--paper);
+  --popover-foreground: var(--ink);
+  --primary: var(--boutargue);
+  --primary-foreground: #0b0b0b;
+  --secondary: var(--ink-10);
+  --secondary-foreground: var(--ink);
+  --muted: var(--ink-10);
+  --muted-foreground: var(--ink-50);
+  --accent: var(--boutargue-soft);
+  --accent-foreground: #0b0b0b;
+  --destructive: var(--warn);
+  --border: var(--ink);
+  --input: var(--ink);
+  --ring: var(--boutargue-deep);
+  --radius: 1.25rem;
+}
+
+/* Dark mode (brief §2.4): ink/paper inverted, orange unchanged, soft shadows. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #fbfaf6;
+    --paper: #0b0b0b;
+    --ink-70: #cfcdc7;
+    --ink-50: #8f8d88;
+    --ink-30: #55534f;
+    --ink-10: #1d1c1a;
+    --ok: #4caf7d;
+    --warn: #e08745;
+    --shadow-ink: rgb(251 250 246 / 0.3);
+  }
+}
 
 @theme inline {
-  --color-ink: #0b0b0b;
-  --color-paper: #fbfaf6;
-  --color-boutargue: #f26a1b;
-  --color-boutargue-deep: #c24f0e;
-  --color-boutargue-soft: #ffd9bf;
-  --color-ink-70: #3d3d3d;
-  --color-ink-50: #7a7a7a;
-  --color-ink-30: #b8b8b8;
-  --color-ink-10: #ebeae5;
-  --color-ok: #2e7d4f;
-  --color-warn: #b54708;
-  --color-halavi: #5b7db1;
-  --color-bassari: #a63d2f;
-  --color-parve: #7a7a7a;
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --color-boutargue: var(--boutargue);
+  --color-boutargue-deep: var(--boutargue-deep);
+  --color-boutargue-soft: var(--boutargue-soft);
+  --color-ink-70: var(--ink-70);
+  --color-ink-50: var(--ink-50);
+  --color-ink-30: var(--ink-30);
+  --color-ink-10: var(--ink-10);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-halavi: var(--halavi);
+  --color-bassari: var(--bassari);
+  --color-parve: var(--parve);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
 
   --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+
+  --radius-sm: calc(var(--radius) - 8px);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
-body {
-  background: var(--color-paper);
-  color: var(--color-ink);
+/* Hard sticker shadow (brief §2.4): no blur, ever. */
+@utility shadow-sticker {
+  box-shadow: 4px 4px 0 var(--shadow-ink);
+}
+
+@utility shadow-sticker-sm {
+  box-shadow: 2px 2px 0 var(--shadow-ink);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-paper font-sans text-ink antialiased;
+  }
 }
