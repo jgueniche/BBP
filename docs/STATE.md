@@ -1,6 +1,13 @@
 # STATE.md — État du projet BBP
 
-Dernière mise à jour : 30/08/2026 · Sessions 1 à 10
+Dernière mise à jour : 30/08/2026 · Sessions 1 à 11
+
+## Fait — Session 11 (Social)
+- **Feed communautaire `/communaute`** (migrations `202608302130` + `202608302140`) : posts 5 types (texte / recette attachée / progrès / plat de chabbat — suggéré le vendredi / séance), onglets Tout le monde · Abonnements · Groupes, **réactions ×3 (Bsahtek 🧡 / Mabrouk ⭐ / Ya ouili 😮**, une par personne, switchable), commentaires dépliables, suppression par l'auteur du post/commentaire.
+- **Modération à deux étages** : filtre heuristique FR (haine/harcèlement, pro-TCA, médical dangereux, sensible→flag) — **DoD : 20 cas bloqués testés** (28 tests) — + agent `moderator` (IA légère) dès la clé posée. Bloqué = jamais publié (motifs affichés) ; sensible = publié + flaggé. **File `/admin/moderation`** (signalements + flaggés : retirer/rétablir/ignorer) — admins seedés : tes 2 comptes (`admin_users`, ajout via SQL).
+- **Suivre / bloquer / signaler** sur chaque post ; page membre `/communaute/membre/[id]` ; **interrupteur « profil visible » dans Moi** (sinon « Membre BBP » partout) ; **charte communautaire** (`/communaute/charte` : respect, pas de lachon hara, zéro conseil médical dangereux).
+- **Groupes publics** : création (icône, description, modérée), rejoindre/quitter, fil dédié réservé aux membres pour publier. RLS 3 paliers : privé (auteur), groupe (membres via `group_readable`), communauté.
+- **Partage externe** : bouton « Partager au fil » sur les recettes, page publique `/r/[slug]` sans compte + **image OG dynamique** (`/api/og/recette/[slug]`, style sticker : icône, titre, pastille casher, temps) — le lien copié depuis la fiche a une belle preview partout. 121 tests verts.
 
 ## Fait — Session 10 (Sport)
 - **Bibliothèque de 188 exercices FR** en base (migration `202608302030`, seed `scripts/seed-exercises.py` chargé par data migration épinglée) : 117 muscu / 27 cardio / 24 mobilité / 20 fonctionnel, avec groupes musculaires, matériel, niveau, MET, consignes et erreurs fréquentes. Lecture publique.
@@ -111,7 +118,7 @@ Dernière mise à jour : 30/08/2026 · Sessions 1 à 10
 - Photos de recettes : colonnes prêtes (`photo_paths`, `photo_path` par étape), upload UI à venir (session 11).
 - Profil : ajouter un interrupteur « profil visible par la communauté » (aujourd'hui `visibility` reste `private` → les recettes affichent « Membre BBP » au lieu du prénom).
 - Import Instagram sans collage : poser `INSTAGRAM_OEMBED_TOKEN` (app Meta, facultatif).
-- Fil d'amis, abonnements, notifications sociales : session 11.
+- Social : feed Realtime (v1 = rafraîchissement), mentions @, groupes privés sur invitation, réactions sur commentaires, pagination du feed (v1 = 30 derniers), Communauté dans la bottom bar à arbitrer ; notifications sociales avec la session 12.
 - Sport : graphique de volume par groupe musculaire ; page détail d'un exercice (erreurs fréquentes affichées en séance) ; sons discrets réels (v1 = vibration) ; bouton Sport dans la bottom bar à arbitrer (5 places prises) ; éval promptfoo du workout_planner avec clé IA.
 - Planning : vue mois avec dates hébraïques ; verrouillage de créneaux dans l'UI (le moteur le gère déjà) ; drag & drop tactile (v1 = souris/HTML5 + boutons swap) ; quota fin « 2 plannings/semaine free » à calibrer (garde-fou à 20 aujourd'hui) ; éval promptfoo du meal_planner dès la clé IA posée.
 

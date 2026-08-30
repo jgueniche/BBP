@@ -238,6 +238,11 @@ export default async function RecipePage({
           initialLiked={likedRes.data !== null}
           initialSaved={savedRes.data !== null}
           initialLikes={stats?.likes ?? 0}
+          publicSlug={
+            recipe.visibility === "community" && recipe.status === "published"
+              ? recipe.slug
+              : null
+          }
         />
       )}
 

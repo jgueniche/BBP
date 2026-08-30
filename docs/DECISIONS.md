@@ -1,5 +1,12 @@
 # DECISIONS.md — ADR courts (≤ 5 lignes chacun)
 
+## ADR-019 — Social : modération à deux étages, feed sans algorithme (30/08/2026)
+Chaque post/commentaire passe le filtre heuristique FR (20 cas DoD testés) puis l'agent IA
+quand une clé existe : high = jamais publié, medium = publié + flaggé pour la file admin.
+Feed strictement chronologique (brief §4.9), réactions ×3 (une par personne), blocage côté
+requête, admins en table `admin_users` (definer-only, ajout par SQL). Partage externe via
+page publique `/r/[slug]` + OG dynamique ; le nom n'apparaît que si le profil est public.
+
 ## ADR-018 — Sport : kcal MET indicatives, jamais recomptées dans le TDEE (30/08/2026)
 Les kcal de séance (MET × poids × durée) sont affichées pour motiver, mais ne sont ni
 ajoutées au journal ni au TDEE : le TDEE adaptatif observe déjà la dépense réelle via

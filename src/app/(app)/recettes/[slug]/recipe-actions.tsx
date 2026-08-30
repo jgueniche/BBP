@@ -1,11 +1,12 @@
 "use client";
 
-import { GitFork, Pencil, Sparkles, Trash2 } from "lucide-react";
+import { GitFork, Megaphone, Pencil, Sparkles, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { createPost } from "@/app/(app)/communaute/actions";
 import {
   createProteinVersion,
   deleteRecipe,
@@ -59,6 +60,32 @@ export function RecipeActions({
     }
   }
 
+  async function onShareToFeed() {
+    const text = window.prompt(t.sharePrompt);
+    if (text === null || text.trim().length < 2) return;
+    setBusy(true);
+    try {
+      const result = await createPost({
+        text: text.trim(),
+        kind: "recipe",
+        recipeId,
+        groupId: null,
+      });
+      if (!result.ok) {
+        toast(
+          result.code === "moderation"
+            ? fr.communaute.composer.blockedPrefix
+            : t.saveError,
+        );
+        return;
+      }
+      toast(t.sharedToFeed);
+      router.push("/communaute");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function onDelete() {
     if (!window.confirm(t.deleteConfirm)) return;
     setBusy(true);
@@ -75,6 +102,15 @@ export function RecipeActions({
       <Button variant="secondary" size="sm" onClick={onFork} disabled={busy}>
         <GitFork />
         {t.fork}
+      </Button>
+      <Button
+        variant="secondary"
+        size="sm"
+        onClick={onShareToFeed}
+        disabled={busy}
+      >
+        <Megaphone />
+        {t.shareToFeed}
       </Button>
       {canGenerateProtein && (
         <Button size="sm" onClick={onGenerateProtein} disabled={busy}>

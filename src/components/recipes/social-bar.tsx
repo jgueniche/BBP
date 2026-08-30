@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
-import { Bookmark, FolderPlus, Heart, Plus } from "lucide-react";
+import { Bookmark, FolderPlus, Heart, Plus, Share2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -30,11 +30,13 @@ export function SocialBar({
   initialLiked,
   initialSaved,
   initialLikes,
+  publicSlug = null,
 }: {
   recipeId: string;
   initialLiked: boolean;
   initialSaved: boolean;
   initialLikes: number;
+  publicSlug?: string | null;
 }) {
   const reducedMotion = useReducedMotion();
   const [liked, setLiked] = useState(initialLiked);
@@ -138,6 +140,29 @@ export function SocialBar({
         />
         {t.tabs.book}
       </button>
+
+      {publicSlug && (
+        <button
+          type="button"
+          onClick={async () => {
+            const url = `${window.location.origin}/r/${publicSlug}`;
+            try {
+              if (navigator.share) {
+                await navigator.share({ url });
+                return;
+              }
+            } catch {
+              // Share sheet dismissed — copy instead.
+            }
+            await navigator.clipboard.writeText(url);
+            toast(fr.recettes.shareExternalCopied);
+          }}
+          aria-label={fr.recettes.shareExternal}
+          className="flex items-center gap-1.5 rounded-full border-2 border-ink bg-paper px-3 py-1.5 text-sm font-bold shadow-sticker-sm"
+        >
+          <Share2 size={16} strokeWidth={2} aria-hidden />
+        </button>
+      )}
 
       <Dialog open={pickerOpen} onOpenChange={openPicker}>
         <DialogTrigger asChild>
