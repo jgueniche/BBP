@@ -149,6 +149,87 @@ export type Database = {
         };
         Relationships: [];
       };
+      collection_members: {
+        Row: {
+          collection_id: string;
+          created_at: string;
+          role: string;
+          user_id: string;
+        };
+        Insert: {
+          collection_id: string;
+          created_at?: string;
+          role?: string;
+          user_id: string;
+        };
+        Update: {
+          collection_id?: string;
+          created_at?: string;
+          role?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      collection_recipes: {
+        Row: {
+          added_by: string | null;
+          collection_id: string;
+          created_at: string;
+          position: number;
+          recipe_id: string;
+        };
+        Insert: {
+          added_by?: string | null;
+          collection_id: string;
+          created_at?: string;
+          position?: number;
+          recipe_id: string;
+        };
+        Update: {
+          added_by?: string | null;
+          collection_id?: string;
+          created_at?: string;
+          position?: number;
+          recipe_id?: string;
+        };
+        Relationships: [];
+      };
+      collections: {
+        Row: {
+          color: string;
+          created_at: string;
+          description: string | null;
+          icon: string;
+          id: string;
+          name: string;
+          owner_id: string;
+          share_token: string;
+          updated_at: string;
+        };
+        Insert: {
+          color?: string;
+          created_at?: string;
+          description?: string | null;
+          icon?: string;
+          id?: string;
+          name: string;
+          owner_id: string;
+          share_token?: string;
+          updated_at?: string;
+        };
+        Update: {
+          color?: string;
+          created_at?: string;
+          description?: string | null;
+          icon?: string;
+          id?: string;
+          name?: string;
+          owner_id?: string;
+          share_token?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       food_favorites: {
         Row: {
           created_at: string;
@@ -419,6 +500,30 @@ export type Database = {
         };
         Relationships: [];
       };
+      recipe_comments: {
+        Row: {
+          created_at: string;
+          id: string;
+          recipe_id: string;
+          text: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          recipe_id: string;
+          text: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          recipe_id?: string;
+          text?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       recipe_ingredients: {
         Row: {
           created_at: string;
@@ -458,6 +563,66 @@ export type Database = {
         };
         Relationships: [];
       };
+      recipe_likes: {
+        Row: {
+          created_at: string;
+          recipe_id: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          recipe_id: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          recipe_id?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      recipe_notes: {
+        Row: {
+          created_at: string;
+          recipe_id: string;
+          text: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          recipe_id: string;
+          text: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          recipe_id?: string;
+          text?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      recipe_saves: {
+        Row: {
+          created_at: string;
+          recipe_id: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          recipe_id: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          recipe_id?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       recipe_steps: {
         Row: {
           created_at: string;
@@ -466,6 +631,7 @@ export type Database = {
           photo_path: string | null;
           position: number;
           recipe_id: string;
+          section: string | null;
           text: string;
         };
         Insert: {
@@ -475,6 +641,7 @@ export type Database = {
           photo_path?: string | null;
           position?: number;
           recipe_id: string;
+          section?: string | null;
           text: string;
         };
         Update: {
@@ -484,6 +651,7 @@ export type Database = {
           photo_path?: string | null;
           position?: number;
           recipe_id?: string;
+          section?: string | null;
           text?: string;
         };
         Relationships: [];
@@ -496,6 +664,7 @@ export type Database = {
           created_at: string;
           description: string | null;
           difficulty: string | null;
+          icon: string | null;
           id: string;
           is_fish: boolean;
           kashrut_class: string | null;
@@ -526,6 +695,7 @@ export type Database = {
           created_at?: string;
           description?: string | null;
           difficulty?: string | null;
+          icon?: string | null;
           id?: string;
           is_fish?: boolean;
           kashrut_class?: string | null;
@@ -556,6 +726,7 @@ export type Database = {
           created_at?: string;
           description?: string | null;
           difficulty?: string | null;
+          icon?: string | null;
           id?: string;
           is_fish?: boolean;
           kashrut_class?: string | null;
@@ -715,12 +886,36 @@ export type Database = {
       };
     };
     Views: {
-      [_ in never]: never;
+      recipe_social_stats: {
+        Row: {
+          comments: number;
+          likes: number;
+          recipe_id: string;
+          saves: number;
+        };
+        Relationships: [];
+      };
     };
     Functions: {
+      can_view_via_collection: {
+        Args: { rid: string };
+        Returns: boolean;
+      };
       compute_recipe_nutrition: {
         Args: { rid: string };
         Returns: Json;
+      };
+      is_collection_member: {
+        Args: { cid: string };
+        Returns: boolean;
+      };
+      is_collection_owner: {
+        Args: { cid: string };
+        Returns: boolean;
+      };
+      join_collection: {
+        Args: { token: string };
+        Returns: string | null;
       };
       search_foods: {
         Args: { max_results?: number; q: string };
