@@ -18,9 +18,9 @@ Dernière mise à jour : 30/08/2026 · Session 1 (Fondations)
 ## Reste à faire (actions côté Jeremy)
 1. ~~Créer le projet Supabase~~ ✅ Projet « BBP » `apxrducsgrddwujnibcf`, eu-west-3 (Paris), sain.
 2. ~~Projet Vercel + env vars~~ ✅ Projet `bbp` créé, prod déployée depuis `master` en `cdg1` : https://bbp-ruby.vercel.app (login OTP vérifié servi, Supabase branché).
-3. Tester le login OTP de bout en bout (recevoir un code email et se connecter).
-4. Renseigner `.env.local` en local avec les mêmes clés que Vercel.
-5. Activer les providers Auth Google + Apple dans Supabase (email OTP fonctionne sans config supplémentaire).
+3. Dashboard Supabase (2 min) : Authentication → Sign In / Providers → Email → décocher « Confirm email » (sinon l'inscription attend une confirmation par lien qui pointe vers localhost) ; Authentication → URL Configuration → Site URL = `https://bbp-ruby.vercel.app`.
+4. Tester la création de compte + login mot de passe sur la prod.
+5. Renseigner `.env.local` en local avec les mêmes clés que Vercel.
 6. Créer les projets **Sentry** et **PostHog EU**, renseigner les clés.
 7. Valider le plan de la session 1 a posteriori (session lancée en autonome, cf. ADR-002).
 

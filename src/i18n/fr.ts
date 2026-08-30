@@ -13,18 +13,24 @@ export const fr = {
   },
   auth: {
     title: "Bienvenue chez BBP",
-    subtitle:
-      "Connecte-toi avec ton email, on t'envoie un code. Pas de mot de passe, pas de prise de tête.",
+    subtitle: "Connecte-toi ou crée ton compte, et on passe à table.",
     emailLabel: "Ton email",
     emailPlaceholder: "prenom@exemple.fr",
-    sendCode: "Recevoir mon code",
-    codeLabel: "Le code reçu par email",
-    codePlaceholder: "123456",
-    verifyCode: "C'est parti",
-    changeEmail: "Changer d'email",
+    passwordLabel: "Ton mot de passe",
+    passwordPlaceholder: "••••••••",
+    signIn: "Me connecter",
+    signUp: "Créer mon compte",
+    toSignUp: "Pas encore de compte ? Crée-le ici.",
+    toSignIn: "Déjà un compte ? Connecte-toi.",
     invalidEmail: "Cet email a une drôle de tête, vérifie-le.",
-    sendError: "Le code n'est pas parti. Réessaie dans une minute.",
-    verifyError: "Ce code ne correspond pas. Regarde ton email et réessaie.",
+    invalidPassword: "Il faut au moins 6 caractères pour ton mot de passe.",
+    signInError: "Email ou mot de passe incorrect. Réessaie.",
+    signUpError: "Impossible de créer le compte. Réessaie dans une minute.",
+    alreadyRegistered: "Ce compte existe déjà. Connecte-toi plutôt.",
+    emailNotConfirmed:
+      "Ton email n'est pas encore confirmé. Regarde ta boîte mail.",
+    confirmEmailSent:
+      "Compte créé ! Confirme ton email depuis ta boîte mail, puis connecte-toi.",
     notConfigured:
       "Supabase n'est pas encore branché : copie .env.example vers .env.local et remplis les clés.",
     signOut: "Me déconnecter",

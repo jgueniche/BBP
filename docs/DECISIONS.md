@@ -1,5 +1,11 @@
 # DECISIONS.md — ADR courts (≤ 5 lignes chacun)
 
+## ADR-006 — Auth v1 : email + mot de passe (30/08/2026)
+Décision de Jeremy : l'OTP par email échouait car le lien du template Supabase pointe vers la
+Site URL par défaut (`localhost:3000`). V1 = signup/login par mot de passe, sans friction.
+OTP email et OAuth Google/Apple (brief §6) repoussés au backlog ; à peaufiner plus tard.
+Reste côté dashboard Supabase : désactiver « Confirm email » et corriger la Site URL.
+
 ## ADR-001 — Nom du coach : Kémia (30/08/2026)
 Le coach IA s'appelle **Kémia** (constante `COACH_NAME`), par décision du brief §3.1.
 Alternatives conservées si besoin de pivot : *Tata Fortunée*, *Tonton Chlomo*.

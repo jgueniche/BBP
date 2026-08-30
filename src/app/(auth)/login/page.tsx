@@ -9,56 +9,78 @@ import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 const emailSchema = z.email();
+const passwordSchema = z.string().min(6);
 
 const inputClass =
   "w-full rounded-[20px] border-2 border-ink bg-paper px-4 py-3 outline-none focus:border-boutargue-deep";
 const primaryButtonClass =
   "w-full rounded-full border-2 border-ink bg-boutargue px-6 py-3 font-semibold text-ink shadow-[4px_4px_0_var(--color-ink)] transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0_var(--color-ink)] disabled:opacity-50";
 
+function authErrorMessage(code: string | undefined, mode: "signin" | "signup") {
+  switch (code) {
+    case "user_already_exists":
+    case "email_exists":
+      return fr.auth.alreadyRegistered;
+    case "email_not_confirmed":
+      return fr.auth.emailNotConfirmed;
+    default:
+      return mode === "signin" ? fr.auth.signInError : fr.auth.signUpError;
+  }
+}
+
 export default function LoginPage() {
   const router = useRouter();
-  const [step, setStep] = useState<"email" | "code">("email");
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
-  const [code, setCode] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
-  async function sendCode(event: React.FormEvent) {
+  async function submit(event: React.FormEvent) {
     event.preventDefault();
     setError(null);
+    setNotice(null);
     if (!emailSchema.safeParse(email).success) {
       setError(fr.auth.invalidEmail);
       return;
     }
-    setPending(true);
-    const supabase = createClient();
-    const { error: sendError } = await supabase.auth.signInWithOtp({
-      email,
-      options: { shouldCreateUser: true },
-    });
-    setPending(false);
-    if (sendError) {
-      setError(fr.auth.sendError);
+    if (!passwordSchema.safeParse(password).success) {
+      setError(fr.auth.invalidPassword);
       return;
     }
-    setStep("code");
-  }
 
-  async function verifyCode(event: React.FormEvent) {
-    event.preventDefault();
-    setError(null);
     setPending(true);
     const supabase = createClient();
-    const { error: verifyError } = await supabase.auth.verifyOtp({
-      email,
-      token: code,
-      type: "email",
-    });
-    setPending(false);
-    if (verifyError) {
-      setError(fr.auth.verifyError);
-      return;
+
+    if (mode === "signin") {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      setPending(false);
+      if (signInError) {
+        setError(authErrorMessage(signInError.code, "signin"));
+        return;
+      }
+    } else {
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+      setPending(false);
+      if (signUpError) {
+        setError(authErrorMessage(signUpError.code, "signup"));
+        return;
+      }
+      if (!data.session) {
+        // Email confirmation is still enabled in Supabase: no session until confirmed.
+        setNotice(fr.auth.confirmEmailSent);
+        setMode("signin");
+        return;
+      }
     }
+
     router.push("/journal");
     router.refresh();
   }
@@ -76,62 +98,50 @@ export default function LoginPage() {
         </p>
       )}
 
-      {step === "email" ? (
-        <form onSubmit={sendCode} className="mt-6 flex flex-col gap-4">
-          <label className="flex flex-col gap-2 font-medium">
-            {fr.auth.emailLabel}
-            <input
-              type="email"
-              autoComplete="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder={fr.auth.emailPlaceholder}
-              className={inputClass}
-            />
-          </label>
-          <button
-            type="submit"
-            disabled={pending || !isSupabaseConfigured}
-            className={primaryButtonClass}
-          >
-            {fr.auth.sendCode}
-          </button>
-        </form>
-      ) : (
-        <form onSubmit={verifyCode} className="mt-6 flex flex-col gap-4">
-          <label className="flex flex-col gap-2 font-medium">
-            {fr.auth.codeLabel}
-            <input
-              type="text"
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              value={code}
-              onChange={(event) => setCode(event.target.value)}
-              placeholder={fr.auth.codePlaceholder}
-              className={`${inputClass} font-mono`}
-            />
-          </label>
-          <button
-            type="submit"
-            disabled={pending}
-            className={primaryButtonClass}
-          >
-            {fr.auth.verifyCode}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setStep("email");
-              setCode("");
-              setError(null);
-            }}
-            className="text-sm font-medium text-ink-70 underline"
-          >
-            {fr.auth.changeEmail}
-          </button>
-        </form>
-      )}
+      <form onSubmit={submit} className="mt-6 flex flex-col gap-4">
+        <label className="flex flex-col gap-2 font-medium">
+          {fr.auth.emailLabel}
+          <input
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            placeholder={fr.auth.emailPlaceholder}
+            className={inputClass}
+          />
+        </label>
+        <label className="flex flex-col gap-2 font-medium">
+          {fr.auth.passwordLabel}
+          <input
+            type="password"
+            autoComplete={mode === "signin" ? "current-password" : "new-password"}
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            placeholder={fr.auth.passwordPlaceholder}
+            className={inputClass}
+          />
+        </label>
+        <button
+          type="submit"
+          disabled={pending || !isSupabaseConfigured}
+          className={primaryButtonClass}
+        >
+          {mode === "signin" ? fr.auth.signIn : fr.auth.signUp}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setMode(mode === "signin" ? "signup" : "signin");
+            setError(null);
+            setNotice(null);
+          }}
+          className="text-sm font-medium text-ink-70 underline"
+        >
+          {mode === "signin" ? fr.auth.toSignUp : fr.auth.toSignIn}
+        </button>
+      </form>
 
+      {notice && <p className="mt-4 text-sm font-medium text-ok">{notice}</p>}
       {error && <p className="mt-4 text-sm font-medium text-warn">{error}</p>}
     </section>
   );
