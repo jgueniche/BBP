@@ -143,6 +143,9 @@ export default async function ProfilPage() {
               <Link href="/poids">{fr.poids.linkFromJournal}</Link>
             </Button>
             <Button asChild variant="secondary" size="sm">
+              <Link href="/sport">{fr.sport.title}</Link>
+            </Button>
+            <Button asChild variant="secondary" size="sm">
               <Link href="/onboarding?edit=1">{t.redoOnboarding}</Link>
             </Button>
             <Button asChild variant="secondary" size="sm">
