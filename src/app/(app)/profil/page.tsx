@@ -128,6 +128,9 @@ export default async function ProfilPage() {
 
           <div className="flex flex-wrap gap-2">
             <Button asChild variant="secondary" size="sm">
+              <Link href="/poids">{fr.poids.linkFromJournal}</Link>
+            </Button>
+            <Button asChild variant="secondary" size="sm">
               <Link href="/onboarding?edit=1">{t.redoOnboarding}</Link>
             </Button>
             <Button asChild variant="secondary" size="sm">

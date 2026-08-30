@@ -21,6 +21,9 @@
   /* Hard sticker shadows use this; in dark mode they become paper at 30%. */
   --shadow-ink: var(--ink);
 
+  /* Chart trend stroke: deep orange for contrast on paper, pure orange on dark. */
+  --chart-trend: var(--boutargue-deep);
+
   /* shadcn semantic tokens mapped to the BBP palette. */
   --background: var(--paper);
   --foreground: var(--ink);
@@ -55,6 +58,7 @@
     --ok: #4caf7d;
     --warn: #e08745;
     --shadow-ink: rgb(251 250 246 / 0.3);
+    --chart-trend: var(--boutargue);
   }
 }
 

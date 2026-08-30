@@ -9,6 +9,7 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/journal/:path*",
+    "/poids/:path*",
     "/recettes/:path*",
     "/coach/:path*",
     "/planning/:path*",

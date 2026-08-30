@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Timer } from "lucide-react";
+import { ChevronLeft, ChevronRight, Scale, Timer } from "lucide-react";
 import Link from "next/link";
 import { z } from "zod";
 
@@ -186,6 +186,14 @@ export default async function JournalPage({
       {!goal?.calorie_target && (
         <p className="text-center text-xs text-ink-50">{t.noTargets}</p>
       )}
+
+      <Link
+        href="/poids"
+        className="mx-auto flex items-center gap-1.5 text-sm font-medium text-ink-70 underline underline-offset-4"
+      >
+        <Scale size={16} strokeWidth={2} aria-hidden />
+        {fr.poids.linkFromJournal}
+      </Link>
 
       {meatBanner && (
         <p className="flex items-center gap-2 rounded-[16px] border-2 border-ink bg-boutargue-soft p-3 text-sm font-medium text-[#0b0b0b]">
