@@ -1,5 +1,12 @@
 # DECISIONS.md — ADR courts (≤ 5 lignes chacun)
 
+## ADR-016 — Planning : validateur programmatique + fallback déterministe (30/08/2026)
+Le planner ne viole jamais les règles §5 : tout plan (IA, fallback, édition manuelle, drag &
+drop) passe par `validatePlan` — délai viande/lait sur horaires types, chabbat meal-prep,
+Pessah, jeûnes, cibles ±10 % via des portions au quart par créneau (snapshot en base).
+L'IA a 2 tentatives (violations réinjectées) puis un planificateur déterministe seedé prend
+le relais — il est aussi le mode sans clé. DoD testée : 10 semaines générées, 0 violation.
+
 ## ADR-015 — Social v1 : likes/saves/commentaires, carnets partagés par lien (30/08/2026)
 Le réseau social des recettes démarre avec likes, « enregistrer dans mon carnet », commentaires
 plats et carnets collaboratifs rejoints par lien d'invitation (token UUID, RPC security definer).

@@ -1,6 +1,13 @@
 # STATE.md — État du projet BBP
 
-Dernière mise à jour : 30/08/2026 · Sessions 1 à 8
+Dernière mise à jour : 30/08/2026 · Sessions 1 à 9
+
+## Fait — Session 9 (Planning & liste de courses)
+- **Validateur programmatique §5** (`lib/planning/validate.ts`) : délai viande→lait entre repas (horaires types 8 h/12 h 30/20 h), chabbat obligatoire + samedi sans cuisson (restes/plat chabbat) si `shomer_shabbat`, hametz/kitniyot pendant Pessah (via hebcal + drapeaux `foods`), jeûnes (rien en journée), **cibles ±10 %** par part de repas planifiée (portions au quart) — 14 tests, dont la **DoD : 10 semaines générées = 0 violation**.
+- **Génération** : agent `meal_planner` (prompt versionné, 2 tentatives avec violations réinjectées) + **planificateur déterministe sans IA** (rotation seedée par budget kcal, déjeuners halavi/parvé, dîners bassari/parvé, meal-prep chabbat vendredi→samedi, restes mardi→mercredi) — le plan renvoyé passe toujours le validateur. Migrations `202608301900` + `202608301905` (snapshots par créneau, portions).
+- **Page `/planning`** : navigation semaine, **dates hébraïques + badges fêtes/jeûnes + heure d'allumage** par jour, grille par repas avec pastilles casher et kcal/jour vs cible, **drag & drop** (blocage si une règle serait violée), régénération d'un créneau (dé), swap via picker de recettes, retrait, contrainte libre pour Kémia (« poisson mardi »), **« Vers le journal » en un tap** par jour (source `recipe`, anti-doublon).
+- **Liste de courses** (`/planning/courses`) : agrégée par rayon (mapping Ciqual→7 rayons), grammes cumulés, mention « épicerie casher » (viande/fromage/vin), cases cochables, **partage par lien public** `/courses/[token]` (RPC security definer, consultable sans compte).
+- Outils Kémia `get_plan` et `propose_meal_plan` branchés sur le vrai moteur (génération persistée + URL). 85 tests verts, lint/typecheck/build OK.
 
 ## Fait — Session 8 (Import de recettes + Carnet social, inspiré ReciMe/Pepper/Crouton)
 - **Import multi-sources** (`/recettes/importer`, migration `202608301810`) : lien (oEmbed officiel TikTok/YouTube, Instagram si `INSTAGRAM_OEMBED_TOKEN` sinon collage de légende — jamais de scraping authentifié), sites web via **JSON-LD schema.org** (phases HowToSection + durées ISO 8601), texte collé, **photo** (vision). Normalisation par l'agent `recipe_importer` (prompt versionné) avec **fallback sans IA** : parseur d'ingrédients FR (g/kg/cl/càs/càc/fractions) + heuristique de légende — 12 tests. Crédit auteur + lien source obligatoires, affichés et verrouillés (ADR-014).
@@ -92,8 +99,8 @@ Dernière mise à jour : 30/08/2026 · Sessions 1 à 8
 - Photos de recettes : colonnes prêtes (`photo_paths`, `photo_path` par étape), upload UI à venir (session 11).
 - Profil : ajouter un interrupteur « profil visible par la communauté » (aujourd'hui `visibility` reste `private` → les recettes affichent « Membre BBP » au lieu du prénom).
 - Import Instagram sans collage : poser `INSTAGRAM_OEMBED_TOKEN` (app Meta, facultatif).
-- Liste de courses générée depuis un carnet (façon ReciMe) : prévue avec le planning (session 9).
 - Fil d'amis, abonnements, notifications sociales : session 11.
+- Planning : vue mois avec dates hébraïques ; verrouillage de créneaux dans l'UI (le moteur le gère déjà) ; drag & drop tactile (v1 = souris/HTML5 + boutons swap) ; quota fin « 2 plannings/semaine free » à calibrer (garde-fou à 20 aujourd'hui) ; éval promptfoo du meal_planner dès la clé IA posée.
 
 ## Bugs connus
 - Aucun.
@@ -110,5 +117,5 @@ Dernière mise à jour : 30/08/2026 · Sessions 1 à 8
 ## Advisors Supabase (30/08/2026, post-session 8)
 - ✅ Aucune erreur ; RLS active sur toutes les tables.
 - Corrigé : `set_updated_at` avec `search_path` fixé (migration `202608301605`).
-- WARN assumés : les 4 fonctions `security definer` de la session 8 (`is_collection_owner/member`, `can_view_via_collection`, `join_collection`) sont exposées en RPC — sans risque : elles ne renvoient que des booléens scoppés sur `auth.uid()` (ou null pour anon) et servent aux policies RLS (EXECUTE requis). À re-durcir si le modèle change.
+- WARN assumés : les 5 fonctions `security definer` exposées en RPC — les 4 de la session 8 (`is_collection_owner/member`, `can_view_via_collection`, `join_collection`, booléens scoppés sur `auth.uid()`, requises par les policies RLS) et `shopping_list_by_token` (session 9, volontairement publique : c'est le lien de partage de la liste de courses, gardé par un token UUID non devinable). À re-durcir si le modèle change.
 - Restant (mineur) : extension `pg_trgm` dans le schéma public (déplacement disruptif, à traiter session 15) ; « Leaked password protection » à activer dans le dashboard Auth (1 clic, avec les réglages email de l'étape 2).
