@@ -1,6 +1,13 @@
 # STATE.md — État du projet BBP
 
-Dernière mise à jour : 30/08/2026 · Sessions 1 à 4
+Dernière mise à jour : 30/08/2026 · Sessions 1 à 5
+
+## Fait — Session 5 (Poids, mesures, TDEE adaptatif)
+- `lib/nutrition/ewma.ts` : tendance EWMA α = 0,1 tolérante aux trous (lissage composé par jour manquant), variation/semaine, projection à l'objectif — 11 tests.
+- `lib/nutrition/adaptive.ts` : TDEE observé = apports moyens − 7700 × Δtendance/jour, mélange 50/50 avec l'estimation courante, pas borné à ±15 % par ajustement, jours < 800 kcal ignorés, minimum 8 pesées + 10 jours de journal sur ≥ 14 jours ; nouvelles cibles via les garde-fous §3.4 — 8 tests (plateau, perte rapide, données manquantes, bornes).
+- Page `/poids` : saisie du jour, stats (tendance, variation/sem, date objectif estimée), graphique Recharts 30/90/365 j (pesées + tendance, tokens dark-mode, contraste validé par le validateur dataviz), mesures corporelles (5 champs, upsert par date), photos de progression privées (bucket Storage RLS par dossier utilisateur, URLs signées), carte « Proposition de Kémia » avec explication en une phrase et accepter/refuser (objectif historisé).
+- Génération de proposition : à la visite de `/poids` (1×/semaine max, seuil de bruit 3 %) + route cron `/api/cron/adaptive-tdee` (Vercel Cron dimanche 18 h UTC, nécessite `SUPABASE_SERVICE_ROLE_KEY` + `CRON_SECRET`) — ADR-011.
+- Migration `202608301630` (body_measurements, tdee_proposals, bucket + policies Storage), types mis à jour, liens d'accès depuis Journal et Moi. 47 tests verts au total.
 
 ## Fait — Session 4 (Base alimentaire & journal)
 - Base `foods` : 3 185 aliments **Ciqual** importés (nutriments/100 g, 2 297 avec kcal — le reste est absent de la source), classification casher heuristique (ADR-009), flags hametz/kitniyot, recherche full-text FR + trigram (`search_foods` RPC RLS-aware). Seed versionné + `scripts/import-ciqual.py`.
@@ -46,7 +53,10 @@ Dernière mise à jour : 30/08/2026 · Sessions 1 à 4
 5. Valider a posteriori les plans des sessions 1-4 (sessions autonomes, cf. ADR-002).
 
 ## Backlog
-- DoD session 4 partielle : évals « 20 phrases ≥ 90 % / photo ≥ 80 % » à passer avec promptfoo dès que la clé Anthropic est posée (prévu session 6).
+- Rappel matinal de pesée (hors chabbat) : arrive avec les notifications (session 12).
+- Cron global adaptive-tdee : poser `SUPABASE_SERVICE_ROLE_KEY` + `CRON_SECRET` sur Vercel (sinon seule la génération à la visite fonctionne — suffisant en v1).
+- Graphiques des mesures corporelles (Recharts) : v1 affiche les dernières valeurs, courbes à ajouter.
+- DoD session 4 partielle : évals « 20 phrases ≥ 90 % / photo ≥ 80 % » à passer avec promptfoo dès que la clé Gemini est posée (prévu session 6).
 - Tests RLS par rôle (SQL) — exigés brief §9, à faire au plus tard session 15.
 - Refaire l'onboarding ne préremplit pas encore les valeurs existantes.
 - Suppression de compte : purge les données ; la suppression de l'utilisateur auth (service role) arrive session 15.

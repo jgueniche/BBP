@@ -1,5 +1,11 @@
 # DECISIONS.md — ADR courts (≤ 5 lignes chacun)
 
+## ADR-011 — TDEE adaptatif : calcul lazy + Vercel Cron plutôt que pg_cron (30/08/2026)
+La logique adaptative vit en TypeScript (`lib/nutrition/adaptive.ts`) pour être testée
+unitairement (DoD session 5). Déclenchement : à la visite de `/poids` (idempotent, 1 proposition
+par semaine par utilisateur) + Vercel Cron dimanche soir en rattrapage global (service role
+requis). pg_cron du brief réservé aux futurs jobs purement SQL.
+
 ## ADR-010 — IA d'extraction : Gemini 3.7 Flash par défaut (30/08/2026)
 Décision de Jeremy (coût) : le `food_logger` tourne sur `gemini-3.7-flash`
 (0,75 $/3,75 $ par Mtok en tarif de lancement) au lieu de `claude-sonnet-5` prévu au brief §6.
