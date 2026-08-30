@@ -1,103 +1,121 @@
-import { HDate, HebrewCalendar, Location, flags } from "@hebcal/core";
-
-// Basic v1 context (full calendar engine lands in session 13).
-// Without profile coordinates we fall back to Paris for candle times.
-const PARIS = new Location(
-  48.8566,
-  2.3522,
-  false,
-  "Europe/Paris",
-  "Paris",
-  "FR",
-);
+import {
+  activePostFeast,
+  computeCalendarDays,
+  DEFAULT_CALENDAR_SETTINGS,
+  type CalendarDay,
+  type CalendarSettings,
+} from "./engine";
+import { resolveLocation } from "./locations";
 
 export type CalendarContext = {
   text: string;
   isFastToday: boolean;
 };
 
-function frDate(date: Date, timeZone: string): string {
+function frDate(dateKey: string): string {
   return new Intl.DateTimeFormat("fr-FR", {
     weekday: "long",
     day: "numeric",
     month: "long",
-    timeZone,
-  }).format(date);
+    timeZone: "UTC",
+  }).format(new Date(`${dateKey}T12:00:00Z`));
 }
 
-function frTime(date: Date, timeZone: string): string {
-  return new Intl.DateTimeFormat("fr-FR", {
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone,
-  }).format(date);
+function weekdayOf(dateKey: string): number {
+  return new Date(`${dateKey}T12:00:00Z`).getUTCDay();
 }
 
+function wishesFor(today: CalendarDay, tomorrow: CalendarDay | undefined) {
+  const wishes: string[] = [];
+  if (today.isFast) {
+    wishes.push("Souhaite un jeûne facile (tsom kal).");
+  } else if (today.isErev && weekdayOf(today.date) === 5 && !tomorrow?.isChag) {
+    wishes.push("C'est erev chabbat : souhaite chabbat chalom.");
+  } else if (today.isErev && tomorrow?.isChag) {
+    wishes.push("C'est veille de fête : souhaite hag saméah.");
+  } else if (today.isChag) {
+    wishes.push("Souhaite hag saméah.");
+  } else if (today.isHanouka) {
+    wishes.push("Souhaite hanouka saméah.");
+  } else if (today.holidays.includes("Purim")) {
+    wishes.push("Souhaite Pourim saméah.");
+  }
+  return wishes;
+}
+
+/**
+ * Kémia's calendar block: today's Hebrew date, fasts (no calorie talk),
+ * Pessah, upcoming candle times, budget-kiff feasts, Chavouot dairy note,
+ * après-fêtes mode and the matching wishes (brief §10.13).
+ */
 export function buildCalendarContext(
   now: Date = new Date(),
-  options: { il?: boolean; location?: Location } = {},
+  settings: Partial<CalendarSettings> = {},
 ): CalendarContext {
-  const location = options.location ?? PARIS;
-  const timeZone = location.getTzid();
-  const il = options.il ?? false;
+  const full = { ...DEFAULT_CALENDAR_SETTINGS, ...settings };
+  const timeZone = resolveLocation(full.city).location.getTzid();
+  const todayKey = new Intl.DateTimeFormat("en-CA", { timeZone }).format(now);
 
-  const end = new Date(now.getTime() + 3 * 86_400_000);
-  const events = HebrewCalendar.calendar({
-    start: now,
-    end,
-    location,
-    candlelighting: true,
-    il,
-    noMinorFast: false,
-  });
+  const back = new Date(Date.parse(`${todayKey}T00:00:00Z`) - 10 * 86_400_000)
+    .toISOString()
+    .slice(0, 10);
+  const days = computeCalendarDays(back, 19, full);
+  const todayIndex = days.findIndex((d) => d.date === todayKey);
+  if (todayIndex === -1) return { text: "", isFastToday: false };
+  const today = days[todayIndex];
+  const upcoming = days.slice(todayIndex + 1, todayIndex + 8);
 
-  const hd = new HDate(now);
   const lines: string[] = [
-    `Aujourd'hui : ${frDate(now, timeZone)} (${hd.renderGematriya()})`,
+    `Aujourd'hui : ${frDate(todayKey)} (${today.hebrewDate}).`,
   ];
 
-  let isFastToday = false;
-  const todayKey = now.toDateString();
-
-  for (const ev of events) {
-    const evDate = ev.getDate().greg();
-    const sameDay = evDate.toDateString() === todayKey;
-    const mask = ev.getFlags();
-
-    if (mask & flags.MAJOR_FAST || mask & flags.MINOR_FAST) {
-      if (sameDay) {
-        isFastToday = true;
-        lines.push(
-          `JEÛNE AUJOURD'HUI (${ev.render("fr")}) : aucun objectif calorique, conseils hydratation avant/après uniquement.`,
-        );
-      } else {
-        lines.push(
-          `Jeûne à venir : ${ev.render("fr")} (${frDate(evDate, timeZone)}).`,
-        );
-      }
-      continue;
-    }
-
-    const timed = ev as { eventTime?: Date };
-    if (ev.getDesc() === "Candle lighting" && timed.eventTime) {
-      lines.push(
-        `Allumage des bougies ${frDate(evDate, timeZone)} à ${frTime(timed.eventTime, timeZone)}.`,
-      );
-      continue;
-    }
-    if (ev.getDesc() === "Havdalah" && timed.eventTime) {
-      lines.push(
-        `Sortie de chabbat ${frDate(evDate, timeZone)} à ${frTime(timed.eventTime, timeZone)}.`,
-      );
-      continue;
-    }
-
-    if (mask & flags.CHAG || mask & flags.EREV) {
-      lines.push(
-        `${sameDay ? "Aujourd'hui" : frDate(evDate, timeZone)} : ${ev.render("fr")}.`,
-      );
-    }
+  if (today.isFast) {
+    lines.push(
+      `JEÛNE AUJOURD'HUI (${today.fastName}) : aucun objectif calorique, conseils hydratation et repas d'avant/après uniquement, jamais présenter le jeûne comme un outil minceur.`,
+    );
+  }
+  if (today.isPessah) {
+    lines.push(
+      "PESSAH en cours : pas de hametz (blé, orge, seigle, avoine, épeautre levés) ; kitniyot selon le minhag de la personne.",
+    );
+  }
+  if (today.isFeast) {
+    lines.push(
+      "Jour de fête : mode « budget kiff » — on célèbre, aucun discours de déficit aujourd'hui.",
+    );
+  }
+  if (today.isChavouot || upcoming[0]?.isChavouot) {
+    lines.push(
+      "Chavouot : le repas lacté est la tradition (cheesecake compris).",
+    );
+  }
+  if (today.labels.length > 0 && !today.isFast) {
+    lines.push(`Au calendrier : ${today.labels.join(", ")}.`);
   }
 
-  return { text: lines.join(" "), isFastToday };
+  for (const dayInfo of upcoming) {
+    const bits: string[] = [];
+    if (dayInfo.labels.length > 0) bits.push(dayInfo.labels.join(", "));
+    if (dayInfo.candleTime) bits.push(`allumage à ${dayInfo.candleTime}`);
+    if (bits.length > 0) {
+      lines.push(`${frDate(dayInfo.date)} : ${bits.join(", ")}.`);
+    }
+  }
+  if (today.candleTime) {
+    lines.push(`Allumage des bougies ce soir à ${today.candleTime}.`);
+  }
+  if (today.havdalahTime) {
+    lines.push(`Sortie (havdalah) à ${today.havdalahTime}.`);
+  }
+
+  const postFeast = activePostFeast(days, todayKey);
+  if (postFeast) {
+    lines.push(
+      "Mode après-fêtes actif : semaine de recadrage doux, retour aux habitudes sans aucune culpabilisation.",
+    );
+  }
+
+  lines.push(...wishesFor(today, upcoming[0]));
+
+  return { text: lines.join(" "), isFastToday: today.isFast };
 }

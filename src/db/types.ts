@@ -714,6 +714,33 @@ export type Database = {
         };
         Relationships: [];
       };
+      jewish_calendar_cache: {
+        Row: {
+          created_at: string;
+          date: string;
+          id: string;
+          payload: Json;
+          settings_hash: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          date: string;
+          id?: string;
+          payload: Json;
+          settings_hash: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          date?: string;
+          id?: string;
+          payload?: Json;
+          settings_hash?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       meal_plans: {
         Row: {
           created_at: string;

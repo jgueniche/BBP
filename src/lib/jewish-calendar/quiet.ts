@@ -1,32 +1,29 @@
-import { HebrewCalendar, Location } from "@hebcal/core";
+import { HebrewCalendar } from "@hebcal/core";
 
-const PARIS = new Location(
-  48.8566,
-  2.3522,
-  false,
-  "Europe/Paris",
-  "Paris",
-  "FR",
-);
+import { DEFAULT_CALENDAR_SETTINGS, type CalendarSettings } from "./engine";
+import { resolveLocation } from "./locations";
 
 /**
  * Automatic quiet hours (brief §4.11): between candle lighting and havdalah
- * (chabbat and yom tov alike) no notification leaves the building.
+ * (chabbat and yom tov alike) no notification leaves the building. Honors the
+ * profile city, Israel option and candle offset when provided.
  */
 export function isQuietTime(
   now: Date,
-  options: { il?: boolean; location?: Location } = {},
+  settings: Partial<CalendarSettings> = {},
 ): boolean {
-  const location = options.location ?? PARIS;
+  const full = { ...DEFAULT_CALENDAR_SETTINGS, ...settings };
+  const resolved = resolveLocation(full.city);
   const start = new Date(now.getTime() - 4 * 86_400_000);
   const end = new Date(now.getTime() + 4 * 86_400_000);
 
   const events = HebrewCalendar.calendar({
     start,
     end,
-    location,
+    location: resolved.location,
     candlelighting: true,
-    il: options.il ?? false,
+    candleLightingMins: full.candleOffsetMin,
+    il: full.israelCalendar || resolved.inIsrael,
   });
 
   // Latest lighting/havdalah boundary at or before `now` decides the state.
