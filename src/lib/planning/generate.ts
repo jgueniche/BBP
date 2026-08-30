@@ -154,7 +154,7 @@ export async function buildPlanningData(
       supabase
         .from("user_settings")
         .select(
-          "shomer_shabbat, meat_to_dairy_wait_hours, dairy_to_meat_wait_hours, kitniyot, israel_calendar, mode",
+          "shomer_shabbat, meat_to_dairy_wait_hours, dairy_to_meat_wait_hours, kitniyot, israel_calendar, mode, kashrut_enabled, jewish_calendar_enabled",
         )
         .eq("user_id", userId)
         .maybeSingle(),
@@ -172,19 +172,27 @@ export async function buildPlanningData(
       loadPool(supabase, userId),
     ]);
 
+  const calendarEnabled = settings?.jewish_calendar_enabled ?? true;
   const calendar = weekJewishCalendar(weekStart, {
     il: settings?.israel_calendar ?? false,
   });
+  // With the calendar disabled, chabbat/fast/Pessah rules vanish at the
+  // source: empty date sets and no mandatory chabbat meals.
   const ctx: PlanContext = {
     weekStart,
     calorieTarget:
       settings?.mode === "boutargue" ? null : (goal?.calorie_target ?? null),
-    shomerShabbat: settings?.shomer_shabbat ?? true,
+    kashrutEnabled: settings?.kashrut_enabled ?? true,
+    shomerShabbat: calendarEnabled && (settings?.shomer_shabbat ?? true),
     meatToDairyWaitHours: settings?.meat_to_dairy_wait_hours ?? 6,
     dairyToMeatWaitHours: settings?.dairy_to_meat_wait_hours ?? 1,
     eatsKitniyot: settings?.kitniyot ?? true,
-    pessahDates: new Set(calendar.filter((d) => d.isPessah).map((d) => d.date)),
-    fastDates: new Set(calendar.filter((d) => d.isFast).map((d) => d.date)),
+    pessahDates: calendarEnabled
+      ? new Set(calendar.filter((d) => d.isPessah).map((d) => d.date))
+      : new Set(),
+    fastDates: calendarEnabled
+      ? new Set(calendar.filter((d) => d.isFast).map((d) => d.date))
+      : new Set(),
   };
 
   const profileBits: string[] = [];
@@ -198,7 +206,9 @@ export async function buildPlanningData(
   return {
     ctx,
     calendar,
-    calendarText: calendarSummary(calendar),
+    calendarText: calendarEnabled
+      ? calendarSummary(calendar)
+      : "Aucune contrainte calendaire (calendrier juif désactivé par la personne).",
     pool,
     constraintsFromProfile:
       profileBits.length > 0 ? profileBits.join(" ") : null,

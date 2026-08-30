@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import { signOut } from "./actions";
 import { DeleteAccountButton } from "./delete-button";
+import { PracticeToggles } from "./practice-toggles";
 
 const t = fr.profil;
 
@@ -22,6 +23,8 @@ export default async function ProfilPage() {
     protein_target_g: number | null;
   } | null = null;
   let meatWait: number | null = null;
+  let kashrutEnabled = true;
+  let jewishCalendarEnabled = true;
 
   if (isSupabaseConfigured) {
     const supabase = await createClient();
@@ -39,7 +42,9 @@ export default async function ProfilPage() {
           .maybeSingle(),
         supabase
           .from("user_settings")
-          .select("mode, meat_to_dairy_wait_hours")
+          .select(
+            "mode, meat_to_dairy_wait_hours, kashrut_enabled, jewish_calendar_enabled",
+          )
           .maybeSingle(),
         supabase
           .from("goals")
@@ -50,6 +55,8 @@ export default async function ProfilPage() {
       displayName = profileRes.data?.display_name ?? null;
       mode = settingsRes.data?.mode ?? null;
       meatWait = settingsRes.data?.meat_to_dairy_wait_hours ?? null;
+      kashrutEnabled = settingsRes.data?.kashrut_enabled ?? true;
+      jewishCalendarEnabled = settingsRes.data?.jewish_calendar_enabled ?? true;
       goal = goalRes.data ?? null;
     }
   }
@@ -125,6 +132,11 @@ export default async function ProfilPage() {
               )}
             </dl>
           </div>
+
+          <PracticeToggles
+            initialKashrut={kashrutEnabled}
+            initialCalendar={jewishCalendarEnabled}
+          />
 
           <div className="flex flex-wrap gap-2">
             <Button asChild variant="secondary" size="sm">

@@ -64,11 +64,17 @@ export async function POST(request: Request) {
 
   const [context, settingsRes] = await Promise.all([
     buildCoachContext(supabase, user.id),
-    supabase.from("user_settings").select("israel_calendar").maybeSingle(),
+    supabase
+      .from("user_settings")
+      .select("israel_calendar, jewish_calendar_enabled")
+      .maybeSingle(),
   ]);
-  const calendar = buildCalendarContext(new Date(), {
-    il: settingsRes.data?.israel_calendar ?? false,
-  });
+  const calendar =
+    (settingsRes.data?.jewish_calendar_enabled ?? true)
+      ? buildCalendarContext(new Date(), {
+          il: settingsRes.data?.israel_calendar ?? false,
+        })
+      : { text: "", isFastToday: false };
 
   let conversationId: string;
   const { data: existing } = await supabase

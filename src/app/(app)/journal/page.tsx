@@ -83,7 +83,7 @@ export default async function JournalPage({
       .maybeSingle(),
     supabase
       .from("user_settings")
-      .select("meat_to_dairy_wait_hours, mode")
+      .select("meat_to_dairy_wait_hours, mode, kashrut_enabled")
       .maybeSingle(),
     supabase.from("food_favorites").select("label").order("created_at"),
   ]);
@@ -111,7 +111,7 @@ export default async function JournalPage({
   const settings = settingsRes.data;
 
   let meatBanner: string | null = null;
-  if (date === today && user) {
+  if (date === today && user && (settings?.kashrut_enabled ?? true)) {
     const { data: lastBassari } = await supabase
       .from("food_logs")
       .select("logged_at")

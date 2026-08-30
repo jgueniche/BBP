@@ -10,6 +10,7 @@ function ctx(overrides: Partial<PlanContext> = {}): PlanContext {
   return {
     weekStart: "2026-09-07",
     calorieTarget: 2000,
+    kashrutEnabled: true,
     shomerShabbat: true,
     meatToDairyWaitHours: 6,
     dairyToMeatWaitHours: 1,
@@ -130,6 +131,28 @@ describe("validatePlan — kosher rules", () => {
         ctx({ pessahDates: pessah, eatsKitniyot: true, calorieTarget: null }),
       ),
     ).toEqual([]);
+  });
+
+  it("skips every kosher rule when the user opted out", () => {
+    const violations = validatePlan(
+      [
+        slot({ meal: "dej", kashrutClass: "bassari", kcal: 800 }),
+        slot({
+          meal: "diner",
+          kashrutClass: "halavi",
+          kcal: 700,
+          hasHametz: true,
+        }),
+      ],
+      ctx({
+        kashrutEnabled: false,
+        shomerShabbat: false,
+        meatToDairyWaitHours: 24,
+        pessahDates: new Set(["2026-09-07"]),
+        calorieTarget: null,
+      }),
+    );
+    expect(violations).toEqual([]);
   });
 
   it("plans nothing during a fast day", () => {
@@ -319,6 +342,13 @@ describe("buildFallbackPlan — DoD: 10 generated weeks, zero violations", () =>
   it("stays valid without a calorie target (mode boutargue)", () => {
     const context = ctx({ calorieTarget: null });
     expect(validatePlan(buildFallbackPlan(POOL, context), context)).toEqual([]);
+  });
+
+  it("plans freely (and validly) for a non-observant user", () => {
+    const context = ctx({ kashrutEnabled: false, shomerShabbat: false });
+    const plan = buildFallbackPlan(POOL, context);
+    expect(plan.length).toBeGreaterThanOrEqual(12);
+    expect(validatePlan(plan, context)).toEqual([]);
   });
 
   it("filters hametz during a Pessah week and skips fast-day lunches", () => {

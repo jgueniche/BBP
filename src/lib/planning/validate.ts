@@ -32,7 +32,7 @@ export function validatePlan(
     );
 
     // Meat → dairy (and dairy → meat) wait between meals of the same day.
-    for (let i = 0; i < ordered.length; i += 1) {
+    for (let i = 0; ctx.kashrutEnabled && i < ordered.length; i += 1) {
       for (let j = i + 1; j < ordered.length; j += 1) {
         const earlier = ordered[i];
         const later = ordered[j];
@@ -79,7 +79,7 @@ export function validatePlan(
     }
 
     // Pessah: no hametz; kitniyot only if the user eats them.
-    if (ctx.pessahDates.has(date)) {
+    if (ctx.kashrutEnabled && ctx.pessahDates.has(date)) {
       for (const slot of ordered) {
         if (slot.hasHametz) {
           violations.push({

@@ -367,6 +367,18 @@ export const fr = {
     calorieTarget: "Cible calorique",
     proteinTarget: "Cible protéines",
     meatWait: "Délai viande → lait",
+    practice: {
+      title: "Ma pratique",
+      intro:
+        "Chacun son chemin : active ou coupe les règles, l'app s'adapte partout (planning, journal, Kémia).",
+      kashrut: "Règles de cacherout",
+      kashrutHint:
+        "Viande/lait, hametz à Pessah, mentions casher — les pastilles restent affichées à titre indicatif.",
+      calendar: "Calendrier juif",
+      calendarHint:
+        "Chabbat, fêtes, jeûnes, dates hébraïques et heures d'allumage.",
+      saved: "C'est noté, l'app s'adapte.",
+    },
     redoOnboarding: "Refaire mon parcours d'accueil",
     exportData: "Exporter mes données (JSON)",
     deleteData: "Supprimer toutes mes données",

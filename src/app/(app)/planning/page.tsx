@@ -62,7 +62,9 @@ export default async function PlanningPage({
         .maybeSingle(),
       supabase
         .from("user_settings")
-        .select("shomer_shabbat, israel_calendar, mode")
+        .select(
+          "shomer_shabbat, israel_calendar, mode, jewish_calendar_enabled",
+        )
         .eq("user_id", user.id)
         .maybeSingle(),
       supabase
@@ -108,17 +110,18 @@ export default async function PlanningPage({
     slug: row.recipe_id ? (slugById.get(row.recipe_id) ?? null) : null,
   }));
 
+  const calendarEnabled = settings?.jewish_calendar_enabled ?? true;
   const calendar = weekJewishCalendar(weekStart, {
     il: settings?.israel_calendar ?? false,
   });
   const days: GridDay[] = calendar.map((day, index) => ({
     date: day.date,
     label: dayLabel(day.date),
-    hebrewDate: day.hebrewDate,
-    badges: day.labels,
-    candleTime: day.candleTime,
-    isFast: day.isFast,
-    isChabbat: index === 4 || index === 5,
+    hebrewDate: calendarEnabled ? day.hebrewDate : "",
+    badges: calendarEnabled ? day.labels : [],
+    candleTime: calendarEnabled ? day.candleTime : null,
+    isFast: calendarEnabled && day.isFast,
+    isChabbat: calendarEnabled && (index === 4 || index === 5),
   }));
 
   const calorieTarget =
@@ -169,7 +172,7 @@ export default async function PlanningPage({
         days={days}
         slots={slots}
         calorieTarget={calorieTarget}
-        shomerShabbat={settings?.shomer_shabbat ?? true}
+        shomerShabbat={calendarEnabled && (settings?.shomer_shabbat ?? true)}
       />
     </section>
   );

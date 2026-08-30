@@ -171,6 +171,12 @@ export async function logMeal(input: z.infer<typeof logMealSchema>) {
   const { kashrutClass, conflict } = classifyMeal(
     parsed.items.map((item) => item.kashrut_class),
   );
+  const { data: settings } = await supabase
+    .from("user_settings")
+    .select("kashrut_enabled")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  const kashrutEnabled = settings?.kashrut_enabled ?? true;
 
   const { error } = await supabase.from("food_logs").insert({
     user_id: user.id,
@@ -185,7 +191,7 @@ export async function logMeal(input: z.infer<typeof logMealSchema>) {
   if (error) throw new Error(error.message);
 
   revalidatePath("/journal");
-  return { ok: true as const, conflict };
+  return { ok: true as const, conflict: kashrutEnabled && conflict };
 }
 
 export async function deleteFoodLog(id: string) {

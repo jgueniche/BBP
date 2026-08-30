@@ -1,5 +1,12 @@
 # DECISIONS.md — ADR courts (≤ 5 lignes chacun)
 
+## ADR-017 — Pratique religieuse opt-out, casher-natif par défaut (30/08/2026)
+Demande de Jeremy : l'app reste casher-native (défauts activés) mais chaque personne peut
+désactiver les règles de cacherout et/ou le calendrier juif (Profil › Ma pratique,
+`user_settings.kashrut_enabled` / `jewish_calendar_enabled`). Le gating se fait à la source
+(contexte du planner, contexte de Kémia, requêtes des pages) plutôt que dans chaque règle.
+Les classifications casher restent calculées et affichées : information, jamais contrainte.
+
 ## ADR-016 — Planning : validateur programmatique + fallback déterministe (30/08/2026)
 Le planner ne viole jamais les règles §5 : tout plan (IA, fallback, édition manuelle, drag &
 drop) passe par `validatePlan` — délai viande/lait sur horaires types, chabbat meal-prep,

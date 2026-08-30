@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -11,6 +12,32 @@ export async function signOut() {
     await supabase.auth.signOut();
   }
   redirect("/login");
+}
+
+export async function updatePracticeSettings(input: {
+  kashrutEnabled: boolean;
+  jewishCalendarEnabled: boolean;
+}) {
+  if (!isSupabaseConfigured) return { ok: false as const };
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { error } = await supabase.from("user_settings").upsert(
+    {
+      user_id: user.id,
+      kashrut_enabled: input.kashrutEnabled === true,
+      jewish_calendar_enabled: input.jewishCalendarEnabled === true,
+    },
+    { onConflict: "user_id" },
+  );
+  if (error) throw new Error(error.message);
+  revalidatePath("/profil");
+  revalidatePath("/planning");
+  revalidatePath("/journal");
+  return { ok: true as const };
 }
 
 export async function deleteAccountData() {

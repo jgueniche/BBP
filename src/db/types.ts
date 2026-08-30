@@ -938,6 +938,8 @@ export type Database = {
           created_at: string;
           dairy_to_meat_wait_hours: number;
           israel_calendar: boolean;
+          jewish_calendar_enabled: boolean;
+          kashrut_enabled: boolean;
           kitniyot: boolean;
           meat_to_dairy_wait_hours: number;
           minor_fasts: boolean;
@@ -954,6 +956,8 @@ export type Database = {
           created_at?: string;
           dairy_to_meat_wait_hours?: number;
           israel_calendar?: boolean;
+          jewish_calendar_enabled?: boolean;
+          kashrut_enabled?: boolean;
           kitniyot?: boolean;
           meat_to_dairy_wait_hours?: number;
           minor_fasts?: boolean;
@@ -970,6 +974,8 @@ export type Database = {
           created_at?: string;
           dairy_to_meat_wait_hours?: number;
           israel_calendar?: boolean;
+          jewish_calendar_enabled?: boolean;
+          kashrut_enabled?: boolean;
           kitniyot?: boolean;
           meat_to_dairy_wait_hours?: number;
           minor_fasts?: boolean;

@@ -87,8 +87,13 @@ export function pickReplacementSlot(
     (recipe) =>
       recipe.kcal !== null &&
       recipe.id !== excludeRecipeId &&
-      !(ctx.pessahDates.has(date) && recipe.hasHametz) &&
-      !(ctx.pessahDates.has(date) && !ctx.eatsKitniyot && recipe.hasKitniyot),
+      (!ctx.kashrutEnabled ||
+        (!(ctx.pessahDates.has(date) && recipe.hasHametz) &&
+          !(
+            ctx.pessahDates.has(date) &&
+            !ctx.eatsKitniyot &&
+            recipe.hasKitniyot
+          ))),
   );
   const day = new Date(`${date}T00:00:00Z`).getUTCDay();
   const isFridayDinner = meal === "diner" && day === 5;
@@ -98,6 +103,8 @@ export function pickReplacementSlot(
   if ((isFridayDinner || isSaturdayLunch) && ctx.shomerShabbat) {
     const chabbat = usable.filter((recipe) => recipe.tags.includes("chabbat"));
     candidates = chabbat.length > 0 ? chabbat : usable;
+  } else if (!ctx.kashrutEnabled) {
+    candidates = usable;
   } else if (meal === "diner") {
     candidates = usable.filter(
       (recipe) =>
@@ -133,20 +140,30 @@ export function buildFallbackPlan(
   const usable = pool.filter((recipe) => recipe.kcal !== null);
 
   const forDate = (date: string, list: PlannerRecipe[]) =>
-    list.filter(
-      (recipe) =>
-        !(ctx.pessahDates.has(date) && recipe.hasHametz) &&
-        !(ctx.pessahDates.has(date) && !ctx.eatsKitniyot && recipe.hasKitniyot),
-    );
+    ctx.kashrutEnabled
+      ? list.filter(
+          (recipe) =>
+            !(ctx.pessahDates.has(date) && recipe.hasHametz) &&
+            !(
+              ctx.pessahDates.has(date) &&
+              !ctx.eatsKitniyot &&
+              recipe.hasKitniyot
+            ),
+        )
+      : list;
 
-  const lunchPool = usable.filter(
-    (recipe) =>
-      recipe.kashrutClass === "parve" || recipe.kashrutClass === "halavi",
-  );
-  const dinnerPool = usable.filter(
-    (recipe) =>
-      recipe.kashrutClass === "bassari" || recipe.kashrutClass === "parve",
-  );
+  const lunchPool = ctx.kashrutEnabled
+    ? usable.filter(
+        (recipe) =>
+          recipe.kashrutClass === "parve" || recipe.kashrutClass === "halavi",
+      )
+    : usable;
+  const dinnerPool = ctx.kashrutEnabled
+    ? usable.filter(
+        (recipe) =>
+          recipe.kashrutClass === "bassari" || recipe.kashrutClass === "parve",
+      )
+    : usable;
   const chabbatPool = usable.filter((recipe) =>
     recipe.tags.includes("chabbat"),
   );

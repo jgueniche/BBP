@@ -2,6 +2,11 @@
 
 Dernière mise à jour : 30/08/2026 · Sessions 1 à 9
 
+## Fait — Session 9bis (Pratique à la carte — demande de Jeremy)
+- Deux interrupteurs dans **Profil › Ma pratique** (migration `202608301950`, défaut : activés) : **règles de cacherout** et **calendrier juif** — pour les utilisateurs non pratiquants.
+- Respectés partout : validateur + générateurs du planning (viande/lait, chabbat, Pessah, jeûnes coupés à la source), affichage planning (dates hébraïques/badges/allumage masqués), minuteur viande→lait et alerte mélange du journal, contexte de Kémia (calendrier omis ; consigne « n'en parle jamais de toi-même » si cacherout désactivée), prompt du meal_planner.
+- Les pastilles casher des recettes restent affichées à titre indicatif (information, pas contrainte). 2 tests ajoutés (87 verts).
+
 ## Fait — Session 9 (Planning & liste de courses)
 - **Validateur programmatique §5** (`lib/planning/validate.ts`) : délai viande→lait entre repas (horaires types 8 h/12 h 30/20 h), chabbat obligatoire + samedi sans cuisson (restes/plat chabbat) si `shomer_shabbat`, hametz/kitniyot pendant Pessah (via hebcal + drapeaux `foods`), jeûnes (rien en journée), **cibles ±10 %** par part de repas planifiée (portions au quart) — 14 tests, dont la **DoD : 10 semaines générées = 0 violation**.
 - **Génération** : agent `meal_planner` (prompt versionné, 2 tentatives avec violations réinjectées) + **planificateur déterministe sans IA** (rotation seedée par budget kcal, déjeuners halavi/parvé, dîners bassari/parvé, meal-prep chabbat vendredi→samedi, restes mardi→mercredi) — le plan renvoyé passe toujours le validateur. Migrations `202608301900` + `202608301905` (snapshots par créneau, portions).

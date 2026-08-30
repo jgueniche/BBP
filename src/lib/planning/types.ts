@@ -26,6 +26,8 @@ export type PlanSlot = {
 export type PlanContext = {
   weekStart: string; // Monday, YYYY-MM-DD
   calorieTarget: number | null;
+  /** false = the user does not follow kosher rules — skip them entirely. */
+  kashrutEnabled: boolean;
   shomerShabbat: boolean;
   meatToDairyWaitHours: number;
   dairyToMeatWaitHours: number;

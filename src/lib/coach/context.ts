@@ -130,7 +130,11 @@ export async function buildCoachContext(
       ? `7 derniers jours : ${loggedDays} jours de journal, ~${avgKcal} kcal/j, ~${avgProtein} g de protéines/j.`
       : `7 derniers jours : journal vide.`,
   );
-  if (settings) {
+  if (settings && !settings.kashrut_enabled) {
+    parts.push(
+      "La personne ne suit pas les règles de cacherout : n'en parle jamais de toi-même, aucune remarque sur viande/lait ou hekhsher.",
+    );
+  } else if (settings) {
     const kashrut: string[] = [];
     if (settings.shomer_shabbat) kashrut.push("chomer chabbat");
     kashrut.push(`délai viande→lait ${settings.meat_to_dairy_wait_hours} h`);

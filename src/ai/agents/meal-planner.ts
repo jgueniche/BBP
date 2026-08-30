@@ -64,7 +64,9 @@ export async function generateWeekPlanAi(input: {
   const promptParts = [
     `Semaine du ${ctx.weekStart} (lundi) : ${weekDates(ctx.weekStart).join(", ")}.`,
     `Calendrier : ${input.calendarText}`,
-    `Réglages : chabbat observé=${ctx.shomerShabbat} ; délai viande→lait=${ctx.meatToDairyWaitHours} h ; kitniyot à Pessah=${ctx.eatsKitniyot}.`,
+    ctx.kashrutEnabled
+      ? `Réglages : chabbat observé=${ctx.shomerShabbat} ; délai viande→lait=${ctx.meatToDairyWaitHours} h ; kitniyot à Pessah=${ctx.eatsKitniyot}.`
+      : "La personne ne suit PAS les règles de cacherout : ignore les contraintes viande/lait, hametz et plats de chabbat obligatoires. Compose librement.",
     ctx.calorieTarget === null
       ? "Pas de cible calorique (mode plaisir) : portions = 1, varie."
       : `Cible : ${ctx.calorieTarget} kcal/jour (déjeuner+dîner ≈ 75 % à ±10 %).`,
