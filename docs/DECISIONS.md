@@ -1,5 +1,11 @@
 # DECISIONS.md — ADR courts (≤ 5 lignes chacun)
 
+## ADR-013 — Nutrition des recettes calculée en SQL, proxys Ciqual assumés (30/08/2026)
+`compute_recipe_nutrition(rid)` (SQL, stable) somme grammes × `per_100g` des ingrédients liés
+et divise par les portions ; miroir TypeScript (`lib/nutrition/recipe.ts`) pour l'app et les
+tests. Ingrédients absents de Ciqual → proxy le plus proche épinglé par code (ex. boutargue →
+œufs de lompe 26004). Ingrédients non liés = ignorés du calcul, signalés dans l'éditeur.
+
 ## ADR-012 — Kémia v1 : outils honnêtes et conversation unique (30/08/2026)
 Les 10 outils §8 sont définis dès la session 6 ; ceux dont la feature n'existe pas encore
 (recettes, planning, sport, rappels) répondent `available:false` avec la session d'arrivée —

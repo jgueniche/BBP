@@ -1,6 +1,14 @@
 # STATE.md — État du projet BBP
 
-Dernière mise à jour : 30/08/2026 · Sessions 1 à 6
+Dernière mise à jour : 30/08/2026 · Sessions 1 à 7
+
+## Fait — Session 7 (Recettes)
+- Modèle complet : `recipes` (origine, catégorie, difficulté, temps, portions, tags, visibilité privée/famille/communauté, **versions Boutargue/Protéine liées** via `parent_recipe_id` + `version_kind`, fork, statut), `recipe_ingredients` (liés à `foods`, grammes canoniques), `recipe_steps` — RLS complet, recherche FR, migration `202608301715`.
+- **Seed : 35 recettes publiées** (les 30 de l'annexe A + mafroum/harira/salade d'oranges + 2 versions Protéine liées de démo) — 226 ingrédients épinglés aux aliments Ciqual par code exact, 139 étapes, classes casher conformes à l'annexe (12 bassari / 21 parvé / 2 halavi / 8 poisson), 100 % avec nutrition/portion calculée en SQL.
+- **DoD nutrition ±10 % vérifiée** sur 5 recettes de référence : brik 244 kcal, chakchouka 217, couscous boulettes 572 (34 g prot), carottes cumin 91, méchouia 119 — + test unitaire reproduisant le calcul méchouia à l'exact.
+- `lib/kashrut/classify.ts` : règles (viande/lait/poisson/exceptions « lait de coco »/non-casher/gélatine) avec confiance — 9 tests ; agent `kashrut_checker` (LLM léger) si confiance < 0,8.
+- Pages : liste avec recherche + filtres (casher, origine, version, ≤ 30 min), détail (pastilles, nutrition, drapeaux, disclaimer indication, liens entre versions), **fork « Ma version »**, éditeur complet (autocomplete `foods`, étapes, visibilité), **génération « version Protéine » par Kémia** avec substitutions expliquées (brouillon privé lié ; dégradé sans clé).
+- Outil coach `search_recipes` branché sur la vraie table. 59 tests verts.
 
 ## Fait — Session 6 (Kémia v1)
 - Chat streaming `/coach` (AI SDK + useChat) : bulles Kémia avec avatar, message d'accueil personnalisé (prénom), historique persisté (fil unique, 30 derniers messages), disclaimer « réponses générées par IA », fallback gracieux (« Kémia est en cuisine… ») si API indisponible.
@@ -54,7 +62,7 @@ Dernière mise à jour : 30/08/2026 · Sessions 1 à 6
 - Rien.
 
 ## Reste à faire (actions côté Jeremy)
-1. **`GOOGLE_GENERATIVE_AI_API_KEY` sur Vercel** (+ `.env.local`) → active le parsing IA texte/photo du journal sur Gemini 3.7 Flash (ADR-010). Clé gratuite sur https://aistudio.google.com/apikey. Sans elle, mode dégradé (recherche directe) opérationnel.
+1. **`GOOGLE_GENERATIVE_AI_API_KEY` sur Vercel** (+ `.env.local`) → active toute l'IA sur Gemini 3.7 Flash (ADR-010) : parsing texte/photo du journal, chat Kémia, vérificateur casher des recettes, génération « version Protéine ». Clé gratuite sur https://aistudio.google.com/apikey. Sans elle, mode dégradé opérationnel partout.
 2. Dashboard Supabase (2 min) : Authentication → Sign In / Providers → Email → décocher « Confirm email » ; URL Configuration → Site URL = `https://bbp-mu.vercel.app`.
 3. Tester le parcours complet en prod : inscription → onboarding → journal (log texte, favori, comme hier).
 4. Créer les projets **Sentry** et **PostHog EU**, renseigner les clés.
@@ -73,7 +81,7 @@ Dernière mise à jour : 30/08/2026 · Sessions 1 à 6
 - Presets « repas de chabbat type » dans le journal (avec session 13).
 - Auth : OTP email et OAuth Google/Apple repoussés (ADR-006).
 - Sentry + PostHog : instrumentation code (clés requises d'abord).
-- Session 5 : poids, tendance EWMA, TDEE adaptatif.
+- Photos de recettes : colonnes prêtes (`photo_paths`, `photo_path` par étape), upload UI à venir (session 8 ou 11).
 
 ## Bugs connus
 - Aucun.
