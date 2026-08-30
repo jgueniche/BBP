@@ -29,7 +29,7 @@ export async function generateMetadata({
   const recipe = await loadRecipe(slug);
   const title = recipe
     ? `${recipe.title} — BBP`
-    : "BBP — Bouhra, Boutargue & Protéine";
+    : "BBP — Boukha, Boutargue & Protéines";
   const description = recipe?.description ?? fr.app.tagline;
   return {
     title,
@@ -69,7 +69,7 @@ export default async function PublicRecipePage({
 
   return (
     <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-10">
-      <div className="rounded-[24px] border-2 border-ink bg-paper p-6 shadow-sticker">
+      <div className="rounded-lg border bg-card p-6 shadow-soft">
         {recipe.icon && (
           <p className="text-5xl leading-none" aria-hidden>
             {recipe.icon}
@@ -104,7 +104,7 @@ export default async function PublicRecipePage({
       </div>
       <Link
         href={`/recettes/${recipe.slug}`}
-        className="rounded-full border-2 border-ink bg-boutargue px-5 py-2.5 text-center font-display text-sm font-extrabold text-paper shadow-sticker-sm"
+        className="rounded-full border bg-boutargue px-5 py-2.5 text-center font-display text-sm font-extrabold text-paper shadow-soft"
       >
         {fr.recettes.openInApp}
       </Link>

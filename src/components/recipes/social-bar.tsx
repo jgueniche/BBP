@@ -109,8 +109,8 @@ export function SocialBar({
         aria-pressed={liked}
         whileTap={reducedMotion ? undefined : { scale: 1.25 }}
         className={cn(
-          "flex items-center gap-1.5 rounded-full border-2 border-ink px-3 py-1.5 text-sm font-bold shadow-sticker-sm",
-          liked ? "bg-boutargue-soft" : "bg-paper",
+          "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-bold shadow-soft",
+          liked ? "bg-boutargue-tint" : "bg-card",
         )}
       >
         <Heart
@@ -128,8 +128,8 @@ export function SocialBar({
         aria-label={t.social.saveAria}
         aria-pressed={saved}
         className={cn(
-          "flex items-center gap-1.5 rounded-full border-2 border-ink px-3 py-1.5 text-sm font-bold shadow-sticker-sm",
-          saved ? "bg-ink text-paper" : "bg-paper",
+          "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-bold shadow-soft",
+          saved ? "bg-ink text-paper" : "bg-card",
         )}
       >
         <Bookmark
@@ -158,7 +158,7 @@ export function SocialBar({
             toast(fr.recettes.shareExternalCopied);
           }}
           aria-label={fr.recettes.shareExternal}
-          className="flex items-center gap-1.5 rounded-full border-2 border-ink bg-paper px-3 py-1.5 text-sm font-bold shadow-sticker-sm"
+          className="flex items-center gap-1.5 rounded-full border bg-card px-3 py-1.5 text-sm font-bold shadow-soft"
         >
           <Share2 size={16} strokeWidth={2} aria-hidden />
         </button>
@@ -169,7 +169,7 @@ export function SocialBar({
           <button
             type="button"
             aria-label={t.collections.addTo}
-            className="flex items-center gap-1.5 rounded-full border-2 border-ink bg-paper px-3 py-1.5 text-sm font-bold shadow-sticker-sm"
+            className="flex items-center gap-1.5 rounded-full border bg-card px-3 py-1.5 text-sm font-bold shadow-soft"
           >
             <FolderPlus size={16} strokeWidth={2} aria-hidden />
             {t.tabs.collections}
@@ -200,10 +200,10 @@ export function SocialBar({
                     onClick={() => onToggleCollection(collection)}
                     aria-pressed={collection.hasRecipe}
                     className={cn(
-                      "flex w-full items-center gap-2 rounded-[14px] border-2 px-3 py-2 text-left text-sm font-semibold",
+                      "flex w-full items-center gap-2 rounded-[10px] border px-3 py-2 text-left text-sm font-semibold",
                       collection.hasRecipe
-                        ? "border-ink bg-boutargue-soft"
-                        : "border-ink-10 bg-paper",
+                        ? "border-ink bg-boutargue-tint"
+                        : "bg-card",
                     )}
                   >
                     <span className="text-xl leading-none" aria-hidden>

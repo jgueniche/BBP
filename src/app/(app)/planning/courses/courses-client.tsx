@@ -109,7 +109,7 @@ export function CoursesClient({
             <ul className="mt-1.5 flex flex-col gap-1">
               {aisleItems.map((item) => (
                 <li key={item.id}>
-                  <label className="flex cursor-pointer items-center gap-2.5 rounded-[14px] border-2 border-ink-10 bg-paper px-3 py-2">
+                  <label className="flex cursor-pointer items-center gap-2.5 rounded-lg border bg-card px-3 py-2">
                     <input
                       type="checkbox"
                       checked={item.checked}
@@ -125,7 +125,7 @@ export function CoursesClient({
                       {item.label}
                     </span>
                     {item.kosherNote && (
-                      <span className="rounded-full bg-boutargue-soft px-1.5 py-0.5 text-[10px] font-semibold text-[#3d3d3d]">
+                      <span className="rounded-full bg-boutargue-tint px-1.5 py-0.5 text-[10px] font-semibold text-[#3d3d3d]">
                         {t.kosherNote}
                       </span>
                     )}

@@ -33,9 +33,9 @@ export function RecipeCard({
   return (
     <Link
       href={`/recettes/${recipe.slug}`}
-      className="flex items-center gap-3 rounded-[20px] border-2 border-ink bg-paper p-3 shadow-sticker-sm transition-all active:translate-x-[2px] active:translate-y-[2px]"
+      className="flex items-center gap-3 rounded-lg border bg-card p-3 shadow-soft transition-colors"
     >
-      <span className="flex size-14 shrink-0 items-center justify-center rounded-[14px] bg-ink-10 text-ink-70">
+      <span className="flex size-14 shrink-0 items-center justify-center rounded-[10px] bg-ink-10 text-ink-70">
         {recipe.icon ? (
           <span className="text-3xl leading-none" aria-hidden>
             {recipe.icon}

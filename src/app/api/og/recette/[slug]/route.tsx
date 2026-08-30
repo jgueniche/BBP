@@ -25,7 +25,7 @@ export async function GET(
     .eq("status", "published")
     .maybeSingle();
 
-  const title = recipe?.title ?? "Bouhra, Boutargue & Protéine";
+  const title = recipe?.title ?? "Boukha, Boutargue & Protéines";
   const icon = recipe?.icon ?? "🥘";
   const kashrut = recipe?.kashrut_class ?? null;
   const kashrutLabel = kashrut
@@ -125,7 +125,7 @@ export async function GET(
         }}
       >
         <div style={{ display: "flex" }}>
-          BBP — Bouhra, Boutargue & Protéine
+          BBP — Boukha, Boutargue & Protéines
         </div>
         <div style={{ display: "flex", color: "#F26A1B" }}>
           Mange. Bouge. Bsahtek.

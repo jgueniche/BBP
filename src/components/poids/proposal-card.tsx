@@ -70,7 +70,7 @@ export function ProposalCard({ proposal }: { proposal: ProposalView }) {
   }
 
   return (
-    <section className="flex flex-col gap-3 rounded-[20px] border-2 border-ink bg-paper p-4 shadow-sticker">
+    <section className="flex flex-col gap-3 rounded-lg border bg-card p-4 shadow-soft">
       <h2 className="font-display text-lg font-extrabold">{t.proposalTitle}</h2>
       <CoachBubble expression="clin">{message}</CoachBubble>
       <div className="flex justify-end gap-2">

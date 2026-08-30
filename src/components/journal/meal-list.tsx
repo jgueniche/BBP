@@ -69,7 +69,7 @@ export function MealList({ logs }: { logs: MealLogView[] }) {
             {entries.map((log) => (
               <li
                 key={log.id}
-                className="rounded-[20px] border-2 border-ink bg-paper p-3 shadow-sticker-sm"
+                className="rounded-lg border bg-card p-3 shadow-soft"
               >
                 <div className="flex items-start justify-between gap-2">
                   <ul className="min-w-0 flex-1 text-sm">

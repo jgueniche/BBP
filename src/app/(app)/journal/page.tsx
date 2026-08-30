@@ -214,80 +214,39 @@ export default async function JournalPage({
 
   return (
     <section className="flex flex-col gap-5">
-      <header className="flex items-center justify-between">
-        <Link
-          href={`/journal?d=${shiftDate(date, -1)}`}
-          aria-label="Jour précédent"
-          className="rounded-full border-2 border-ink p-2"
-        >
-          <ChevronLeft size={20} strokeWidth={2} />
-        </Link>
-        <h1 className="font-display text-xl font-extrabold tracking-tight first-letter:uppercase">
-          {formatDateFr(date)}
+      <header className="flex items-center gap-3">
+        <h1 className="font-display text-3xl font-extrabold tracking-tight">
+          {t.title}
         </h1>
-        {date < today ? (
+        <div className="ml-auto flex items-center gap-2 lg:ml-4">
           <Link
-            href={`/journal?d=${shiftDate(date, 1)}`}
-            aria-label="Jour suivant"
-            className="rounded-full border-2 border-ink p-2"
+            href={`/journal?d=${shiftDate(date, -1)}`}
+            aria-label="Jour précédent"
+            className="rounded-full border border-input bg-card p-2"
           >
-            <ChevronRight size={20} strokeWidth={2} />
+            <ChevronLeft size={18} strokeWidth={2} />
           </Link>
-        ) : (
-          <span className="p-2" aria-hidden>
-            <ChevronRight size={20} strokeWidth={2} className="opacity-20" />
-          </span>
-        )}
+          <p className="text-sm font-semibold text-ink-70 first-letter:uppercase">
+            {formatDateFr(date)}
+          </p>
+          {date < today ? (
+            <Link
+              href={`/journal?d=${shiftDate(date, 1)}`}
+              aria-label="Jour suivant"
+              className="rounded-full border border-input bg-card p-2"
+            >
+              <ChevronRight size={18} strokeWidth={2} />
+            </Link>
+          ) : (
+            <span className="p-2" aria-hidden>
+              <ChevronRight size={18} strokeWidth={2} className="opacity-20" />
+            </span>
+          )}
+        </div>
       </header>
 
-      <div className="flex items-center justify-center gap-6">
-        {calorieTarget ? (
-          <MacroRing
-            value={dayTotals.kcal ?? 0}
-            max={calorieTarget}
-            label={t.totalsKcal}
-          />
-        ) : (
-          <MacroRing
-            value={dayTotals.kcal ?? 0}
-            max={
-              fastDay
-                ? Math.max(dayTotals.kcal ?? 0, 1)
-                : (goal?.tdee_estimate ?? Math.max(dayTotals.kcal ?? 0, 1))
-            }
-            label={t.totalsKcal}
-          />
-        )}
-        <MacroRing
-          value={dayTotals.protein_g ?? 0}
-          max={goal?.protein_target_g ?? Math.max(dayTotals.protein_g ?? 0, 1)}
-          label={t.protein}
-          unit="g"
-        />
-      </div>
-      {!calorieTarget && !fastDay && (
-        <p className="text-center text-xs text-ink-50">{t.noTargets}</p>
-      )}
-
-      <div className="mx-auto flex items-center gap-4">
-        <Link
-          href="/poids"
-          className="flex items-center gap-1.5 text-sm font-medium text-ink-70 underline underline-offset-4"
-        >
-          <Scale size={16} strokeWidth={2} aria-hidden />
-          {fr.poids.linkFromJournal}
-        </Link>
-        <Link
-          href="/sport"
-          className="flex items-center gap-1.5 text-sm font-medium text-ink-70 underline underline-offset-4"
-        >
-          <Dumbbell size={16} strokeWidth={2} aria-hidden />
-          {fr.sport.title}
-        </Link>
-      </div>
-
       {quietNow && (
-        <p className="flex items-center gap-2 rounded-[16px] border-2 border-ink bg-paper p-3 text-sm font-medium">
+        <p className="flex items-center gap-2 rounded-lg border bg-card p-3 text-sm font-medium shadow-soft">
           <CalendarHeart size={18} strokeWidth={2} aria-hidden />
           {t.quietBanner}
           {dayInfo?.havdalahTime && (
@@ -299,14 +258,14 @@ export default async function JournalPage({
       )}
 
       {postFeast && !fastDay && (
-        <p className="flex items-center gap-2 rounded-[16px] border-2 border-ink bg-paper p-3 text-sm">
+        <p className="flex items-center gap-2 rounded-lg border bg-card p-3 text-sm shadow-soft">
           <CalendarHeart size={18} strokeWidth={2} aria-hidden />
           {t.postFeastBanner}
         </p>
       )}
 
       {fastDay && (
-        <div className="flex items-start gap-2 rounded-[16px] border-2 border-ink bg-paper p-3 text-sm">
+        <div className="flex items-start gap-2 rounded-lg border bg-card p-3 text-sm shadow-soft">
           <Droplets
             size={18}
             strokeWidth={2}
@@ -323,7 +282,7 @@ export default async function JournalPage({
       )}
 
       {pessahDay && (
-        <div className="flex items-start gap-2 rounded-[16px] border-2 border-ink bg-paper p-3 text-sm">
+        <div className="flex items-start gap-2 rounded-lg border bg-card p-3 text-sm shadow-soft">
           <Wheat
             size={18}
             strokeWidth={2}
@@ -349,31 +308,90 @@ export default async function JournalPage({
         </div>
       )}
 
-      {meatBanner && (
-        <p className="flex items-center gap-2 rounded-[16px] border-2 border-ink bg-boutargue-soft p-3 text-sm font-medium text-[#0b0b0b]">
-          <Timer size={18} strokeWidth={2} aria-hidden />
-          {t.meatTimer} : {meatBanner}
-        </p>
-      )}
+      <div className="grid items-start gap-4 xl:grid-cols-3">
+        <div className="flex flex-col gap-4 xl:col-span-2">
+          <LogComposer
+            date={date}
+            favorites={[
+              ...(showChabbatPresets ? t.chabbatPresets : []),
+              ...(favoritesRes.data ?? []).map((f) => f.label),
+            ]}
+            aiEnabled={isAiConfigured()}
+          />
 
-      <LogComposer
-        date={date}
-        favorites={[
-          ...(showChabbatPresets ? t.chabbatPresets : []),
-          ...(favoritesRes.data ?? []).map((f) => f.label),
-        ]}
-        aiEnabled={isAiConfigured()}
-      />
+          {logs.length === 0 ? (
+            <EmptyState
+              illustration={<KemiaAvatar expression="douce" size={64} />}
+              title={t.empty}
+              hint={t.dayEmptyHint}
+            />
+          ) : (
+            <MealList logs={logs} />
+          )}
+        </div>
 
-      {logs.length === 0 ? (
-        <EmptyState
-          illustration={<KemiaAvatar expression="douce" size={64} />}
-          title={t.empty}
-          hint={t.dayEmptyHint}
-        />
-      ) : (
-        <MealList logs={logs} />
-      )}
+        <aside className="flex flex-col gap-4">
+          <div className="rounded-lg border bg-card p-4 shadow-soft">
+            <p className="text-xs font-semibold text-ink-50">{t.daySummary}</p>
+            <div className="mt-3 flex items-center justify-center gap-6">
+              {calorieTarget ? (
+                <MacroRing
+                  value={dayTotals.kcal ?? 0}
+                  max={calorieTarget}
+                  label={t.totalsKcal}
+                />
+              ) : (
+                <MacroRing
+                  value={dayTotals.kcal ?? 0}
+                  max={
+                    fastDay
+                      ? Math.max(dayTotals.kcal ?? 0, 1)
+                      : (goal?.tdee_estimate ?? Math.max(dayTotals.kcal ?? 0, 1))
+                  }
+                  label={t.totalsKcal}
+                />
+              )}
+              <MacroRing
+                value={dayTotals.protein_g ?? 0}
+                max={
+                  goal?.protein_target_g ?? Math.max(dayTotals.protein_g ?? 0, 1)
+                }
+                label={t.protein}
+                unit="g"
+              />
+            </div>
+            {!calorieTarget && !fastDay && (
+              <p className="mt-2 text-center text-xs text-ink-50">
+                {t.noTargets}
+              </p>
+            )}
+          </div>
+
+          {meatBanner && (
+            <p className="flex items-center gap-2 rounded-lg border border-warn/40 bg-warn-soft p-3 text-sm font-medium shadow-soft">
+              <Timer size={18} strokeWidth={2} aria-hidden />
+              {t.meatTimer} : {meatBanner}
+            </p>
+          )}
+
+          <div className="flex items-center gap-4 rounded-lg border bg-card p-3 shadow-soft">
+            <Link
+              href="/progres"
+              className="flex items-center gap-1.5 text-sm font-semibold text-boutargue-deep"
+            >
+              <Scale size={16} strokeWidth={2} aria-hidden />
+              {fr.poids.linkFromJournal}
+            </Link>
+            <Link
+              href="/sport"
+              className="flex items-center gap-1.5 text-sm font-semibold text-boutargue-deep"
+            >
+              <Dumbbell size={16} strokeWidth={2} aria-hidden />
+              {fr.sport.title}
+            </Link>
+          </div>
+        </aside>
+      </div>
     </section>
   );
 }

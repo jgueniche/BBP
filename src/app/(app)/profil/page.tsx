@@ -83,7 +83,7 @@ export default async function ProfilPage() {
 
   return (
     <section className="flex flex-col gap-5">
-      <h1 className="font-display text-4xl font-extrabold tracking-tight">
+      <h1 className="font-display text-3xl font-extrabold tracking-tight">
         {displayName ?? t.title}
       </h1>
 
@@ -94,8 +94,9 @@ export default async function ProfilPage() {
             <span className="font-semibold text-ink">{email}</span>
           </p>
 
-          <div className="rounded-[20px] border-2 border-ink bg-paper p-4 shadow-sticker">
-            <dl className="flex flex-col gap-2 text-sm">
+          <div className="grid items-start gap-4 md:grid-cols-2">
+            <div className="rounded-lg border bg-card p-4 shadow-soft">
+              <dl className="flex flex-col gap-2 text-sm">
               {mode && (
                 <div className="flex items-center justify-between">
                   <dt className="text-ink-70">{t.mode}</dt>
@@ -150,43 +151,44 @@ export default async function ProfilPage() {
                   <dd className="font-mono font-semibold">{meatWait} h</dd>
                 </div>
               )}
-            </dl>
-          </div>
+              </dl>
+            </div>
 
-          <PracticeToggles
-            initialKashrut={kashrutEnabled}
-            initialCalendar={jewishCalendarEnabled}
-            initialPublicProfile={publicProfile}
-            initialPrefs={calendarPrefs}
-            knownCities={[...KNOWN_CITIES]}
-          />
+            <PracticeToggles
+              initialKashrut={kashrutEnabled}
+              initialCalendar={jewishCalendarEnabled}
+              initialPublicProfile={publicProfile}
+              initialPrefs={calendarPrefs}
+              knownCities={[...KNOWN_CITIES]}
+            />
 
-          <NotificationsCard
-            vapidPublicKey={process.env.VAPID_PUBLIC_KEY ?? null}
-          />
+            <NotificationsCard
+              vapidPublicKey={process.env.VAPID_PUBLIC_KEY ?? null}
+            />
 
-          <div className="flex flex-wrap gap-2">
-            <Button asChild variant="secondary" size="sm">
-              <Link href="/poids">{fr.poids.linkFromJournal}</Link>
-            </Button>
-            <Button asChild variant="secondary" size="sm">
-              <Link href="/sport">{fr.sport.title}</Link>
-            </Button>
-            <Button asChild variant="secondary" size="sm">
-              <Link href="/communaute">{fr.communaute.title}</Link>
-            </Button>
-            <Button asChild variant="secondary" size="sm">
-              <Link href="/progres">{fr.progres.title}</Link>
-            </Button>
-            <Button asChild variant="secondary" size="sm">
-              <Link href="/onboarding?edit=1">{t.redoOnboarding}</Link>
-            </Button>
-            <Button asChild variant="secondary" size="sm">
-              <a href="/api/account/export" download>
-                {t.exportData}
-              </a>
-            </Button>
-            <DeleteAccountButton />
+            <div className="flex flex-wrap gap-2 md:col-span-2">
+              <Button asChild variant="secondary" size="sm">
+                <Link href="/poids">{fr.poids.linkFromJournal}</Link>
+              </Button>
+              <Button asChild variant="secondary" size="sm">
+                <Link href="/sport">{fr.sport.title}</Link>
+              </Button>
+              <Button asChild variant="secondary" size="sm">
+                <Link href="/communaute">{fr.communaute.title}</Link>
+              </Button>
+              <Button asChild variant="secondary" size="sm">
+                <Link href="/progres">{fr.progres.title}</Link>
+              </Button>
+              <Button asChild variant="secondary" size="sm">
+                <Link href="/onboarding?edit=1">{t.redoOnboarding}</Link>
+              </Button>
+              <Button asChild variant="secondary" size="sm">
+                <a href="/api/account/export" download>
+                  {t.exportData}
+                </a>
+              </Button>
+              <DeleteAccountButton />
+            </div>
           </div>
 
           <form action={signOut}>

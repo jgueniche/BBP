@@ -1,4 +1,4 @@
-# CLAUDE.md — BBP (Bouhra, Boutargue & Protéine)
+# CLAUDE.md — BBP (Boukha, Boutargue & Protéines)
 
 Coach nutrition + sport + communauté, casher-natif, culturellement judéo-oriental. Source de vérité : `BRIEF-BBP.md`. État courant : `docs/STATE.md`. Décisions : `docs/DECISIONS.md`.
 

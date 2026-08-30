@@ -72,7 +72,7 @@ export function CommentsSection({
           {comments.map((comment) => (
             <li
               key={comment.id}
-              className="rounded-[16px] border-2 border-ink-10 bg-paper px-3 py-2"
+              className="rounded-lg border bg-card px-3 py-2"
             >
               <div className="flex items-baseline justify-between gap-2">
                 <p className="text-xs font-bold text-ink-70">
@@ -104,7 +104,7 @@ export function CommentsSection({
           placeholder={t.commentPlaceholder}
           rows={2}
           maxLength={500}
-          className="flex-1 rounded-[14px] border-2 border-ink bg-paper px-3 py-2 text-sm"
+          className="flex-1 rounded-[10px] border bg-card px-3 py-2 text-sm"
         />
         <Button
           type="submit"

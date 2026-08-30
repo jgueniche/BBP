@@ -126,9 +126,9 @@ export function CollectionDialog({
                   onClick={() => setIcon(emoji)}
                   aria-pressed={icon === emoji}
                   className={cn(
-                    "rounded-[10px] border-2 px-1.5 py-0.5 text-xl leading-none",
+                    "rounded-[10px] border px-1.5 py-0.5 text-xl leading-none",
                     icon === emoji
-                      ? "border-ink bg-boutargue-soft"
+                      ? "border-ink bg-boutargue-tint"
                       : "border-transparent hover:border-ink-30",
                   )}
                 >
@@ -149,7 +149,7 @@ export function CollectionDialog({
                   aria-label={choice}
                   aria-pressed={color === choice}
                   className={cn(
-                    "size-8 rounded-full border-2",
+                    "size-8 rounded-full border",
                     COLLECTION_COLOR_CLASSES[choice],
                     color === choice ? "border-ink" : "border-ink-30",
                   )}

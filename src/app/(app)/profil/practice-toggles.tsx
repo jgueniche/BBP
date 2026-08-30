@@ -39,13 +39,13 @@ function Toggle({
       aria-label={label}
       onClick={() => onChange(!checked)}
       className={cn(
-        "relative h-6 w-11 shrink-0 rounded-full border-2 border-ink transition-colors",
+        "relative h-6 w-11 shrink-0 rounded-full border transition-colors",
         checked ? "bg-boutargue" : "bg-ink-10",
       )}
     >
       <span
         className={cn(
-          "absolute top-0.5 size-4 rounded-full border-2 border-ink bg-paper transition-all",
+          "absolute top-0.5 size-4 rounded-full border bg-card transition-all",
           checked ? "left-[22px]" : "left-0.5",
         )}
         aria-hidden
@@ -121,7 +121,7 @@ export function PracticeToggles({
   }
 
   return (
-    <div className="rounded-[20px] border-2 border-ink bg-paper p-4 shadow-sticker">
+    <div className="rounded-lg border bg-card p-4 shadow-soft">
       <h2 className="font-display text-base font-extrabold">{t.title}</h2>
       <p className="mt-0.5 text-xs text-ink-50">{t.intro}</p>
       <div className="mt-3 flex flex-col gap-3">
@@ -148,7 +148,7 @@ export function PracticeToggles({
           />
         </div>
         {calendar && (
-          <div className="flex flex-col gap-3 rounded-[16px] border-2 border-ink-10 p-3">
+          <div className="flex flex-col gap-3 rounded-lg border p-3">
             <div>
               <label htmlFor="practice-city" className="text-sm font-semibold">
                 {t.city}
@@ -164,7 +164,7 @@ export function PracticeToggles({
                   if (value !== prefs.city)
                     savePrefs({ ...prefs, city: value });
                 }}
-                className="mt-1.5 w-full rounded-[12px] border-2 border-ink bg-paper px-3 py-1.5 text-sm"
+                className="mt-1.5 w-full rounded-[10px] border bg-card px-3 py-1.5 text-sm"
                 placeholder="Paris"
               />
               <datalist id="practice-cities">
@@ -212,7 +212,7 @@ export function PracticeToggles({
                     candleOffsetMin: parseInt(event.target.value, 10),
                   })
                 }
-                className="rounded-[12px] border-2 border-ink bg-paper px-2 py-1 font-mono text-sm"
+                className="rounded-[10px] border bg-card px-2 py-1 font-mono text-sm"
               >
                 {[18, 20, 30, 40].map((minutes) => (
                   <option key={minutes} value={minutes}>
@@ -224,7 +224,7 @@ export function PracticeToggles({
           </div>
         )}
         {kashrut && (
-          <div className="flex flex-col gap-3 rounded-[16px] border-2 border-ink-10 p-3">
+          <div className="flex flex-col gap-3 rounded-lg border p-3">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-sm font-semibold">{t.kitniyot}</p>

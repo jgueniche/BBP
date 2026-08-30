@@ -34,7 +34,7 @@ export function NoteEditor({
   }
 
   return (
-    <section className="rounded-[20px] border-2 border-ink bg-paper p-4 shadow-sticker-sm">
+    <section className="rounded-lg border bg-card p-4 shadow-soft">
       <h2 className="flex items-center gap-1.5 font-display text-base font-extrabold">
         <NotebookPen size={16} strokeWidth={2} aria-hidden />
         {t.title}
@@ -46,7 +46,7 @@ export function NoteEditor({
           placeholder={t.placeholder}
           rows={3}
           maxLength={2000}
-          className="rounded-[14px] border-2 border-ink-10 bg-paper px-3 py-2 text-sm"
+          className="rounded-[10px] border bg-card px-3 py-2 text-sm"
         />
         <Button
           type="submit"

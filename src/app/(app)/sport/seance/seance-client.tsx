@@ -179,12 +179,12 @@ export function SeanceClient({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-paper">
-      <header className="flex items-center gap-3 border-b-2 border-ink px-4 py-3">
+    <div className="fixed inset-0 z-50 flex flex-col bg-background">
+      <header className="flex items-center gap-3 border-b px-4 py-3">
         <Link
           href="/sport"
           aria-label={t.exit}
-          className="rounded-full border-2 border-ink p-1.5 shadow-sticker-sm"
+          className="rounded-full border p-1.5 shadow-soft"
         >
           <X size={16} strokeWidth={2} />
         </Link>
@@ -222,7 +222,7 @@ export function SeanceClient({
               </p>
             )}
             {reaction && (
-              <p className="rounded-[20px] border-2 border-ink bg-boutargue-soft px-4 py-3 text-sm text-[#3d3d3d]">
+              <p className="rounded-lg border bg-boutargue-tint px-4 py-3 text-sm text-[#3d3d3d]">
                 {reaction}
               </p>
             )}
@@ -243,8 +243,8 @@ export function SeanceClient({
                   onClick={() => setRpe(value)}
                   aria-pressed={rpe === value}
                   className={cn(
-                    "rounded-[14px] border-2 border-ink py-3 font-mono text-base font-bold",
-                    rpe === value ? "bg-boutargue text-paper" : "bg-paper",
+                    "rounded-lg border py-3 font-mono text-base font-bold",
+                    rpe === value ? "bg-boutargue text-paper" : "bg-card",
                   )}
                 >
                   {value}
@@ -282,7 +282,7 @@ export function SeanceClient({
                   )
                 }
                 placeholder="—"
-                className="w-20 rounded-[12px] border-2 border-ink bg-paper px-2 py-2 text-right font-mono text-sm"
+                className="w-20 rounded-[10px] border bg-card px-2 py-2 text-right font-mono text-sm"
               />
             </label>
 
@@ -295,8 +295,8 @@ export function SeanceClient({
                   aria-pressed={set.done}
                   aria-label={`${t.exercise} ${exercise.name} — série ${setIndex + 1}`}
                   className={cn(
-                    "flex size-16 flex-col items-center justify-center rounded-full border-2 border-ink font-mono text-sm font-bold shadow-sticker-sm transition-all active:translate-y-[2px]",
-                    set.done ? "bg-ok text-paper" : "bg-paper",
+                    "flex size-16 flex-col items-center justify-center rounded-full border font-mono text-sm font-bold shadow-soft transition-colors",
+                    set.done ? "bg-ok text-paper" : "bg-card",
                   )}
                 >
                   {set.done ? (
@@ -312,7 +312,7 @@ export function SeanceClient({
             </div>
 
             {rest !== null && (
-              <div className="mt-auto flex items-center gap-3 rounded-[20px] border-2 border-ink bg-boutargue-soft p-4">
+              <div className="mt-auto flex items-center gap-3 rounded-lg border bg-boutargue-tint p-4">
                 <p className="text-sm font-bold text-[#0b0b0b]">
                   {t.restTitle}
                 </p>
@@ -333,7 +333,7 @@ export function SeanceClient({
       </main>
 
       {phase === "work" && (
-        <footer className="flex gap-2 border-t-2 border-ink px-4 py-3">
+        <footer className="flex gap-2 border-t px-4 py-3">
           <Button
             variant="secondary"
             className="flex-1"

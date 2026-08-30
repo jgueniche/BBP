@@ -50,7 +50,7 @@ export default async function GroupPage({
   const isMember = membership !== null;
 
   return (
-    <section className="flex flex-col gap-4">
+    <section className="flex w-full max-w-3xl flex-col gap-4">
       <header className="flex items-center gap-3">
         <span className="text-4xl leading-none" aria-hidden>
           {group.icon}
@@ -74,7 +74,7 @@ export default async function GroupPage({
       {isMember ? (
         <PostComposer groupId={group.id} />
       ) : (
-        <p className="rounded-[16px] border-2 border-ink-10 px-3 py-2 text-sm text-ink-50">
+        <p className="rounded-lg border px-3 py-2 text-sm text-ink-50">
           {t.notMember}
         </p>
       )}

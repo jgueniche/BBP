@@ -295,7 +295,7 @@ export default async function RecipePage({
       )}
 
       {substitutions && substitutions.length > 0 && (
-        <section className="rounded-[20px] border-2 border-ink bg-boutargue-soft p-4">
+        <section className="rounded-lg border bg-boutargue-tint p-4">
           <h2 className="font-display text-base font-extrabold text-[#0b0b0b]">
             {t.substitutionsTitle}
           </h2>
@@ -357,7 +357,7 @@ export default async function RecipePage({
                   stepNumber += 1;
                   return (
                     <li key={step.id} className="flex gap-3 text-sm">
-                      <span className="flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-ink font-mono text-xs font-bold">
+                      <span className="flex size-6 shrink-0 items-center justify-center rounded-full border font-mono text-xs font-bold">
                         {stepNumber}
                       </span>
                       <span className="min-w-0">
@@ -393,7 +393,7 @@ export default async function RecipePage({
             ).map(([label, value, unit]) => (
               <div
                 key={label}
-                className="rounded-[14px] border-2 border-ink-10 p-2"
+                className="rounded-lg border p-2"
               >
                 <p className="font-mono text-sm font-semibold">
                   {typeof value === "number" ? Math.round(value) : "—"}
@@ -407,7 +407,7 @@ export default async function RecipePage({
       )}
 
       {recipe.kosher_flags.length > 0 && (
-        <section className="rounded-[16px] border-2 border-warn/40 bg-paper p-3">
+        <section className="rounded-lg border border-warn/40 bg-card p-3">
           <h2 className="text-sm font-bold text-warn">{t.flagsTitle}</h2>
           <ul className="mt-1 text-xs text-ink-70">
             {recipe.kosher_flags.map((flag, i) => (

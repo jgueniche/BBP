@@ -29,7 +29,7 @@ export default async function CommunautePage({
   if (!isSupabaseConfigured) {
     return (
       <section>
-        <h1 className="font-display text-4xl font-extrabold tracking-tight">
+        <h1 className="font-display text-3xl font-extrabold tracking-tight">
           {t.title}
         </h1>
         <p className="mt-4 text-ink-70">{fr.auth.notConfigured}</p>
@@ -44,14 +44,14 @@ export default async function CommunautePage({
   if (!user) redirect("/login");
 
   return (
-    <section className="flex flex-col gap-4">
-      <h1 className="font-display text-4xl font-extrabold tracking-tight">
+    <section className="flex w-full max-w-2xl flex-col gap-4">
+      <h1 className="font-display text-3xl font-extrabold tracking-tight">
         {t.title}
       </h1>
 
       <nav
         aria-label={t.title}
-        className="flex gap-1 rounded-full border-2 border-ink bg-paper p-1"
+        className="flex gap-1 rounded-full border bg-card p-1"
       >
         {(
           [
@@ -150,7 +150,7 @@ async function GroupsTab({ userId }: { userId: string }) {
               <li key={group.id}>
                 <Link
                   href={`/communaute/groupes/${group.slug}`}
-                  className="flex items-center gap-3 rounded-[20px] border-2 border-ink bg-paper p-3 shadow-sticker-sm"
+                  className="flex items-center gap-3 rounded-lg border bg-card p-3 shadow-soft"
                 >
                   <span className="text-2xl leading-none" aria-hidden>
                     {group.icon}

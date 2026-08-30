@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { z } from "zod";
 
+import { IlluBoutargueDemiTranchee } from "@/components/illustrations";
 import { Logo } from "@/components/illustrations/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -84,15 +85,23 @@ export default function LoginPage() {
   }
 
   return (
-    <section className="rounded-[20px] border-2 border-ink bg-paper p-6 shadow-sticker">
-      <Logo variant="ink" height={32} className="mb-4" />
+    <section className="rounded-lg border bg-card p-6 shadow-soft">
+      <div className="mb-4 flex items-end justify-between gap-4">
+        <div>
+          <Logo variant="ink" height={32} />
+          <p className="mt-1.5 text-xs font-semibold tracking-wide text-ink-50">
+            {fr.app.fullName}
+          </p>
+        </div>
+        <IlluBoutargueDemiTranchee size={64} className="text-ink" />
+      </div>
       <h1 className="font-display text-3xl font-extrabold tracking-tight">
         {fr.auth.title}
       </h1>
       <p className="mt-2 text-ink-70">{fr.auth.subtitle}</p>
 
       {!isSupabaseConfigured && (
-        <p className="mt-4 rounded-[16px] bg-boutargue-soft p-3 text-sm text-[#3d3d3d]">
+        <p className="mt-4 rounded-lg bg-boutargue-tint p-3 text-sm text-[#3d3d3d]">
           {fr.auth.notConfigured}
         </p>
       )}

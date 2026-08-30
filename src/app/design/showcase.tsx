@@ -107,7 +107,7 @@ export function DesignShowcase() {
           {COLORS.map((c) => (
             <div key={c.name} className="flex items-center gap-2">
               <span
-                className={`size-10 shrink-0 rounded-[10px] border-2 border-ink ${c.cls}`}
+                className={`size-10 shrink-0 rounded-[10px] border ${c.cls}`}
               />
               <span className="flex flex-col text-xs">
                 <span className="font-semibold">{c.name}</span>
@@ -164,7 +164,7 @@ export function DesignShowcase() {
           </Card>
           <StickerCard interactive className="flex items-center justify-center">
             <p className="py-6 text-center text-sm text-ink-70">
-              StickerCard interactive — appuie pour la voir « coller ».
+              StickerCard interactive — survol et appui tout en douceur.
             </p>
           </StickerCard>
         </div>
@@ -263,7 +263,7 @@ export function DesignShowcase() {
           {ILLUSTRATIONS.map(({ name, Component }) => (
             <div
               key={name}
-              className="flex flex-col items-center gap-1 rounded-[16px] border-2 border-ink-10 p-3"
+              className="flex flex-col items-center gap-1 rounded-lg border p-3"
             >
               <Component size={56} />
               <span className="text-center text-[11px] text-ink-50">
@@ -280,7 +280,7 @@ export function DesignShowcase() {
             <Logo variant="ink" height={36} />
             <Logo variant="mark" height={36} />
           </div>
-          <div className="flex flex-wrap items-center gap-6 rounded-[16px] bg-[#0B0B0B] p-4">
+          <div className="flex flex-wrap items-center gap-6 rounded-lg bg-[#0B0B0B] p-4">
             <Logo variant="paper" height={36} />
             <Logo variant="boutargue" height={36} />
           </div>
@@ -298,7 +298,7 @@ export function DesignShowcase() {
           <div className="flex items-center gap-3">
             <span
               aria-hidden
-              className="size-5 animate-spin rounded-full border-2 border-ink border-t-boutargue"
+              className="size-5 animate-spin rounded-full border border-t-boutargue"
             />
             <span className="text-sm text-ink-50">
               Kémia est en cuisine, deux secondes…

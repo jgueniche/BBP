@@ -175,7 +175,7 @@ export function PostCard({
   }
 
   return (
-    <article className="rounded-[20px] border-2 border-ink bg-paper p-3 shadow-sticker-sm">
+    <article className="rounded-lg border bg-card p-3 shadow-soft">
       <header className="flex items-start gap-2">
         <div className="min-w-0 flex-1">
           <p className="text-sm font-bold">
@@ -220,7 +220,7 @@ export function PostCard({
             <MoreHorizontal size={16} strokeWidth={2} />
           </button>
           {menuOpen && (
-            <div className="absolute right-0 top-7 z-20 flex w-52 flex-col rounded-[14px] border-2 border-ink bg-paper py-1 text-sm shadow-sticker">
+            <div className="absolute right-0 top-7 z-20 flex w-52 flex-col rounded-lg border bg-card py-1 text-sm shadow-pop">
               {post.isOwn ? (
                 <button
                   type="button"
@@ -274,7 +274,7 @@ export function PostCard({
       {post.recipe && (
         <Link
           href={`/recettes/${post.recipe.slug}`}
-          className="mt-2 flex items-center gap-2 rounded-[14px] border-2 border-ink-10 bg-paper px-3 py-2 text-sm font-semibold hover:border-ink"
+          className="mt-2 flex items-center gap-2 rounded-[10px] border bg-card px-3 py-2 text-sm font-semibold hover:border-ink"
         >
           {post.recipe.icon && (
             <span className="text-xl leading-none" aria-hidden>
@@ -298,10 +298,10 @@ export function PostCard({
             aria-pressed={myReaction === kind}
             aria-label={t.reactions[kind]}
             className={cn(
-              "flex items-center gap-1 rounded-full border-2 px-2 py-1 text-xs font-bold transition-transform active:scale-110",
+              "flex items-center gap-1 rounded-full border px-2 py-1 text-xs font-bold transition-transform active:scale-110",
               myReaction === kind
-                ? "border-ink bg-boutargue-soft"
-                : "border-ink-10 bg-paper",
+                ? "border-ink bg-boutargue-tint"
+                : "bg-card",
             )}
           >
             <span aria-hidden>{REACTION_EMOJI[kind]}</span>
@@ -325,7 +325,7 @@ export function PostCard({
       </footer>
 
       {commentsOpen && (
-        <div className="mt-2 border-t-2 border-ink-10 pt-2">
+        <div className="mt-2 border-t pt-2">
           {comments === null ? (
             <p className="text-xs text-ink-50">…</p>
           ) : (
@@ -368,13 +368,13 @@ export function PostCard({
               onChange={(e) => setCommentText(e.target.value)}
               placeholder={t.commentPlaceholder}
               maxLength={500}
-              className="min-w-0 flex-1 rounded-[12px] border-2 border-ink bg-paper px-2.5 py-1.5 text-sm"
+              className="min-w-0 flex-1 rounded-[10px] border bg-card px-2.5 py-1.5 text-sm"
             />
             <button
               type="submit"
               disabled={commentText.trim().length === 0}
               aria-label={t.send}
-              className="rounded-full border-2 border-ink bg-boutargue p-1.5 text-paper shadow-sticker-sm disabled:opacity-40"
+              className="rounded-full bg-boutargue p-1.5 text-paper shadow-soft disabled:opacity-40"
             >
               <Send size={14} strokeWidth={2} />
             </button>

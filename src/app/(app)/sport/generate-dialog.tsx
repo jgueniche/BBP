@@ -19,7 +19,7 @@ import { fr } from "@/i18n/fr";
 const t = fr.sport;
 
 const selectClass =
-  "rounded-[14px] border-2 border-ink bg-paper px-3 py-2 text-sm font-medium";
+  "rounded-[10px] border bg-card px-3 py-2 text-sm font-medium";
 
 export function GenerateProgramDialog({ hasProgram }: { hasProgram: boolean }) {
   const router = useRouter();

@@ -1,6 +1,14 @@
 # STATE.md — État du projet BBP
 
-Dernière mise à jour : 30/08/2026 · Sessions 1 à 13
+Dernière mise à jour : 30/08/2026 · Sessions 1 à 14
+
+## Fait — Session 14 (Refonte UI/UX « pro & chaleureux », ADR-022)
+- **Direction validée par Jeremy sur maquettes** (canevas « Refonte BBP » : 6 écrans desktop, 1 mobile, 2 pistes alternatives) : fini l'effet BD, la marque reste (Bricolage/Inter/JetBrains Mono, orange boutargue rationné, pastilles casher, jamais de rouge punitif).
+- **Tokens & kit** (`globals.css` + `components/ui/*`) : filets 1 px (`--line`), ombres douces (`shadow-soft`/`shadow-pop`), radius 14 px, fond coquille `--shell` + cartes blanches, boutons pleins rectangulaires, tabs segmentées douces, badges teintés — dark mode recalé sur les nouvelles surfaces.
+- **Nouvelle architecture** : sidebar desktop à deux groupes **MON SUIVI** (Aujourd'hui, Journal, Progrès, Sport, Planning) / **CUISINE & COMMUNAUTÉ** (Recettes, Communauté) + Kémia et Moi en pied ; bottom bar mobile 5 onglets (Accueil, Journal, Cuisine, Kémia, Moi, l'onglet Cuisine couvre `/recettes` + `/communaute`) ; conteneur `max-w-6xl` (fini la colonne mobile de 512 px sur desktop).
+- **`/accueil`** : nouveau hub du jour (anneau calories, protéines, tendance poids EWMA, série journal, assiette du jour + dîner planifié, résumé sport de la semaine, carte Kémia contextuelle, prochain allumage) ; la racine `/` y redirige.
+- **Fusion `/poids` → `/progres`** : pesée/tendance/graphique/proposition TDEE/mesures/photos + niveau/séries/badges/défis sur grilles desktop ; `/poids` redirige.
+- **Passe desktop + balayage complet** : plus aucune classe sticker dans `src/` (bordures 2 px, `shadow-sticker`, translations au clic) ; grilles responsives sur Recettes (cartes 2-3 col.), Sport (2 col.), Profil (2 col.), Journal (rail résumé), largeurs de lecture sur Communauté/Coach ; `/design` documente le nouveau style. 191 tests verts, lint/typecheck/build OK.
 
 ## Fait — Session 13 (Calendrier juif avancé)
 - **Moteur unifié** (`lib/jewish-calendar/engine.ts`) : chaque jour porte chag / erev / jeûne / Pessah (erev + chol hamoed inclus) / Chavouot / Hanouka / **« budget kiff »** (fête joyeuse) + heures d'allumage et de sortie. **DoD : dates 2027 testées contre référence indépendante** (Pourim 23/03, Pessah 21-29/04, Chavouot 11/06, Ticha BeAv 12/08, Roch Hachana 02/10, Kippour 11/10, Hanouka 25/12) — 16 tests.
@@ -122,6 +130,7 @@ Dernière mise à jour : 30/08/2026 · Sessions 1 à 13
 5. Valider a posteriori les plans des sessions 1-4 (sessions autonomes, cf. ADR-002).
 
 ## Backlog
+- Refonte : fiche recette et import encore mono-colonne sur desktop (2 col. à envisager) ; message Kémia de `/accueil` déterministe (brancher l'IA légère comme les nudges) ; onglet mobile Cuisine → accès Communauté à fluidifier (lien croisé dans l'en-tête des deux pages).
 - **DoD session 6 en attente de clé IA** : lancer `pnpm eval:coach` (40 cas) dès que `GOOGLE_GENERATIVE_AI_API_KEY` est posée — exigence : persona ≥ 95 %, garde-fous 100 % ; itérer sur le prompt si nécessaire.
 - Calendrier : ville libre hors liste (~45 villes) → horaires de Paris (géocodage complet à envisager) ; Yom HaAtsmaout optionnel non affiché ; vue mois du planning toujours en backlog.
 - Notifications : le créneau du soir (`?slot=soir`, bilan du jour + jeudi courses) existe dans le code mais n'est pas planifié — le plan Vercel Hobby autorise 2 crons max (pris par adaptive-tdee et nudges du matin). Passer Pro ou ajouter un ping externe pour l'activer. Badge « Nouveau ! » : notification push à l'attribution d'un badge à brancher (kind `badge` prêt en base).

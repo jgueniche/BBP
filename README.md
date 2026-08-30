@@ -1,4 +1,4 @@
-# BBP — Bouhra, Boutargue & Protéine
+# BBP — Boukha, Boutargue & Protéines
 
 **Mange. Bouge. Bsahtek.**
 

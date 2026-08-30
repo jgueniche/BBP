@@ -95,13 +95,13 @@ export default async function ModerationPage() {
               return (
                 <li
                   key={report.id}
-                  className="flex flex-col gap-2 rounded-[16px] border-2 border-ink bg-paper p-3"
+                  className="flex flex-col gap-2 rounded-lg border bg-card p-3"
                 >
                   <p className="text-xs text-ink-50">
                     {t.reason} :{" "}
                     <span className="font-semibold">{report.reason}</span>
                   </p>
-                  <p className="rounded-[12px] bg-ink-10 px-3 py-2 text-sm">
+                  <p className="rounded-[10px] bg-ink-10 px-3 py-2 text-sm">
                     {content?.text ?? t.contentGone}
                   </p>
                   <ModerationActions
@@ -129,12 +129,12 @@ export default async function ModerationPage() {
             {(flaggedPosts ?? []).map((post) => (
               <li
                 key={post.id}
-                className="flex flex-col gap-2 rounded-[16px] border-2 border-warn/40 bg-paper p-3"
+                className="flex flex-col gap-2 rounded-lg border border-warn/40 bg-card p-3"
               >
                 <p className="text-xs text-ink-50">
                   {post.moderation_reasons.join(", ")}
                 </p>
-                <p className="rounded-[12px] bg-ink-10 px-3 py-2 text-sm">
+                <p className="rounded-[10px] bg-ink-10 px-3 py-2 text-sm">
                   {post.text}
                 </p>
                 <ModerationActions
@@ -147,12 +147,12 @@ export default async function ModerationPage() {
             {(flaggedComments ?? []).map((comment) => (
               <li
                 key={comment.id}
-                className="flex flex-col gap-2 rounded-[16px] border-2 border-warn/40 bg-paper p-3"
+                className="flex flex-col gap-2 rounded-lg border border-warn/40 bg-card p-3"
               >
                 <p className="text-xs text-ink-50">
                   {comment.moderation_reasons.join(", ")}
                 </p>
-                <p className="rounded-[12px] bg-ink-10 px-3 py-2 text-sm">
+                <p className="rounded-[10px] bg-ink-10 px-3 py-2 text-sm">
                   {comment.text}
                 </p>
                 <ModerationActions

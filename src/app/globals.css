@@ -1,35 +1,48 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* BBP palette (brief §2.2) — raw values live here so dark mode can flip them. */
+/* BBP palette (brief §2.2) — raw values live here so dark mode can flip them.
+   "Pro & chaleureux" theme: brand hues unchanged, surfaces move from sticker
+   (2px ink borders, hard shadows) to hairlines, soft shadows and a warm shell. */
 :root {
   --ink: #0b0b0b;
   --paper: #fbfaf6;
   --boutargue: #f26a1b;
   --boutargue-deep: #c24f0e;
   --boutargue-soft: #ffd9bf;
+  --boutargue-tint: #fdeee3;
   --ink-70: #3d3d3d;
   --ink-50: #7a7a7a;
   --ink-30: #b8b8b8;
   --ink-10: #ebeae5;
   --ok: #2e7d4f;
+  --ok-soft: #e9f2ec;
   --warn: #b54708;
+  --warn-soft: #f9ede3;
   --halavi: #5b7db1;
   --bassari: #a63d2f;
   --parve: #7a7a7a;
 
-  /* Hard sticker shadows use this; in dark mode they become paper at 30%. */
-  --shadow-ink: var(--ink);
+  /* Surfaces: warm shell behind white cards, hairline lines between them. */
+  --shell: #f3f1ea;
+  --surface: #ffffff;
+  --surface-raised: #fffdf8;
+  --line: #e7e3d7;
+  --line-soft: #f0ede3;
 
-  /* Chart trend stroke: deep orange for contrast on paper, pure orange on dark. */
+  /* Soft elevation replaces the old hard sticker shadow. */
+  --shadow-soft: 0 1px 2px rgb(11 11 11 / 0.05);
+  --shadow-pop: 0 12px 32px -8px rgb(11 11 11 / 0.18);
+
+  /* Chart trend stroke: deep orange for contrast on light, pure orange on dark. */
   --chart-trend: var(--boutargue-deep);
 
   /* shadcn semantic tokens mapped to the BBP palette. */
-  --background: var(--paper);
+  --background: var(--shell);
   --foreground: var(--ink);
-  --card: var(--paper);
+  --card: var(--surface);
   --card-foreground: var(--ink);
-  --popover: var(--paper);
+  --popover: var(--surface);
   --popover-foreground: var(--ink);
   --primary: var(--boutargue);
   --primary-foreground: #0b0b0b;
@@ -37,27 +50,38 @@
   --secondary-foreground: var(--ink);
   --muted: var(--ink-10);
   --muted-foreground: var(--ink-50);
-  --accent: var(--boutargue-soft);
-  --accent-foreground: #0b0b0b;
+  --accent: var(--boutargue-tint);
+  --accent-foreground: #a34209;
   --destructive: var(--warn);
-  --border: var(--ink);
-  --input: var(--ink);
+  --border: var(--line);
+  --input: #d9d4c6;
   --ring: var(--boutargue-deep);
-  --radius: 1.25rem;
+  --radius: 0.875rem;
 }
 
-/* Dark mode (brief §2.4): ink/paper inverted, orange unchanged, soft shadows. */
+/* Dark mode (brief §2.4): ink/paper inverted, orange unchanged, surfaces deepen. */
 @media (prefers-color-scheme: dark) {
   :root {
     --ink: #fbfaf6;
     --paper: #0b0b0b;
+    --boutargue-tint: rgb(242 106 27 / 0.16);
     --ink-70: #cfcdc7;
     --ink-50: #8f8d88;
     --ink-30: #55534f;
-    --ink-10: #1d1c1a;
+    --ink-10: #26241f;
     --ok: #4caf7d;
+    --ok-soft: rgb(76 175 125 / 0.16);
     --warn: #e08745;
-    --shadow-ink: rgb(251 250 246 / 0.3);
+    --warn-soft: rgb(224 135 69 / 0.16);
+    --shell: #121110;
+    --surface: #1b1917;
+    --surface-raised: #171614;
+    --line: #2c2925;
+    --line-soft: #23211d;
+    --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.4);
+    --shadow-pop: 0 12px 32px -8px rgb(0 0 0 / 0.6);
+    --accent-foreground: #ffb98a;
+    --input: #3a3630;
     --chart-trend: var(--boutargue);
   }
 }
@@ -68,15 +92,23 @@
   --color-boutargue: var(--boutargue);
   --color-boutargue-deep: var(--boutargue-deep);
   --color-boutargue-soft: var(--boutargue-soft);
+  --color-boutargue-tint: var(--boutargue-tint);
   --color-ink-70: var(--ink-70);
   --color-ink-50: var(--ink-50);
   --color-ink-30: var(--ink-30);
   --color-ink-10: var(--ink-10);
   --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
   --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
   --color-halavi: var(--halavi);
   --color-bassari: var(--bassari);
   --color-parve: var(--parve);
+  --color-shell: var(--shell);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -107,13 +139,13 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-/* Hard sticker shadow (brief §2.4): no blur, ever. */
-@utility shadow-sticker {
-  box-shadow: 4px 4px 0 var(--shadow-ink);
+/* Soft elevation utilities. */
+@utility shadow-soft {
+  box-shadow: var(--shadow-soft);
 }
 
-@utility shadow-sticker-sm {
-  box-shadow: 2px 2px 0 var(--shadow-ink);
+@utility shadow-pop {
+  box-shadow: var(--shadow-pop);
 }
 
 @layer base {
@@ -122,6 +154,6 @@
   }
 
   body {
-    @apply bg-paper font-sans text-ink antialiased;
+    @apply bg-background font-sans text-ink antialiased;
   }
 }
