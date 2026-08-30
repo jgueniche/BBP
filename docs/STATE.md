@@ -15,11 +15,11 @@ Dernière mise à jour : 30/08/2026 · Session 1 (Fondations)
 ## En cours
 - Rien.
 
-## Reste à faire (actions côté Jeremy — bloquantes pour un environnement fonctionnel)
-1. ~~Créer le projet Supabase~~ ✅ Fait : projet « BBP » `apxrducsgrddwujnibcf`, eu-west-3 (Paris), sain.
-2. Coller les variables d'environnement sur Vercel (bloc fourni en fin de session 1bis) et dans `.env.local`.
-3. GitHub : définir `master` comme branche par défaut (Settings → General → Default branch).
-4. Vercel : vérifier que la Production Branch = `master` (Settings → Git) après le changement GitHub.
+## Reste à faire (actions côté Jeremy)
+1. ~~Créer le projet Supabase~~ ✅ Projet « BBP » `apxrducsgrddwujnibcf`, eu-west-3 (Paris), sain.
+2. ~~Projet Vercel + env vars~~ ✅ Projet `bbp` créé, prod déployée depuis `master` en `cdg1` : https://bbp-ruby.vercel.app (login OTP vérifié servi, Supabase branché).
+3. Tester le login OTP de bout en bout (recevoir un code email et se connecter).
+4. Renseigner `.env.local` en local avec les mêmes clés que Vercel.
 5. Activer les providers Auth Google + Apple dans Supabase (email OTP fonctionne sans config supplémentaire).
 6. Créer les projets **Sentry** et **PostHog EU**, renseigner les clés.
 7. Valider le plan de la session 1 a posteriori (session lancée en autonome, cf. ADR-002).
