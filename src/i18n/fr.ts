@@ -618,6 +618,35 @@ export const fr = {
   },
   progres: {
     title: "Mes progrès",
+    goal: {
+      title: "Mon objectif",
+      edit: "Modifier",
+      save: "Enregistrer",
+      cancel: "Annuler",
+      targetLabel: "Poids visé (kg)",
+      progressOf: "du chemin parcouru",
+      doneLabel: "déjà fait :",
+      remainingLabel: "reste :",
+      plannedRate: "Rythme prévu",
+      actualRate: "Rythme réel",
+      perWeek: "kg / sem",
+      plannedArrival: "Arrivée prévue",
+      estimatedArrival: "Estimée aujourd'hui",
+      aheadOfPlan: "{kg} kg d'avance sur le plan, bsahtek",
+      behindPlan:
+        "{kg} kg au-dessus du plan — tranquille, c'est la tendance qui compte",
+      onPlan: "Pile sur le plan",
+      noPlanYet:
+        "Ajoute une première pesée et je trace ta trajectoire prévue jusqu'à l'objectif.",
+      generalMode:
+        "Mode accompagnement : pas de chiffres imposés — on avance à ton rythme, en douceur.",
+      reviewPlan: "Revoir tout mon plan",
+      saved: "Objectif mis à jour, mabrouk !",
+      targetTooLow:
+        "Ce poids viserait un IMC sous 18,5 — on ne descend jamais là. Vise un peu plus haut.",
+      targetInvalid: "Ce poids a une drôle de tête, vérifie la valeur.",
+      updateFailed: "La mise à jour n'est pas passée, réessaie.",
+    },
     levelLabel: "Niveau",
     xp: "XP",
     nextLevel: "prochain niveau",
@@ -759,6 +788,7 @@ export const fr = {
     periods: { "30": "30 j", "90": "90 j", "365": "1 an" },
     chartWeight: "Pesées",
     chartTrend: "Tendance",
+    chartPlanned: "Prévu",
     empty: "Monte sur la balance et raconte-moi : première pesée ?",
     emptyHint: "La tendance lissée arrive dès quelques pesées.",
     proposalTitle: "Proposition de Kémia",

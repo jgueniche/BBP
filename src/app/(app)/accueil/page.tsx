@@ -227,6 +227,13 @@ export default async function AccueilPage() {
           size={52}
           className="ml-auto hidden shrink-0 text-ink sm:block"
         />
+        <Link
+          href="/profil"
+          aria-label={fr.nav.profil}
+          className="ml-auto flex size-9 shrink-0 items-center justify-center rounded-full bg-ink text-sm font-bold text-paper sm:ml-0"
+        >
+          {(firstName ?? "B").charAt(0).toUpperCase()}
+        </Link>
       </header>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

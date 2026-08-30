@@ -1,5 +1,12 @@
 # DECISIONS.md — ADR courts (≤ 5 lignes chacun)
 
+## ADR-023 — Progrès : le plan de départ affiché et comparé, cible bornée (30/08/2026)
+`/progres` ouvre sur « Mon objectif » : trajectoire prévue dérivée du goal actif
+(`weekly_rate_pct` composé depuis la pesée de départ, lib pure `nutrition/goal-plan`) tracée en
+pointillés sur le graphique et comparée à la tendance EWMA (écart, % du chemin, arrivée prévue
+vs estimée). La cible est modifiable en place mais bornée serveur à IMC ≥ 18,5 (taille du profil) ;
+mode accompagnement : aucun chiffre. Le rythme/déficit se revoit via l'onboarding, pas en place.
+
 ## ADR-022 — Refonte « pro & chaleureux » : deux espaces, desktop d'abord (30/08/2026)
 Sur demande de Jeremy (maquettes validées, canevas « Refonte BBP ») : abandon du style sticker
 (bordures ink 2 px, ombres dures) pour filets 1 px, ombres douces, radius 14 px, coquille chaude,
