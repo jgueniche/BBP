@@ -182,11 +182,27 @@ export function buildCoachTools(params: {
     }),
 
     search_recipes: tool({
-      description: "Cherche des recettes BBP (casher, origine, temps, tags).",
+      description:
+        "Cherche des recettes BBP par mot-clé (titre). Retourne classe casher, origine, temps et version (boutargue/proteine).",
       inputSchema: z.object({
         query: z.string().min(2).max(80),
       }),
-      execute: async () => NOT_AVAILABLE("7 (recettes)"),
+      execute: async ({ query }) => {
+        const { data } = await supabase
+          .from("recipes")
+          .select(
+            "title, slug, origin, category, kashrut_class, is_fish, prep_min, cook_min, version_kind, tags, nutrition_per_serving",
+          )
+          .eq("status", "published")
+          .ilike("title", `%${query}%`)
+          .limit(6);
+        return {
+          recipes: (data ?? []).map((recipe) => ({
+            ...recipe,
+            url: `/recettes/${recipe.slug}`,
+          })),
+        };
+      },
     }),
 
     propose_meal_plan: tool({
