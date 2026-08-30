@@ -15,8 +15,11 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.46",
     "@supabase/ssr": "^0.12.5",
     "@supabase/supabase-js": "^2.112.4",
+    "@zxing/browser": "^0.2.1",
+    "ai": "^7.0.85",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.37.0",
@@ -26,6 +29,7 @@
     "radix-ui": "^1.6.7",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "server-only": "^0.0.1",
     "sonner": "^2.0.8",
     "tailwind-merge": "^3.6.0",
     "zod": "^4.5.4"
