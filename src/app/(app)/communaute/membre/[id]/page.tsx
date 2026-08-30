@@ -36,7 +36,7 @@ export default async function MemberPage({
   const name = profile?.display_name ?? profile?.username ?? t.anonymous;
 
   return (
-    <section className="flex flex-col gap-4">
+    <section className="flex w-full max-w-3xl flex-col gap-4">
       <header>
         <h1 className="font-display text-3xl font-extrabold tracking-tight">
           {name}

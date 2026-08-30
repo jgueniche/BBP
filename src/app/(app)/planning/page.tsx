@@ -33,7 +33,7 @@ export default async function PlanningPage({
   if (!isSupabaseConfigured) {
     return (
       <section>
-        <h1 className="font-display text-4xl font-extrabold tracking-tight">
+        <h1 className="font-display text-3xl font-extrabold tracking-tight">
           {t.title}
         </h1>
         <p className="mt-4 text-ink-70">{fr.auth.notConfigured}</p>
@@ -140,37 +140,38 @@ export default async function PlanningPage({
 
   return (
     <section className="flex flex-col gap-4">
-      <header className="flex items-center justify-between gap-2">
-        <h1 className="font-display text-4xl font-extrabold tracking-tight">
+      <header className="flex flex-wrap items-center gap-3">
+        <h1 className="font-display text-3xl font-extrabold tracking-tight">
           {t.title}
         </h1>
-        <Button asChild variant="secondary" size="sm">
-          <Link href={`/planning/courses?semaine=${weekStart}`}>
-            <ShoppingCart />
-            {t.courses.linkLabel}
-          </Link>
-        </Button>
+        <div className="ml-auto flex flex-wrap items-center gap-2">
+          <nav className="flex items-center gap-2">
+            <Link
+              href={`/planning?semaine=${addDays(weekStart, -7)}`}
+              aria-label={t.prevWeek}
+              className="rounded-full border bg-card p-1.5 shadow-soft"
+            >
+              <ChevronLeft size={16} strokeWidth={2} />
+            </Link>
+            <p className="font-display text-base font-extrabold">
+              {t.weekOf} {weekLabel}
+            </p>
+            <Link
+              href={`/planning?semaine=${addDays(weekStart, 7)}`}
+              aria-label={t.nextWeek}
+              className="rounded-full border bg-card p-1.5 shadow-soft"
+            >
+              <ChevronRight size={16} strokeWidth={2} />
+            </Link>
+          </nav>
+          <Button asChild variant="secondary" size="sm">
+            <Link href={`/planning/courses?semaine=${weekStart}`}>
+              <ShoppingCart />
+              {t.courses.linkLabel}
+            </Link>
+          </Button>
+        </div>
       </header>
-
-      <nav className="flex items-center justify-between gap-2">
-        <Link
-          href={`/planning?semaine=${addDays(weekStart, -7)}`}
-          aria-label={t.prevWeek}
-          className="rounded-full border-2 border-ink bg-paper p-1.5 shadow-sticker-sm"
-        >
-          <ChevronLeft size={16} strokeWidth={2} />
-        </Link>
-        <p className="font-display text-base font-extrabold">
-          {t.weekOf} {weekLabel}
-        </p>
-        <Link
-          href={`/planning?semaine=${addDays(weekStart, 7)}`}
-          aria-label={t.nextWeek}
-          className="rounded-full border-2 border-ink bg-paper p-1.5 shadow-sticker-sm"
-        >
-          <ChevronRight size={16} strokeWidth={2} />
-        </Link>
-      </nav>
 
       <PlanningGrid
         weekStart={weekStart}

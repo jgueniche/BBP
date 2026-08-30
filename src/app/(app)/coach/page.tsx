@@ -11,8 +11,8 @@ const t = fr.coach;
 export default async function CoachPage() {
   if (!isSupabaseConfigured) {
     return (
-      <section>
-        <h1 className="font-display text-4xl font-extrabold tracking-tight">
+      <section className="mx-auto w-full max-w-3xl">
+        <h1 className="font-display text-3xl font-extrabold tracking-tight">
           {t.title}
         </h1>
         <p className="mt-4 text-ink-70">{fr.auth.notConfigured}</p>
@@ -65,12 +65,14 @@ export default async function CoachPage() {
   );
 
   return (
-    <CoachChat
-      history={history}
-      greeting={greeting}
-      aiEnabled={isAiConfigured()}
-      messagesUsedToday={quotaRes.count ?? 0}
-      dailyQuota={DAILY_MESSAGE_QUOTA}
-    />
+    <div className="mx-auto w-full max-w-3xl">
+      <CoachChat
+        history={history}
+        greeting={greeting}
+        aiEnabled={isAiConfigured()}
+        messagesUsedToday={quotaRes.count ?? 0}
+        dailyQuota={DAILY_MESSAGE_QUOTA}
+      />
+    </div>
   );
 }

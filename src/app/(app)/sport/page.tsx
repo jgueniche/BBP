@@ -22,7 +22,7 @@ export default async function SportPage() {
   if (!isSupabaseConfigured) {
     return (
       <section>
-        <h1 className="font-display text-4xl font-extrabold tracking-tight">
+        <h1 className="font-display text-3xl font-extrabold tracking-tight">
           {t.title}
         </h1>
         <p className="mt-4 text-ink-70">{fr.auth.notConfigured}</p>
@@ -89,140 +89,147 @@ export default async function SportPage() {
 
   return (
     <section className="flex flex-col gap-4">
-      <header className="flex items-center justify-between gap-2">
-        <h1 className="font-display text-4xl font-extrabold tracking-tight">
+      <header className="flex flex-wrap items-center gap-3">
+        <h1 className="font-display text-3xl font-extrabold tracking-tight">
           {t.title}
         </h1>
-        <GenerateProgramDialog hasProgram={program !== null} />
+        <div className="ml-auto">
+          <GenerateProgramDialog hasProgram={program !== null} />
+        </div>
       </header>
 
-      {weeklyKcal > 0 && (
-        <p className="flex items-center gap-1.5 text-sm text-ink-70">
-          <Flame size={15} strokeWidth={2} aria-hidden />
-          <span className="font-mono font-semibold">{weeklyKcal}</span>
-          {t.weeklyKcal}
-        </p>
-      )}
+      <div className="grid items-start gap-4 xl:grid-cols-3">
+        <div className="flex flex-col gap-4 xl:col-span-2">
+          {program === null ? (
+            <div className="rounded-lg border bg-card p-5 text-center shadow-soft">
+              <Dumbbell
+                size={32}
+                strokeWidth={2}
+                className="mx-auto text-ink-50"
+                aria-hidden
+              />
+              <p className="mt-2 text-sm text-ink-70">{t.empty}</p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2 rounded-lg border bg-card p-4 shadow-soft">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <Badge variant="primary">
+                  {t.goals[program.goal as keyof typeof t.goals]}
+                </Badge>
+                <Badge>{t.levels[program.level as keyof typeof t.levels]}</Badge>
+                <Badge>
+                  {t.equipments[program.equipment as keyof typeof t.equipments]}
+                </Badge>
+                <span className="text-xs text-ink-50">
+                  {program.days_per_week}×/sem ·{" "}
+                  {program.generated_by === "ai"
+                    ? t.programBadgeAi
+                    : t.programBadgeFallback}
+                </span>
+              </div>
 
-      <QuickLog />
-
-      {program === null ? (
-        <div className="rounded-[20px] border-2 border-ink bg-paper p-5 text-center shadow-sticker">
-          <Dumbbell
-            size={32}
-            strokeWidth={2}
-            className="mx-auto text-ink-50"
-            aria-hidden
-          />
-          <p className="mt-2 text-sm text-ink-70">{t.empty}</p>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-2 rounded-[20px] border-2 border-ink bg-paper p-4 shadow-sticker">
-          <div className="flex flex-wrap items-center gap-1.5">
-            <Badge variant="primary">
-              {t.goals[program.goal as keyof typeof t.goals]}
-            </Badge>
-            <Badge>{t.levels[program.level as keyof typeof t.levels]}</Badge>
-            <Badge>
-              {t.equipments[program.equipment as keyof typeof t.equipments]}
-            </Badge>
-            <span className="text-xs text-ink-50">
-              {program.days_per_week}×/sem ·{" "}
-              {program.generated_by === "ai"
-                ? t.programBadgeAi
-                : t.programBadgeFallback}
-            </span>
-          </div>
-
-          {weeks.map((week) => (
-            <details key={week.week} open={week.week === 1}>
-              <summary className="cursor-pointer py-1 font-display text-base font-extrabold">
-                {t.week} {week.week}
-                {week.note && (
-                  <span className="ml-2 text-xs font-medium normal-case text-ink-50">
-                    {week.note}
-                  </span>
-                )}
-              </summary>
-              <ul className="mb-1 flex flex-col gap-1.5">
-                {week.days.map((day) => (
-                  <li
-                    key={day.day}
-                    className="flex items-center gap-2 rounded-[14px] border-2 border-ink-10 px-3 py-2"
-                  >
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-sm font-bold">
-                        {day.title}
+              {weeks.map((week) => (
+                <details key={week.week} open={week.week === 1}>
+                  <summary className="cursor-pointer py-1 font-display text-base font-extrabold">
+                    {t.week} {week.week}
+                    {week.note && (
+                      <span className="ml-2 text-xs font-medium normal-case text-ink-50">
+                        {week.note}
                       </span>
-                      <span className="text-xs text-ink-50">
-                        {day.exercises.length} {t.seance.exercise.toLowerCase()}
-                        {day.exercises.length > 1 ? "s" : ""}
-                      </span>
-                    </span>
-                    <Button asChild size="sm" variant="secondary">
-                      <Link
-                        href={`/sport/seance?semaine=${week.week}&jour=${day.day}`}
+                    )}
+                  </summary>
+                  <ul className="mb-1 flex flex-col gap-1.5">
+                    {week.days.map((day) => (
+                      <li
+                        key={day.day}
+                        className="flex items-center gap-2 rounded-lg border px-3 py-2"
                       >
-                        {t.start}
-                        <ChevronRight />
-                      </Link>
-                    </Button>
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-sm font-bold">
+                            {day.title}
+                          </span>
+                          <span className="text-xs text-ink-50">
+                            {day.exercises.length}{" "}
+                            {t.seance.exercise.toLowerCase()}
+                            {day.exercises.length > 1 ? "s" : ""}
+                          </span>
+                        </span>
+                        <Button asChild size="sm" variant="secondary">
+                          <Link
+                            href={`/sport/seance?semaine=${week.week}&jour=${day.day}`}
+                          >
+                            {t.start}
+                            <ChevronRight />
+                          </Link>
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-4">
+          {weeklyKcal > 0 && (
+            <p className="flex items-center gap-1.5 text-sm text-ink-70">
+              <Flame size={15} strokeWidth={2} aria-hidden />
+              <span className="font-mono font-semibold">{weeklyKcal}</span>
+              {t.weeklyKcal}
+            </p>
+          )}
+
+          <QuickLog />
+
+          {topRecords.length > 0 && (
+            <div className="rounded-lg border bg-card p-4 shadow-soft">
+              <h2 className="flex items-center gap-1.5 font-display text-base font-extrabold">
+                <Trophy size={16} strokeWidth={2} aria-hidden />
+                {t.records}
+              </h2>
+              <ul className="mt-2 grid grid-cols-2 gap-2 text-sm">
+                {topRecords.map(([name, weight]) => (
+                  <li key={name} className="rounded-lg border px-3 py-2">
+                    <p className="truncate text-xs text-ink-50">{name}</p>
+                    <p className="font-mono text-base font-bold">{weight} kg</p>
                   </li>
                 ))}
               </ul>
-            </details>
-          ))}
-        </div>
-      )}
+            </div>
+          )}
 
-      {topRecords.length > 0 && (
-        <div className="rounded-[20px] border-2 border-ink bg-paper p-4 shadow-sticker-sm">
-          <h2 className="flex items-center gap-1.5 font-display text-base font-extrabold">
-            <Trophy size={16} strokeWidth={2} aria-hidden />
-            {t.records}
-          </h2>
-          <ul className="mt-2 grid grid-cols-2 gap-2 text-sm">
-            {topRecords.map(([name, weight]) => (
-              <li
-                key={name}
-                className="rounded-[14px] border-2 border-ink-10 px-3 py-2"
-              >
-                <p className="truncate text-xs text-ink-50">{name}</p>
-                <p className="font-mono text-base font-bold">{weight} kg</p>
-              </li>
-            ))}
-          </ul>
+          <div>
+            <h2 className="font-display text-lg font-extrabold">{t.history}</h2>
+            {(sessions ?? []).length === 0 ? (
+              <p className="mt-2 text-sm text-ink-50">{t.historyEmpty}</p>
+            ) : (
+              <ul className="mt-2 flex flex-col gap-1.5">
+                {(sessions ?? []).slice(0, 10).map((session) => (
+                  <li
+                    key={session.id}
+                    className="flex items-center gap-2 rounded-lg border bg-card px-3 py-2 text-sm"
+                  >
+                    <span className="min-w-0 flex-1 truncate font-semibold">
+                      {session.label ?? t.title}
+                    </span>
+                    <span className="shrink-0 font-mono text-xs text-ink-50">
+                      {new Intl.DateTimeFormat("fr-FR", {
+                        day: "numeric",
+                        month: "short",
+                      }).format(new Date(`${session.date}T00:00:00`))}
+                      {session.duration_min !== null &&
+                        ` · ${session.duration_min} min`}
+                      {session.kcal_est !== null &&
+                        ` · ${session.kcal_est} kcal`}
+                      {session.rpe !== null && ` · RPE ${session.rpe}`}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
-      )}
-
-      <div>
-        <h2 className="font-display text-lg font-extrabold">{t.history}</h2>
-        {(sessions ?? []).length === 0 ? (
-          <p className="mt-2 text-sm text-ink-50">{t.historyEmpty}</p>
-        ) : (
-          <ul className="mt-2 flex flex-col gap-1.5">
-            {(sessions ?? []).slice(0, 10).map((session) => (
-              <li
-                key={session.id}
-                className="flex items-center gap-2 rounded-[14px] border-2 border-ink-10 bg-paper px-3 py-2 text-sm"
-              >
-                <span className="min-w-0 flex-1 truncate font-semibold">
-                  {session.label ?? t.title}
-                </span>
-                <span className="shrink-0 font-mono text-xs text-ink-50">
-                  {new Intl.DateTimeFormat("fr-FR", {
-                    day: "numeric",
-                    month: "short",
-                  }).format(new Date(`${session.date}T00:00:00`))}
-                  {session.duration_min !== null &&
-                    ` · ${session.duration_min} min`}
-                  {session.kcal_est !== null && ` · ${session.kcal_est} kcal`}
-                  {session.rpe !== null && ` · RPE ${session.rpe}`}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
       </div>
 
       <p className="text-[11px] text-ink-50">{t.disclaimer}</p>

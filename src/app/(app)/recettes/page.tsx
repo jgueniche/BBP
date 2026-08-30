@@ -50,7 +50,7 @@ function filterHref(current: Filters, patch: Partial<Filters>): string {
 }
 
 function chipClass(active: boolean): string {
-  return `rounded-full border-2 border-ink px-2.5 py-1 font-semibold ${active ? "bg-boutargue-soft" : "bg-paper"}`;
+  return `rounded-full border px-2.5 py-1 text-xs font-semibold ${active ? "bg-boutargue-tint" : "bg-card"}`;
 }
 
 export default async function RecettesPage({
@@ -67,7 +67,7 @@ export default async function RecettesPage({
   if (!isSupabaseConfigured) {
     return (
       <section>
-        <h1 className="font-display text-4xl font-extrabold tracking-tight">
+        <h1 className="font-display text-3xl font-extrabold tracking-tight">
           {t.title}
         </h1>
         <p className="mt-4 text-ink-70">{fr.auth.notConfigured}</p>
@@ -82,11 +82,11 @@ export default async function RecettesPage({
 
   return (
     <section className="flex flex-col gap-4">
-      <header className="flex items-center justify-between gap-2">
-        <h1 className="font-display text-4xl font-extrabold tracking-tight">
+      <header className="flex flex-wrap items-center gap-3">
+        <h1 className="font-display text-3xl font-extrabold tracking-tight">
           {t.title}
         </h1>
-        <div className="flex gap-2">
+        <div className="ml-auto flex gap-2">
           <Button asChild variant="secondary" size="sm">
             <Link href="/recettes/importer">
               <Download />
@@ -104,7 +104,7 @@ export default async function RecettesPage({
 
       <nav
         aria-label={t.title}
-        className="flex gap-1 rounded-full border-2 border-ink bg-paper p-1"
+        className="flex gap-1 rounded-full border bg-card p-1"
       >
         {(
           [
@@ -216,15 +216,14 @@ async function DiscoverTab({ filters }: { filters: Filters }) {
 
   return (
     <>
-      <form action="/recettes" className="flex gap-2">
-        <Input
-          name="q"
-          defaultValue={filters.q ?? ""}
-          placeholder={t.searchPlaceholder}
-        />
-      </form>
-
-      <div className="flex flex-wrap gap-1.5 text-xs">
+      <div className="flex flex-wrap items-center gap-2">
+        <form action="/recettes" className="w-full sm:w-72">
+          <Input
+            name="q"
+            defaultValue={filters.q ?? ""}
+            placeholder={t.searchPlaceholder}
+          />
+        </form>
         <Link
           href={filterHref(filters, {
             tri: filters.tri === "top" ? undefined : "top",
@@ -304,7 +303,7 @@ async function DiscoverTab({ filters }: { filters: Filters }) {
           title={t.empty}
         />
       ) : (
-        <ul className="flex flex-col gap-3">
+        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {recipes.map((recipe) => (
             <li key={recipe.id}>
               <RecipeCard
@@ -364,7 +363,7 @@ async function BookTab({ userId }: { userId: string | null }) {
       {(mine ?? []).length > 0 && (
         <div className="flex flex-col gap-2">
           <h2 className="font-display text-lg font-extrabold">{t.myRecipes}</h2>
-          <ul className="flex flex-col gap-3">
+          <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {(mine ?? []).map((recipe) => (
               <li key={recipe.id}>
                 <RecipeCard recipe={recipe as RecipeCardData} />
@@ -378,7 +377,7 @@ async function BookTab({ userId }: { userId: string | null }) {
           <h2 className="font-display text-lg font-extrabold">
             {t.savedRecipes}
           </h2>
-          <ul className="flex flex-col gap-3">
+          <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {orderedSaved.map((recipe) => (
               <li key={recipe.id}>
                 <RecipeCard recipe={recipe as RecipeCardData} />
@@ -428,7 +427,7 @@ async function CollectionsTab({ userId }: { userId: string | null }) {
           title={t.collections.empty}
         />
       ) : (
-        <ul className="grid grid-cols-2 gap-3">
+        <ul className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">
           {(collections ?? []).map((collection) => {
             const count = counts.get(collection.id) ?? 0;
             return (
@@ -436,10 +435,10 @@ async function CollectionsTab({ userId }: { userId: string | null }) {
                 <Link
                   href={`/recettes/carnets/${collection.id}`}
                   className={cn(
-                    "flex h-full flex-col gap-2 rounded-[20px] border-2 border-ink p-4 shadow-sticker-sm transition-all active:translate-x-[2px] active:translate-y-[2px]",
+                    "flex h-full flex-col gap-2 rounded-lg border p-4 shadow-soft",
                     COLLECTION_COLOR_CLASSES[
                       collection.color as CollectionColor
-                    ] ?? "bg-paper",
+                    ] ?? "bg-card",
                   )}
                 >
                   <span className="text-3xl leading-none" aria-hidden>

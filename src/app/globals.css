@@ -139,22 +139,13 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-/* Soft elevation utilities. `shadow-sticker*` aliases keep un-migrated call
-   sites rendering with the new theme; they are removed once the sweep lands. */
+/* Soft elevation utilities. */
 @utility shadow-soft {
   box-shadow: var(--shadow-soft);
 }
 
 @utility shadow-pop {
   box-shadow: var(--shadow-pop);
-}
-
-@utility shadow-sticker {
-  box-shadow: var(--shadow-soft);
-}
-
-@utility shadow-sticker-sm {
-  box-shadow: var(--shadow-soft);
 }
 
 @layer base {
