@@ -35,7 +35,7 @@ Dernière mise à jour : 30/08/2026 · Session 1 (Fondations)
 ## Definition of Done — Session 1 (état)
 | Critère | État |
 |---|---|
-| `pnpm dev` OK | ✅ (build de prod vérifié en CI locale) |
+| `pnpm dev` OK | ✅ (serveur dev vérifié : `/login` et `/journal` servis ; build de prod vert) |
 | login/logout OK | ⚠️ Code prêt, non testable sans projet Supabase (clés absentes) |
 | Preview Vercel OK | ⚠️ Nécessite la connexion Vercel (action Jeremy) |
 | CI verte | ✅ lint + typecheck + test + build verts en local ; workflow poussé |
