@@ -25,6 +25,7 @@ export default async function ProfilPage() {
   let meatWait: number | null = null;
   let kashrutEnabled = true;
   let jewishCalendarEnabled = true;
+  let publicProfile = false;
 
   if (isSupabaseConfigured) {
     const supabase = await createClient();
@@ -37,7 +38,7 @@ export default async function ProfilPage() {
       const [profileRes, settingsRes, goalRes] = await Promise.all([
         supabase
           .from("profiles")
-          .select("display_name")
+          .select("display_name, visibility")
           .eq("id", user.id)
           .maybeSingle(),
         supabase
@@ -53,6 +54,7 @@ export default async function ProfilPage() {
           .maybeSingle(),
       ]);
       displayName = profileRes.data?.display_name ?? null;
+      publicProfile = profileRes.data?.visibility === "public";
       mode = settingsRes.data?.mode ?? null;
       meatWait = settingsRes.data?.meat_to_dairy_wait_hours ?? null;
       kashrutEnabled = settingsRes.data?.kashrut_enabled ?? true;
@@ -136,6 +138,7 @@ export default async function ProfilPage() {
           <PracticeToggles
             initialKashrut={kashrutEnabled}
             initialCalendar={jewishCalendarEnabled}
+            initialPublicProfile={publicProfile}
           />
 
           <div className="flex flex-wrap gap-2">
@@ -144,6 +147,9 @@ export default async function ProfilPage() {
             </Button>
             <Button asChild variant="secondary" size="sm">
               <Link href="/sport">{fr.sport.title}</Link>
+            </Button>
+            <Button asChild variant="secondary" size="sm">
+              <Link href="/communaute">{fr.communaute.title}</Link>
             </Button>
             <Button asChild variant="secondary" size="sm">
               <Link href="/onboarding?edit=1">{t.redoOnboarding}</Link>

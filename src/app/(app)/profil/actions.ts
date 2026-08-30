@@ -40,6 +40,24 @@ export async function updatePracticeSettings(input: {
   return { ok: true as const };
 }
 
+export async function updateProfileVisibility(publicProfile: boolean) {
+  if (!isSupabaseConfigured) return { ok: false as const };
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ visibility: publicProfile === true ? "public" : "private" })
+    .eq("id", user.id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/profil");
+  revalidatePath("/communaute");
+  return { ok: true as const };
+}
+
 export async function deleteAccountData() {
   if (!isSupabaseConfigured) redirect("/login");
   const supabase = await createClient();

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { updatePracticeSettings } from "./actions";
+import { updatePracticeSettings, updateProfileVisibility } from "./actions";
 import { fr } from "@/i18n/fr";
 import { cn } from "@/lib/utils/cn";
 
@@ -44,12 +44,25 @@ function Toggle({
 export function PracticeToggles({
   initialKashrut,
   initialCalendar,
+  initialPublicProfile,
 }: {
   initialKashrut: boolean;
   initialCalendar: boolean;
+  initialPublicProfile: boolean;
 }) {
   const [kashrut, setKashrut] = useState(initialKashrut);
   const [calendar, setCalendar] = useState(initialCalendar);
+  const [publicProfile, setPublicProfile] = useState(initialPublicProfile);
+
+  async function saveVisibility(next: boolean) {
+    setPublicProfile(next);
+    try {
+      await updateProfileVisibility(next);
+      toast(t.saved);
+    } catch {
+      setPublicProfile(!next);
+    }
+  }
 
   async function save(nextKashrut: boolean, nextCalendar: boolean) {
     const previous = { kashrut, calendar };
@@ -92,6 +105,17 @@ export function PracticeToggles({
             checked={calendar}
             onChange={(next) => save(kashrut, next)}
             label={t.calendar}
+          />
+        </div>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold">{t.visibility}</p>
+            <p className="text-xs text-ink-50">{t.visibilityHint}</p>
+          </div>
+          <Toggle
+            checked={publicProfile}
+            onChange={saveVisibility}
+            label={t.visibility}
           />
         </div>
       </div>
