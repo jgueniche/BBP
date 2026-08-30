@@ -20,6 +20,30 @@ export type Database = {
         Update: { created_at?: string; user_id?: string };
         Relationships: [];
       };
+      badges: {
+        Row: {
+          created_at: string;
+          description: string;
+          icon: string;
+          name: string;
+          slug: string;
+        };
+        Insert: {
+          created_at?: string;
+          description: string;
+          icon: string;
+          name: string;
+          slug: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string;
+          icon?: string;
+          name?: string;
+          slug?: string;
+        };
+        Relationships: [];
+      };
       blocks: {
         Row: { blocked_id: string; blocker_id: string; created_at: string };
         Insert: { blocked_id: string; blocker_id: string; created_at?: string };
@@ -66,6 +90,63 @@ export type Database = {
           updated_at?: string;
           user_id?: string;
           waist_cm?: number | null;
+        };
+        Relationships: [];
+      };
+      challenge_participants: {
+        Row: {
+          challenge_slug: string;
+          joined_at: string;
+          progress: number;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          challenge_slug: string;
+          joined_at?: string;
+          progress?: number;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          challenge_slug?: string;
+          joined_at?: string;
+          progress?: number;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      challenges: {
+        Row: {
+          collective: boolean;
+          created_at: string;
+          description: string;
+          icon: string;
+          metric: string;
+          name: string;
+          slug: string;
+          target: number;
+        };
+        Insert: {
+          collective?: boolean;
+          created_at?: string;
+          description: string;
+          icon: string;
+          metric: string;
+          name: string;
+          slug: string;
+          target: number;
+        };
+        Update: {
+          collective?: boolean;
+          created_at?: string;
+          description?: string;
+          icon?: string;
+          metric?: string;
+          name?: string;
+          slug?: string;
+          target?: number;
         };
         Relationships: [];
       };
@@ -663,6 +744,39 @@ export type Database = {
         };
         Relationships: [];
       };
+      notifications: {
+        Row: {
+          body: string;
+          created_at: string;
+          id: string;
+          kind: string;
+          read: boolean;
+          title: string;
+          url: string | null;
+          user_id: string;
+        };
+        Insert: {
+          body: string;
+          created_at?: string;
+          id?: string;
+          kind: string;
+          read?: boolean;
+          title: string;
+          url?: string | null;
+          user_id: string;
+        };
+        Update: {
+          body?: string;
+          created_at?: string;
+          id?: string;
+          kind?: string;
+          read?: boolean;
+          title?: string;
+          url?: string | null;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       post_comments: {
         Row: {
           author_id: string;
@@ -756,6 +870,33 @@ export type Database = {
           text?: string | null;
           updated_at?: string;
           visibility?: string;
+        };
+        Relationships: [];
+      };
+      push_subscriptions: {
+        Row: {
+          auth: string;
+          created_at: string;
+          endpoint: string;
+          id: string;
+          p256dh: string;
+          user_id: string;
+        };
+        Insert: {
+          auth: string;
+          created_at?: string;
+          endpoint: string;
+          id?: string;
+          p256dh: string;
+          user_id: string;
+        };
+        Update: {
+          auth?: string;
+          created_at?: string;
+          endpoint?: string;
+          id?: string;
+          p256dh?: string;
+          user_id?: string;
         };
         Relationships: [];
       };
@@ -1140,6 +1281,33 @@ export type Database = {
         };
         Relationships: [];
       };
+      streaks: {
+        Row: {
+          best: number;
+          current: number;
+          kind: string;
+          last_date: string | null;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          best?: number;
+          current?: number;
+          kind: string;
+          last_date?: string | null;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          best?: number;
+          current?: number;
+          kind?: string;
+          last_date?: string | null;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       tdee_proposals: {
         Row: {
           avg_intake_kcal: number;
@@ -1350,6 +1518,24 @@ export type Database = {
         };
         Relationships: [];
       };
+      user_badges: {
+        Row: {
+          awarded_at: string;
+          badge_slug: string;
+          user_id: string;
+        };
+        Insert: {
+          awarded_at?: string;
+          badge_slug: string;
+          user_id: string;
+        };
+        Update: {
+          awarded_at?: string;
+          badge_slug?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       weight_logs: {
         Row: {
           created_at: string;
@@ -1421,6 +1607,10 @@ export type Database = {
       is_group_member: {
         Args: { gid: string };
         Returns: boolean;
+      };
+      challenge_totals: {
+        Args: { challenge: string };
+        Returns: Json;
       };
       can_view_via_collection: {
         Args: { rid: string };
