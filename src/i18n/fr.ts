@@ -541,6 +541,79 @@ export const fr = {
       notAdmin: "Cette page est réservée à la modération.",
     },
   },
+  progres: {
+    title: "Mes progrès",
+    levelLabel: "Niveau",
+    xp: "XP",
+    nextLevel: "prochain niveau",
+    maxLevel: "Niveau max — même la boutargue s'incline.",
+    streaks: {
+      title: "Séries",
+      journal: "Journal",
+      sport: "Sport",
+      pesee: "Pesée",
+      days: "j",
+      best: "record",
+      tolerance: "Les chabbats et les fêtes ne cassent jamais une série.",
+    },
+    badges: {
+      title: "Badges",
+      earnedLabel: "débloqués",
+      newLabel: "Nouveau !",
+    },
+    challenges: {
+      title: "Défis",
+      join: "Rejoindre",
+      leave: "Quitter",
+      joined: "Défi rejoint, yalla !",
+      collectiveLabel: "tous ensemble",
+      youLabel: "toi",
+      participantsLabel: "participant·es",
+    },
+  },
+  notifications: {
+    card: {
+      title: "Notifications",
+      intro:
+        "Kémia t'envoie au max 2 coups de pouce par jour — jamais pendant chabbat ni les fêtes.",
+      enable: "Activer sur cet appareil",
+      disable: "Désactiver",
+      enabled: "Notifications activées sur cet appareil.",
+      denied:
+        "Ton navigateur bloque les notifications pour BBP. Débloque-les dans ses réglages.",
+      unsupported: "Ton navigateur ne gère pas les notifications push.",
+      notConfigured:
+        "Les notifications arrivent bientôt (configuration serveur en attente).",
+      error: "Impossible d'activer les notifications, réessaie.",
+    },
+    matinTitle: "La pesée du matin",
+    soirTitle: "Le bilan du soir",
+    dafinaTitle: "Erev chabbat",
+    recapTitle: "Ta semaine BBP",
+    matin: [
+      "Bonjour ! Une petite pesée avant le café, et on n'en parle plus.",
+      "La balance t'attend, habibi — 10 secondes, promis.",
+      "Nouveau jour, nouveau chiffre. Pèse-toi tranquille, je note.",
+      "Un petit passage sur la balance ? La tendance fait le reste.",
+    ],
+    soir: [
+      "Alors, ce dîner ? Deux minutes pour le noter et c'est plié.",
+      "Le journal du soir, c'est comme la kémia : petit mais essentiel.",
+      "Note tes repas du jour, et va te reposer tranquille.",
+      "Un dernier coup d'œil au journal avant de fermer boutique ?",
+    ],
+    soirJeudi: [
+      "Demain c'est vendredi : on pense aux courses de chabbat ce soir ?",
+      "Jeudi soir, le marché t'appelle — ta liste de courses est prête.",
+    ],
+    dafina: [
+      "C'est vendredi ! La dafina se lance maintenant pour demain midi. Chabbat chalom !",
+      "Erev chabbat : plata, dafina, et on souffle. Chabbat chalom, neshama.",
+      "La dafina n'attend pas — au feu doux dès maintenant. Chabbat chalom !",
+    ],
+    recapBody: (journalDays: number, sessions: number) =>
+      `${journalDays} jour${journalDays > 1 ? "s" : ""} de journal et ${sessions} séance${sessions > 1 ? "s" : ""} cette semaine. Viens voir tes progrès !`,
+  },
   profil: {
     title: "Moi",
     connectedAs: "Connecté·e avec",

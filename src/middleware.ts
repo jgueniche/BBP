@@ -15,6 +15,7 @@ export const config = {
     "/planning/:path*",
     "/sport/:path*",
     "/communaute/:path*",
+    "/progres/:path*",
     "/admin/:path*",
     "/profil/:path*",
     "/design/:path*",

@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 
 import { signOut } from "./actions";
 import { DeleteAccountButton } from "./delete-button";
+import { NotificationsCard } from "./notifications-card";
 import { PracticeToggles } from "./practice-toggles";
 
 const t = fr.profil;
@@ -141,6 +142,10 @@ export default async function ProfilPage() {
             initialPublicProfile={publicProfile}
           />
 
+          <NotificationsCard
+            vapidPublicKey={process.env.VAPID_PUBLIC_KEY ?? null}
+          />
+
           <div className="flex flex-wrap gap-2">
             <Button asChild variant="secondary" size="sm">
               <Link href="/poids">{fr.poids.linkFromJournal}</Link>
@@ -150,6 +155,9 @@ export default async function ProfilPage() {
             </Button>
             <Button asChild variant="secondary" size="sm">
               <Link href="/communaute">{fr.communaute.title}</Link>
+            </Button>
+            <Button asChild variant="secondary" size="sm">
+              <Link href="/progres">{fr.progres.title}</Link>
             </Button>
             <Button asChild variant="secondary" size="sm">
               <Link href="/onboarding?edit=1">{t.redoOnboarding}</Link>
