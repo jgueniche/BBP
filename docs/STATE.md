@@ -1,8 +1,17 @@
 # STATE.md — État du projet BBP
 
-Dernière mise à jour : 30/08/2026 · Session 1 (Fondations)
+Dernière mise à jour : 30/08/2026 · Sessions 1 (Fondations) + 2 (Charte & kit UI)
 
-## Fait
+## Fait — Session 2 (Charte graphique & kit UI)
+- Tokens `@theme` complets (palette §2.2) avec **dark mode** par inversion ink/paper (orange inchangé, ombres paper 30 %) — vérifié par screenshots light + dark.
+- shadcn/ui installé et re-thémé « sticker » : Button, Card, Input, Sheet, Dialog, Tabs, Badge, Progress, Toast (sonner) — bordures ink 2 px, radius 20 px, ombres dures `shadow-sticker`.
+- Composants BBP : `KashrutPill`, `MacroRing`, `StickerCard`, `CoachBubble` (avec respiration Framer Motion + reduced-motion), `EmptyState`.
+- Avatar Kémia SVG ×5 expressions (sourire, clin, surprise, fière, douce) ; 12 illustrations SVG line-art ; logo BBP ×4 variantes + tranche de boutargue dans le B.
+- `public/brand/` : SVG sources + `scripts/export-brand.mjs` (sharp) → PNG 32/192/512/maskable + logos 1024 ; `src/app/icon.svg` (favicon).
+- Page `/design` complète (couleurs, typo, boutons, cartes, formulaires, pastilles, anneaux, Kémia, illustrations, logos, états, ton §2.6), protégée par le middleware auth.
+- Login et Profil migrés sur le kit. Tests : 5 verts (nav, format, kashrut-pill).
+
+## Fait — Session 1
 - Cadre documentaire : `BRIEF-BBP.md` (source de vérité), `CLAUDE.md`, `docs/STATE.md`, `docs/DECISIONS.md`.
 - Scaffold Next.js 15 (App Router, React 19, TypeScript strict, Tailwind v4, ESLint, Prettier, pnpm).
 - Structure de routes : `(auth)` (login OTP) et `(app)` avec bottom-bar mobile (Journal, Recettes, Kémia, Planning, Moi) — pages placeholder.
@@ -24,11 +33,12 @@ Dernière mise à jour : 30/08/2026 · Session 1 (Fondations)
 6. Créer les projets **Sentry** et **PostHog EU**, renseigner les clés.
 7. Valider le plan de la session 1 a posteriori (session lancée en autonome, cf. ADR-002).
 
-## Backlog (hors périmètre session 1)
-- Session 2 : charte graphique complète, kit UI, `/design`, logo, illustrations, avatar Kémia.
-- Providers OAuth Google/Apple : pages et boutons UI (le code auth OTP est prêt, les boutons OAuth viendront avec le kit UI session 2/3).
-- Supabase local (`supabase init` + première migration + types générés) : à faire dès que le projet Supabase existe, pour caler les types sur la vraie instance.
+## Backlog
+- Validation visuelle de `/design` par Jeremy (DoD session 2) ; itérer sur logo/avatar/illustrations selon retours.
+- Auth : OTP email et OAuth Google/Apple repoussés (ADR-006) ; réactiver plus tard avec Site URL corrigée.
+- Supabase local (`supabase init` + première migration + types générés) : à faire en session 3 avec les premières tables.
 - Sentry + PostHog : instrumentation code (clés requises d'abord).
+- Session 3 : onboarding & profil (TDEE, modes, contraintes casher, consentement santé).
 
 ## Bugs connus
 - Aucun.

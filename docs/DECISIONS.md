@@ -1,5 +1,11 @@
 # DECISIONS.md — ADR courts (≤ 5 lignes chacun)
 
+## ADR-007 — Kit UI : shadcn actuel (radix-ui unifié, sonner, tw-animate-css) (30/08/2026)
+shadcn/ui installé via CLI avec ses défauts 2026 : paquet `radix-ui` unifié, toasts via
+`sonner` (le composant Toast historique est déprécié), animations `tw-animate-css`.
+Tokens sémantiques (`--primary`, `--border`…) mappés sur la palette BBP dans `globals.css` ;
+dark mode par inversion des variables brutes (media query), pas de classe `.dark`.
+
 ## ADR-006 — Auth v1 : email + mot de passe (30/08/2026)
 Décision de Jeremy : l'OTP par email échouait car le lien du template Supabase pointe vers la
 Site URL par défaut (`localhost:3000`). V1 = signup/login par mot de passe, sans friction.
