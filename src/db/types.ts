@@ -14,6 +14,22 @@ export type Database = {
   };
   public: {
     Tables: {
+      admin_users: {
+        Row: { created_at: string; user_id: string };
+        Insert: { created_at?: string; user_id: string };
+        Update: { created_at?: string; user_id?: string };
+        Relationships: [];
+      };
+      blocks: {
+        Row: { blocked_id: string; blocker_id: string; created_at: string };
+        Insert: { blocked_id: string; blocker_id: string; created_at?: string };
+        Update: {
+          blocked_id?: string;
+          blocker_id?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       body_measurements: {
         Row: {
           arm_cm: number | null;
@@ -272,6 +288,24 @@ export type Database = {
         };
         Relationships: [];
       };
+      follows: {
+        Row: {
+          created_at: string;
+          followed_id: string;
+          follower_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          followed_id: string;
+          follower_id: string;
+        };
+        Update: {
+          created_at?: string;
+          followed_id?: string;
+          follower_id?: string;
+        };
+        Relationships: [];
+      };
       food_favorites: {
         Row: {
           created_at: string;
@@ -446,6 +480,60 @@ export type Database = {
         };
         Relationships: [];
       };
+      group_members: {
+        Row: {
+          created_at: string;
+          group_id: string;
+          role: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          group_id: string;
+          role?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          group_id?: string;
+          role?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      groups: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          description: string | null;
+          icon: string;
+          id: string;
+          name: string;
+          slug: string;
+          visibility: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          description?: string | null;
+          icon?: string;
+          id?: string;
+          name: string;
+          slug: string;
+          visibility?: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          description?: string | null;
+          icon?: string;
+          id?: string;
+          name?: string;
+          slug?: string;
+          visibility?: string;
+        };
+        Relationships: [];
+      };
       health_profile: {
         Row: {
           allergies: string[];
@@ -572,6 +660,102 @@ export type Database = {
           updated_at?: string;
           user_id?: string;
           week_start?: string;
+        };
+        Relationships: [];
+      };
+      post_comments: {
+        Row: {
+          author_id: string;
+          created_at: string;
+          id: string;
+          moderation: string;
+          moderation_reasons: string[];
+          post_id: string;
+          text: string;
+        };
+        Insert: {
+          author_id: string;
+          created_at?: string;
+          id?: string;
+          moderation?: string;
+          moderation_reasons?: string[];
+          post_id: string;
+          text: string;
+        };
+        Update: {
+          author_id?: string;
+          created_at?: string;
+          id?: string;
+          moderation?: string;
+          moderation_reasons?: string[];
+          post_id?: string;
+          text?: string;
+        };
+        Relationships: [];
+      };
+      post_reactions: {
+        Row: {
+          created_at: string;
+          kind: string;
+          post_id: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          kind: string;
+          post_id: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          kind?: string;
+          post_id?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      posts: {
+        Row: {
+          author_id: string;
+          created_at: string;
+          group_id: string | null;
+          id: string;
+          kind: string;
+          moderation: string;
+          moderation_reasons: string[];
+          photo_paths: string[];
+          recipe_id: string | null;
+          text: string | null;
+          updated_at: string;
+          visibility: string;
+        };
+        Insert: {
+          author_id: string;
+          created_at?: string;
+          group_id?: string | null;
+          id?: string;
+          kind?: string;
+          moderation?: string;
+          moderation_reasons?: string[];
+          photo_paths?: string[];
+          recipe_id?: string | null;
+          text?: string | null;
+          updated_at?: string;
+          visibility?: string;
+        };
+        Update: {
+          author_id?: string;
+          created_at?: string;
+          group_id?: string | null;
+          id?: string;
+          kind?: string;
+          moderation?: string;
+          moderation_reasons?: string[];
+          photo_paths?: string[];
+          recipe_id?: string | null;
+          text?: string | null;
+          updated_at?: string;
+          visibility?: string;
         };
         Relationships: [];
       };
@@ -890,6 +1074,36 @@ export type Database = {
         };
         Relationships: [];
       };
+      reports: {
+        Row: {
+          created_at: string;
+          id: string;
+          reason: string;
+          reporter_id: string;
+          status: string;
+          target_id: string;
+          target_kind: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          reason: string;
+          reporter_id: string;
+          status?: string;
+          target_id: string;
+          target_kind: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          reason?: string;
+          reporter_id?: string;
+          status?: string;
+          target_id?: string;
+          target_kind?: string;
+        };
+        Relationships: [];
+      };
       shopping_items: {
         Row: {
           aisle: string;
@@ -1171,6 +1385,16 @@ export type Database = {
       };
     };
     Views: {
+      post_stats: {
+        Row: {
+          bsahtek: number;
+          comments: number;
+          mabrouk: number;
+          post_id: string;
+          yaouili: number;
+        };
+        Relationships: [];
+      };
       recipe_social_stats: {
         Row: {
           comments: number;
@@ -1182,6 +1406,22 @@ export type Database = {
       };
     };
     Functions: {
+      admin_set_moderation: {
+        Args: { target_kind: string; target_id: string; new_status: string };
+        Returns: boolean;
+      };
+      group_readable: {
+        Args: { gid: string };
+        Returns: boolean;
+      };
+      is_admin: {
+        Args: never;
+        Returns: boolean;
+      };
+      is_group_member: {
+        Args: { gid: string };
+        Returns: boolean;
+      };
       can_view_via_collection: {
         Args: { rid: string };
         Returns: boolean;
