@@ -373,6 +373,17 @@ export const fr = {
       "Salut {name} ! Moi c'est Kémia, ta coach. Raconte-moi ta journée, demande ton bilan de la semaine ou un coup de main sur un repas — yalla, on s'y met ?",
     greetingFallbackName: "ma boulette",
     memoriesLink: "Ce que Kémia sait de toi",
+    conversationsTitle: "Tes conversations",
+    conversationsHint:
+      "Reprends une discussion là où tu l'as laissée, ou repars de zéro.",
+    conversationsOpen: "Historique des conversations",
+    conversationsEmpty: "Aucune conversation pour l'instant — lance-toi !",
+    newConversation: "Nouvelle conversation",
+    conversationUntitled: "Nouvelle discussion",
+    conversationDelete: "Supprimer la conversation",
+    conversationDeleteConfirm: "Sûr·e ?",
+    conversationDeleted: "Conversation supprimée.",
+    conversationActive: "En cours",
     memoriesTitle: "Ce que Kémia sait de toi",
     memoriesHint:
       "Les petits faits que Kémia retient pour mieux te coacher. Supprime ce que tu veux : elle oubliera, promis.",

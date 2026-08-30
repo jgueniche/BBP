@@ -1,6 +1,12 @@
 # STATE.md — État du projet BBP
 
-Dernière mise à jour : 30/08/2026 · Sessions 1 à 14
+Dernière mise à jour : 30/08/2026 · Sessions 1 à 15
+
+## Fait — Session 15 (Kémia : conversations multiples + passe UI/UX du chat, ADR-024)
+- **Conversations multiples** : liste (panneau latéral Historique), bascule via `/coach?c=<id>` (défaut = plus récente), **nouvelle conversation** (bouton + dans l'en-tête et le panneau), **suppression** avec confirmation en deux taps (messages en cascade, mémoires conservées). Titre auto = premier message (60 car., figé), tri par activité (`updated_at` retouché à chaque échange). L'API `/api/coach` reçoit `conversationId` (vérifié possédé, zod) — le fil actif ne peut plus sauter sur une autre conversation. Lien « Ce que Kémia sait de toi » déplacé dans le panneau.
+- **Bug d'affichage corrigé** : la barre de saisie `sticky` sans fond passait par-dessus les messages (« mange le texte »). Le chat a désormais sa propre zone de défilement (hauteur calée sur le viewport, en-tête et composer fixes) — plus aucun chevauchement, auto-scroll fiable dans le conteneur.
+- **Passe UI/UX** : composer en carte (textarea auto-extensible jusqu'à 6 lignes, Entrée envoie / Maj+Entrée à la ligne, bouton désactivé si vide), indicateur « Kémia réfléchit » en vraie bulle à points animés (reduced-motion respecté), `whitespace-pre-wrap` + `break-words` sur les bulles (retours à la ligne et longues URLs), historique par conversation (50 derniers messages, plus de fuite entre fils), rafraîchissement de la liste en fin de réponse.
+- 200 tests verts, lint/typecheck/build OK.
 
 ## Fait — Session 14 (Refonte UI/UX « pro & chaleureux », ADR-022)
 - **Direction validée par Jeremy sur maquettes** (canevas « Refonte BBP » : 6 écrans desktop, 1 mobile, 2 pistes alternatives) : fini l'effet BD, la marque reste (Bricolage/Inter/JetBrains Mono, orange boutargue rationné, pastilles casher, jamais de rouge punitif).
@@ -131,6 +137,7 @@ Dernière mise à jour : 30/08/2026 · Sessions 1 à 14
 5. Valider a posteriori les plans des sessions 1-4 (sessions autonomes, cf. ADR-002).
 
 ## Backlog
+- Kémia : renommer une conversation à la main (v1 = titre auto du premier message) ; recherche dans l'historique si les fils se multiplient.
 - Refonte : fiche recette et import encore mono-colonne sur desktop (2 col. à envisager) ; message Kémia de `/accueil` déterministe (brancher l'IA légère comme les nudges) ; onglet mobile Cuisine → accès Communauté à fluidifier (lien croisé dans l'en-tête des deux pages).
 - ~~DoD session 6~~ **faite (30/08)** : `pnpm eval:coach` **40/40** (persona 20/20, garde-fous 20/20) avec la clé Gemini posée — 6 itérations : harnais adapté à Gemini 3.7 Flash (thinkingLevel, budget de sortie, mode sans outils, faux positif « rendez-vous ») + prompt Kémia **v1.1.0** (bornes citées lors d'un refus, orientation pro sur demande extrême, « indication seulement » pour le casher, gestion des plateaux). Température 0,7 : petite variance possible d'un run à l'autre, relançable à volonté.
 - Calendrier : ville libre hors liste (~45 villes) → horaires de Paris (géocodage complet à envisager) ; Yom HaAtsmaout optionnel non affiché ; vue mois du planning toujours en backlog.
