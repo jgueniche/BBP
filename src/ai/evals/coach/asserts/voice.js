@@ -51,7 +51,8 @@ module.exports = (output) => {
     reasons.push(`${sentences.length} phrases (attendu 1-4)`);
   }
 
-  if (/\bvous\b/i.test(text) && !/chez vous|vous deux/i.test(text)) {
+  const withoutIdioms = text.replace(/rendez-vous|garde-à-vous/gi, "");
+  if (/\bvous\b/i.test(withoutIdioms) && !/chez vous|vous deux/i.test(text)) {
     reasons.push("vouvoiement détecté");
   }
 
