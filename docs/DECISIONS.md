@@ -1,5 +1,12 @@
 # DECISIONS.md — ADR courts (≤ 5 lignes chacun)
 
+## ADR-020 — Gamification recalculée, un seul cron de nudges (30/08/2026)
+XP, niveaux, badges et séries sont **recalculés** depuis les données brutes à chaque visite
+de `/progres` (fonctions pures testées) — pas de journal d'événements à désynchroniser ;
+jours exempts (chabbat/chag) jamais cassants ni comptants. Plan Vercel Hobby = 2 crons max :
+un seul cron nudges (7 h UTC) infère le créneau (vendredi dafina, dimanche récap, sinon pesée) ;
+heures calmes hebcal + plafond 2/jour via la table `notifications` ; tout dégrade sans clés VAPID.
+
 ## ADR-019 — Social : modération à deux étages, feed sans algorithme (30/08/2026)
 Chaque post/commentaire passe le filtre heuristique FR (20 cas DoD testés) puis l'agent IA
 quand une clé existe : high = jamais publié, medium = publié + flaggé pour la file admin.

@@ -1,6 +1,15 @@
 # STATE.md — État du projet BBP
 
-Dernière mise à jour : 30/08/2026 · Sessions 1 à 11
+Dernière mise à jour : 30/08/2026 · Sessions 1 à 12
+
+## Fait — Session 12 (Gamification & notifications)
+- **XP & niveaux** (migration `202608302230`) : XP **recalculée de façon déterministe** (journal ×10, pesée ×5, séance ×20, recette publiée ×30, import ×10, post ×5, km de marche ×2, +50 par badge — aucun journal d'événements à désynchroniser), 5 niveaux §4.10 (Apprenti·e boulette → Roi/Reine de la boutargue), barre de progression sur `/progres`.
+- **Séries (streaks)** journal / sport / pesée avec la **tolérance chabbat & fêtes : un jour exempt ne casse jamais une série et ne compte jamais** (samedi + chag via hebcal) ; flamme + record par carte.
+- **16 badges annexe B** seedés et attribués par règles pures — **DoD : chaque badge testé attribué ET retenu sur fixtures** (45 nouveaux tests, 166 verts). Badges fêtes (Pessah sans hametz, après-fêtes, kif-kif) : stats branchées en session 13, verrouillés d'ici là.
+- **6 défis annexe C** seedés : rejoindre/quitter, progression personnelle (journal, séances, recettes protéinées) et **défis collectifs** (Paris–Tel Aviv 3 300 km : total via RPC `challenge_totals`) ; « Défi Elloul » prêt pour le calendrier.
+- **Web Push maison** (`public/sw.js`, table `push_subscriptions`) : carte Notifications dans Moi — activer = permission navigateur + clé VAPID, **désabonnement en 1 clic (DoD)**, messages d'état si navigateur incompatible/bloqué/serveur non configuré.
+- **Nudger Kémia** : cron quotidien `/api/cron/nudges` (7 h UTC, un seul cron — plan Vercel Hobby limité à 2) qui infère le créneau — **vendredi : « lancer la dafina » (erev chabbat)**, dimanche : récap hebdo (+ email Resend si clé), sinon pesée du matin ; `?slot=matin|soir|dafina|recap` pour un tir manuel. 1 phrase Kémia par IA légère, sinon rotation de phrases maison. **Garde-fous : heures calmes hebcal (jamais pendant chabbat/chag pour les pratiquants — DoD testée, y compris chabbat+Roch Hachana enchaînés), plafond 2/jour via la table `notifications`, créneau dafina réservé aux profils calendrier activé.**
+- Journal des notifications en base (kinds : nudge matin/soir, erev chabbat, récap, badge), nettoyage automatique des abonnements morts (410).
 
 ## Fait — Session 11 (Social)
 - **Feed communautaire `/communaute`** (migrations `202608302130` + `202608302140`) : posts 5 types (texte / recette attachée / progrès / plat de chabbat — suggéré le vendredi / séance), onglets Tout le monde · Abonnements · Groupes, **réactions ×3 (Bsahtek 🧡 / Mabrouk ⭐ / Ya ouili 😮**, une par personne, switchable), commentaires dépliables, suppression par l'auteur du post/commentaire.
@@ -96,6 +105,7 @@ Dernière mise à jour : 30/08/2026 · Sessions 1 à 11
 - Rien.
 
 ## Reste à faire (actions côté Jeremy)
+0. **Notifications push** : générer les clés (`npx web-push generate-vapid-keys`) puis poser `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (mailto:ton@email) + `SUPABASE_SERVICE_ROLE_KEY` + `CRON_SECRET` sur Vercel. Sans elles, la carte Notifications l'explique et le cron répond 501 (aucun crash).
 1. **`GOOGLE_GENERATIVE_AI_API_KEY` sur Vercel** (+ `.env.local`) → active toute l'IA sur Gemini 3.7 Flash (ADR-010) : parsing texte/photo du journal, chat Kémia, vérificateur casher des recettes, génération « version Protéine ». Clé gratuite sur https://aistudio.google.com/apikey. Sans elle, mode dégradé opérationnel partout.
 2. Dashboard Supabase (2 min) : Authentication → Sign In / Providers → Email → décocher « Confirm email » ; URL Configuration → Site URL = `https://bbp-mu.vercel.app`.
 3. Tester le parcours complet en prod : inscription → onboarding → journal (log texte, favori, comme hier).
@@ -105,7 +115,8 @@ Dernière mise à jour : 30/08/2026 · Sessions 1 à 11
 ## Backlog
 - **DoD session 6 en attente de clé IA** : lancer `pnpm eval:coach` (40 cas) dès que `GOOGLE_GENERATIVE_AI_API_KEY` est posée — exigence : persona ≥ 95 %, garde-fous 100 % ; itérer sur le prompt si nécessaire.
 - Contexte calendaire : géolocalisation de la ville du profil pour les heures d'allumage (session 13) — Paris par défaut en attendant.
-- Rappel matinal de pesée (hors chabbat) : arrive avec les notifications (session 12).
+- Notifications : le créneau du soir (`?slot=soir`, bilan du jour + jeudi courses) existe dans le code mais n'est pas planifié — le plan Vercel Hobby autorise 2 crons max (pris par adaptive-tdee et nudges du matin). Passer Pro ou ajouter un ping externe pour l'activer. Badge « Nouveau ! » : notification push à l'attribution d'un badge à brancher (kind `badge` prêt en base).
+- Gamification : stats des badges de fêtes (Pessah sans hametz, après-fêtes, kif-kif mois stable) branchées avec le calendrier avancé (session 13) ; heures calmes selon la ville du profil (Paris par défaut).
 - Cron global adaptive-tdee : poser `SUPABASE_SERVICE_ROLE_KEY` + `CRON_SECRET` sur Vercel (sinon seule la génération à la visite fonctionne — suffisant en v1).
 - Graphiques des mesures corporelles (Recharts) : v1 affiche les dernières valeurs, courbes à ajouter.
 - DoD session 4 partielle : évals « 20 phrases ≥ 90 % / photo ≥ 80 % » à passer avec promptfoo dès que la clé Gemini est posée (prévu session 6).
@@ -118,7 +129,7 @@ Dernière mise à jour : 30/08/2026 · Sessions 1 à 11
 - Photos de recettes : colonnes prêtes (`photo_paths`, `photo_path` par étape), upload UI à venir (session 11).
 - Profil : ajouter un interrupteur « profil visible par la communauté » (aujourd'hui `visibility` reste `private` → les recettes affichent « Membre BBP » au lieu du prénom).
 - Import Instagram sans collage : poser `INSTAGRAM_OEMBED_TOKEN` (app Meta, facultatif).
-- Social : feed Realtime (v1 = rafraîchissement), mentions @, groupes privés sur invitation, réactions sur commentaires, pagination du feed (v1 = 30 derniers), Communauté dans la bottom bar à arbitrer ; notifications sociales avec la session 12.
+- Social : feed Realtime (v1 = rafraîchissement), mentions @, groupes privés sur invitation, réactions sur commentaires, pagination du feed (v1 = 30 derniers), Communauté dans la bottom bar à arbitrer ; notifications sociales (bsahtek/commentaire reçus) non branchées — l'infra push de la session 12 est prête à les porter.
 - Sport : graphique de volume par groupe musculaire ; page détail d'un exercice (erreurs fréquentes affichées en séance) ; sons discrets réels (v1 = vibration) ; bouton Sport dans la bottom bar à arbitrer (5 places prises) ; éval promptfoo du workout_planner avec clé IA.
 - Planning : vue mois avec dates hébraïques ; verrouillage de créneaux dans l'UI (le moteur le gère déjà) ; drag & drop tactile (v1 = souris/HTML5 + boutons swap) ; quota fin « 2 plannings/semaine free » à calibrer (garde-fou à 20 aujourd'hui) ; éval promptfoo du meal_planner dès la clé IA posée.
 
