@@ -2,7 +2,13 @@
 
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
-import { History, NotebookPen, Plus, SendHorizonal, Trash2 } from "lucide-react";
+import {
+  History,
+  NotebookPen,
+  Plus,
+  SendHorizonal,
+  Trash2,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
@@ -116,7 +122,11 @@ function ConversationsSheet({
       }}
     >
       <SheetTrigger asChild>
-        <Button variant="secondary" size="icon-sm" aria-label={t.conversationsOpen}>
+        <Button
+          variant="secondary"
+          size="icon-sm"
+          aria-label={t.conversationsOpen}
+        >
           <History />
         </Button>
       </SheetTrigger>
@@ -204,7 +214,10 @@ function ConversationsSheet({
 
 function TypingIndicator() {
   return (
-    <span className="inline-flex items-center gap-1 py-1" aria-label={t.thinking}>
+    <span
+      className="inline-flex items-center gap-1 py-1"
+      aria-label={t.thinking}
+    >
       <span className="size-1.5 rounded-full bg-[#0b0b0b]/60 motion-safe:animate-bounce" />
       <span className="size-1.5 rounded-full bg-[#0b0b0b]/60 motion-safe:animate-bounce [animation-delay:150ms]" />
       <span className="size-1.5 rounded-full bg-[#0b0b0b]/60 motion-safe:animate-bounce [animation-delay:300ms]" />
