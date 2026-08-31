@@ -88,6 +88,19 @@ export const fr = {
   },
   journal: {
     title: "Journal",
+    history: {
+      title: "Historique",
+      link: "Historique",
+      prevMonth: "Mois précédent",
+      nextMonth: "Mois suivant",
+      journaledDays: "jours de journal",
+      avgKcal: "kcal/j en moyenne",
+      avgProtein: "g de protéines/j",
+      target: "cible",
+      mealSingular: "repas",
+      mealsPlural: "repas",
+      empty: "Aucun repas noté ce mois-ci. Le journal du jour t'attend !",
+    },
     fastBanner: "Jour de jeûne",
     fastAdvice:
       "Aucun objectif aujourd'hui. Hydrate-toi bien avant et après, et prévois un repas léger et doux pour la sortie du jeûne.",

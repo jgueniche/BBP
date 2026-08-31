@@ -4,6 +4,7 @@ import {
   ChevronRight,
   Droplets,
   Dumbbell,
+  History,
   Scale,
   Timer,
   Wheat,
@@ -23,6 +24,7 @@ import {
   loadCalendarSettings,
 } from "@/lib/jewish-calendar/cache";
 import { activePostFeast } from "@/lib/jewish-calendar/engine";
+import { resolveLocation } from "@/lib/jewish-calendar/locations";
 import { isQuietTime } from "@/lib/jewish-calendar/quiet";
 import { meatWaitStatus, type KashrutClass } from "@/lib/kashrut/meal";
 import { foodLogItemSchema, type Totals } from "@/lib/nutrition/items";
@@ -30,14 +32,9 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
 import type { MealType } from "./actions";
+import { DayGuard } from "./day-guard";
 
 const t = fr.journal;
-
-function parisToday(): string {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Europe/Paris",
-  }).format(new Date());
-}
 
 function shiftDate(date: string, days: number): string {
   const d = new Date(`${date}T12:00:00Z`);
@@ -66,8 +63,6 @@ export default async function JournalPage({
   searchParams: Promise<{ d?: string }>;
 }) {
   const { d } = await searchParams;
-  const today = parisToday();
-  const date = d && /^\d{4}-\d{2}-\d{2}$/.test(d) ? d : today;
 
   if (!isSupabaseConfigured) {
     return (
@@ -84,6 +79,20 @@ export default async function JournalPage({
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  // The day boundary follows the profile city's timezone (Tel Aviv rolls at
+  // its own midnight, not at Paris's).
+  const userCalendar = user
+    ? await loadCalendarSettings(supabase, user.id)
+    : null;
+  const timeZone = resolveLocation(
+    userCalendar?.settings.city ?? null,
+  ).location.getTzid();
+  const today = new Intl.DateTimeFormat("en-CA", { timeZone }).format(
+    new Date(),
+  );
+  const pinned = Boolean(d && /^\d{4}-\d{2}-\d{2}$/.test(d));
+  const date = pinned ? d! : today;
 
   const [logsRes, goalRes, settingsRes, favoritesRes] = await Promise.all([
     supabase
@@ -105,9 +114,6 @@ export default async function JournalPage({
 
   // Jewish-calendar overlay for the displayed day (session 13): fast banner,
   // Pessah hametz check, chabbat quiet notice, après-fêtes mode and presets.
-  const userCalendar = user
-    ? await loadCalendarSettings(supabase, user.id)
-    : null;
   const calendarEnabled = userCalendar?.enabled ?? true;
   let dayInfo = null;
   let postFeast = false;
@@ -214,10 +220,18 @@ export default async function JournalPage({
 
   return (
     <section className="flex flex-col gap-5">
+      <DayGuard serverDate={date} pinned={pinned} timeZone={timeZone} />
       <header className="flex items-center gap-3">
         <h1 className="font-display text-3xl font-extrabold tracking-tight">
           {t.title}
         </h1>
+        <Link
+          href="/journal/historique"
+          className="flex items-center gap-1.5 rounded-full border border-input bg-card px-3 py-1.5 text-xs font-semibold text-ink-70"
+        >
+          <History size={14} strokeWidth={2} aria-hidden />
+          {t.history.link}
+        </Link>
         <div className="ml-auto flex items-center gap-2 lg:ml-4">
           <Link
             href={`/journal?d=${shiftDate(date, -1)}`}
