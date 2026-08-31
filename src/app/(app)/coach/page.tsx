@@ -5,10 +5,20 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
 import { CoachChat, type StoredMessage } from "./chat";
+import {
+  ConversationsMenu,
+  type ConversationSummary,
+} from "./conversations-menu";
 
 const t = fr.coach;
 
-export default async function CoachPage() {
+export default async function CoachPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ c?: string }>;
+}) {
+  const { c } = await searchParams;
+
   if (!isSupabaseConfigured) {
     return (
       <section className="mx-auto w-full max-w-3xl">
@@ -29,18 +39,17 @@ export default async function CoachPage() {
   const dayStart = new Date();
   dayStart.setUTCHours(0, 0, 0, 0);
 
-  const [profileRes, messagesRes, quotaRes] = await Promise.all([
+  const [profileRes, conversationsRes, quotaRes] = await Promise.all([
     supabase
       .from("profiles")
       .select("display_name")
       .eq("id", user.id)
       .maybeSingle(),
     supabase
-      .from("coach_messages")
-      .select("id, role, content")
+      .from("coach_conversations")
+      .select("id, title, updated_at")
       .eq("user_id", user.id)
-      .in("role", ["user", "assistant"])
-      .order("created_at", { ascending: false })
+      .order("updated_at", { ascending: false })
       .limit(30),
     supabase
       .from("coach_messages")
@@ -50,7 +59,30 @@ export default async function CoachPage() {
       .gte("created_at", dayStart.toISOString()),
   ]);
 
-  const history: StoredMessage[] = (messagesRes.data ?? [])
+  const conversations: ConversationSummary[] = (
+    conversationsRes.data ?? []
+  ).map((row) => ({
+    id: row.id,
+    title: row.title,
+    updatedAt: row.updated_at,
+  }));
+
+  // Active thread: ?c= when it is one of ours, else the most recent one.
+  const requested = conversations.find((conversation) => conversation.id === c);
+  const active = requested ?? conversations[0] ?? null;
+
+  const { data: messageRows } = active
+    ? await supabase
+        .from("coach_messages")
+        .select("id, role, content")
+        .eq("user_id", user.id)
+        .eq("conversation_id", active.id)
+        .in("role", ["user", "assistant"])
+        .order("created_at", { ascending: false })
+        .limit(30)
+    : { data: [] };
+
+  const history: StoredMessage[] = (messageRows ?? [])
     .reverse()
     .filter((m) => m.content.trim().length > 0)
     .map((m) => ({
@@ -67,11 +99,22 @@ export default async function CoachPage() {
   return (
     <div className="mx-auto w-full max-w-3xl">
       <CoachChat
+        key={active?.id ?? "none"}
+        conversationId={active?.id ?? null}
         history={history}
         greeting={greeting}
         aiEnabled={isAiConfigured()}
         messagesUsedToday={quotaRes.count ?? 0}
         dailyQuota={DAILY_MESSAGE_QUOTA}
+        conversationsSlot={
+          <ConversationsMenu
+            conversations={conversations.filter(
+              (conversation) =>
+                conversation.title !== null || conversation.id === active?.id,
+            )}
+            activeId={active?.id ?? null}
+          />
+        }
       />
     </div>
   );

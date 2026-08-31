@@ -43,7 +43,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "ai_unconfigured" }, { status: 503 });
   }
 
-  const { messages }: { messages: UIMessage[] } = await request.json();
+  const {
+    messages,
+    conversationId: requestedConversationId,
+  }: { messages: UIMessage[]; conversationId?: string } = await request.json();
   const lastUser = [...messages].reverse().find((m) => m.role === "user");
   const lastUserText = lastUser ? uiMessageText(lastUser) : "";
   if (!lastUserText) {
@@ -71,26 +74,57 @@ export async function POST(request: Request) {
     ? buildCalendarContext(new Date(), userCalendar.settings)
     : { text: "", isFastToday: false };
 
-  let conversationId: string;
-  const { data: existing } = await supabase
-    .from("coach_conversations")
-    .select("id")
-    .eq("user_id", user.id)
-    .order("updated_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  if (existing) {
-    conversationId = existing.id;
-  } else {
-    const { data: created, error } = await supabase
+  // Thread selection: the chat pins a conversation id; a missing or foreign
+  // id falls back to the latest thread (or a fresh one) — legacy behavior.
+  let conversationId: string | null = null;
+  let conversationTitle: string | null = null;
+  if (requestedConversationId) {
+    const { data: requested } = await supabase
       .from("coach_conversations")
-      .insert({ user_id: user.id })
-      .select("id")
-      .single();
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      .select("id, title")
+      .eq("id", requestedConversationId)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    if (requested) {
+      conversationId = requested.id;
+      conversationTitle = requested.title;
     }
-    conversationId = created.id;
+  }
+  if (conversationId === null) {
+    const { data: existing } = await supabase
+      .from("coach_conversations")
+      .select("id, title")
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (existing) {
+      conversationId = existing.id;
+      conversationTitle = existing.title;
+    } else {
+      const { data: created, error } = await supabase
+        .from("coach_conversations")
+        .insert({ user_id: user.id })
+        .select("id")
+        .single();
+      if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+      conversationId = created.id;
+    }
+  }
+
+  // First message of an untitled thread names it (trimmed to a short label).
+  if (!conversationTitle) {
+    await supabase
+      .from("coach_conversations")
+      .update({
+        title:
+          lastUserText.length > 48
+            ? `${lastUserText.slice(0, 47).trimEnd()}…`
+            : lastUserText,
+      })
+      .eq("id", conversationId);
   }
 
   const safetyFlags = context.safeMode ? ["safe_mode"] : [];

@@ -51,24 +51,31 @@ function expressionFor(index: number): KemiaExpression {
 }
 
 export function CoachChat({
+  conversationId,
   history,
   greeting,
   aiEnabled,
   messagesUsedToday,
   dailyQuota,
+  conversationsSlot,
 }: {
+  conversationId: string | null;
   history: StoredMessage[];
   greeting: string;
   aiEnabled: boolean;
   messagesUsedToday: number;
   dailyQuota: number;
+  conversationsSlot?: React.ReactNode;
 }) {
   const [input, setInput] = useState("");
   const [sentCount, setSentCount] = useState(0);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const { messages, sendMessage, status, error } = useChat({
-    transport: new DefaultChatTransport({ api: "/api/coach" }),
+    transport: new DefaultChatTransport({
+      api: "/api/coach",
+      body: conversationId ? { conversationId } : {},
+    }),
     messages: toUIMessages(history, greeting),
   });
 
@@ -92,16 +99,19 @@ export function CoachChat({
 
   return (
     <section className="flex min-h-[calc(100dvh-160px)] flex-col gap-4">
-      <header className="flex items-center justify-between">
+      <header className="flex flex-wrap items-center gap-2">
         <h1 className="font-display text-4xl font-extrabold tracking-tight">
           {t.title}
         </h1>
-        <Link
-          href="/coach/memoires"
-          className="text-xs font-medium text-ink-70 underline underline-offset-4"
-        >
-          {t.memoriesLink}
-        </Link>
+        <div className="ml-auto flex items-center gap-2">
+          {conversationsSlot}
+          <Link
+            href="/coach/memoires"
+            className="text-xs font-medium text-ink-70 underline underline-offset-4"
+          >
+            {t.memoriesLink}
+          </Link>
+        </div>
       </header>
 
       <div className="flex flex-1 flex-col gap-4">

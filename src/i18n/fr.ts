@@ -373,6 +373,18 @@ export const fr = {
   },
   coach: {
     title: "Kémia",
+    conversations: {
+      list: "Conversations",
+      newLabel: "Nouvelle",
+      newTitle: "Nouvelle conversation",
+      untitled: "Conversation",
+      deleteLabel: "Supprimer la conversation",
+      deleteConfirm:
+        "Supprimer cette conversation et tous ses messages ? C'est définitif.",
+      empty: "Aucune conversation pour l'instant — lance-toi !",
+      today: "aujourd'hui",
+      yesterday: "hier",
+    },
     inputPlaceholder: "Parle à Kémia…",
     send: "Envoyer",
     thinking: "Kémia réfléchit…",
