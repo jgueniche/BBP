@@ -1,5 +1,12 @@
 # DECISIONS.md — ADR courts (≤ 5 lignes chacun)
 
+## ADR-024 — Kémia : conversations multiples, fil scopé par `?c=` (30/08/2026)
+Le chat passe du fil unique aux conversations multiples : `/coach?c=<id>` (défaut = plus récente),
+création/suppression par Server Actions, `conversationId` envoyé dans le body du POST `/api/coach`
+(vérifié possédé, sinon repli plus récente/création). Titre = premier message utilisateur, figé
+ensuite ; `updated_at` retouché à chaque échange pour l'ordre de la liste. Le quota 30 msg/jour
+reste global par utilisateur, toutes conversations confondues ; les mémoires restent globales.
+
 ## ADR-023 — Progrès : le plan de départ affiché et comparé, cible bornée (30/08/2026)
 `/progres` ouvre sur « Mon objectif » : trajectoire prévue dérivée du goal actif
 (`weekly_rate_pct` composé depuis la pesée de départ, lib pure `nutrition/goal-plan`) tracée en

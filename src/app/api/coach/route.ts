@@ -5,6 +5,7 @@ import {
   type UIMessage,
 } from "ai";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 
 import { extractMemories } from "@/ai/agents/memory-extractor";
 import type { Json } from "@/db/types";
@@ -43,7 +44,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "ai_unconfigured" }, { status: 503 });
   }
 
-  const { messages }: { messages: UIMessage[] } = await request.json();
+  const {
+    messages,
+    conversationId: requestedConversationId,
+  }: { messages: UIMessage[]; conversationId?: unknown } = await request.json();
   const lastUser = [...messages].reverse().find((m) => m.role === "user");
   const lastUserText = lastUser ? uiMessageText(lastUser) : "";
   if (!lastUserText) {
@@ -71,27 +75,42 @@ export async function POST(request: Request) {
     ? buildCalendarContext(new Date(), userCalendar.settings)
     : { text: "", isFastToday: false };
 
-  let conversationId: string;
-  const { data: existing } = await supabase
-    .from("coach_conversations")
-    .select("id")
-    .eq("user_id", user.id)
-    .order("updated_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  if (existing) {
-    conversationId = existing.id;
-  } else {
+  // Resolve the conversation: the one the client is on, else the most
+  // recent one, else a fresh one (first message ever).
+  let conversation: { id: string; title: string | null } | null = null;
+  const requested = z.uuid().safeParse(requestedConversationId);
+  if (requested.success) {
+    const { data } = await supabase
+      .from("coach_conversations")
+      .select("id, title")
+      .eq("id", requested.data)
+      .eq("user_id", user.id)
+      .maybeSingle();
+    conversation = data;
+  }
+  if (!conversation) {
+    const { data } = await supabase
+      .from("coach_conversations")
+      .select("id, title")
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    conversation = data;
+  }
+  if (!conversation) {
     const { data: created, error } = await supabase
       .from("coach_conversations")
       .insert({ user_id: user.id })
-      .select("id")
+      .select("id, title")
       .single();
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-    conversationId = created.id;
+    conversation = created;
   }
+  const conversationId = conversation.id;
+  const conversationHasTitle = (conversation.title ?? "").trim().length > 0;
 
   const safetyFlags = context.safeMode ? ["safe_mode"] : [];
   const { data: userMessageRow } = await supabase
@@ -142,9 +161,15 @@ export async function POST(request: Request) {
         model: picked.modelId,
         safety_flags: safetyFlags,
       });
+      // Title = first user message; afterwards only bump updated_at so the
+      // conversation list stays ordered by recency (trigger sets the value).
       await supabase
         .from("coach_conversations")
-        .update({ title: lastUserText.slice(0, 60) })
+        .update(
+          conversationHasTitle
+            ? { updated_at: new Date().toISOString() }
+            : { title: lastUserText.slice(0, 60) },
+        )
         .eq("id", conversationId);
 
       // memory_extractor (brief §8): max 3 durable facts, deduplicated.
