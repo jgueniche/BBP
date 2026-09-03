@@ -40,7 +40,7 @@ export function BottomNav() {
 
   return (
     <nav
-      aria-label="Navigation principale"
+      aria-label={fr.a11y.mainNav}
       className="fixed inset-x-0 bottom-0 z-10 border-t bg-surface-raised pb-[env(safe-area-inset-bottom)] lg:hidden"
     >
       <ul className="mx-auto flex max-w-lg">

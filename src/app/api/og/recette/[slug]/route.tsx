@@ -2,6 +2,7 @@ import { ImageResponse } from "next/og";
 
 import { fr } from "@/i18n/fr";
 import { createAnonClient } from "@/lib/supabase/anon";
+import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 export const runtime = "nodejs";
 
@@ -16,14 +17,17 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await params;
-  const supabase = createAnonClient();
-  const { data: recipe } = await supabase
-    .from("recipes")
-    .select("title, icon, kashrut_class, is_fish, origin, prep_min, cook_min")
-    .eq("slug", slug)
-    .eq("visibility", "community")
-    .eq("status", "published")
-    .maybeSingle();
+  const { data: recipe } = isSupabaseConfigured
+    ? await createAnonClient()
+        .from("recipes")
+        .select(
+          "title, icon, kashrut_class, is_fish, origin, prep_min, cook_min",
+        )
+        .eq("slug", slug)
+        .eq("visibility", "community")
+        .eq("status", "published")
+        .maybeSingle()
+    : { data: null };
 
   const title = recipe?.title ?? "Boukha, Boutargue & Protéines";
   const icon = recipe?.icon ?? "🥘";
@@ -45,7 +49,7 @@ export async function GET(
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        backgroundColor: "#FBFAF6",
+        backgroundColor: "#F3F1EA",
         padding: 48,
         fontFamily: "sans-serif",
       }}
@@ -56,10 +60,10 @@ export async function GET(
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
-          border: "6px solid #0B0B0B",
-          borderRadius: 40,
-          backgroundColor: "#FBFAF6",
-          boxShadow: "12px 12px 0 #0B0B0B",
+          border: "2px solid #E7E3D7",
+          borderRadius: 28,
+          backgroundColor: "#FFFFFF",
+          boxShadow: "0 24px 48px -16px rgba(11, 11, 11, 0.18)",
           padding: 64,
         }}
       >
@@ -92,7 +96,7 @@ export async function GET(
                 display: "flex",
                 alignItems: "center",
                 gap: 12,
-                border: "4px solid #0B0B0B",
+                border: "2px solid #E7E3D7",
                 borderRadius: 999,
                 padding: "8px 24px",
                 fontWeight: 700,

@@ -11,19 +11,20 @@ import {
   foodLogItemSchema,
   type FoodLogItem,
 } from "@/lib/nutrition/items";
+import {
+  dateSchema,
+  logMealInputSchema,
+  queuedMealSchema,
+  type LogMealInput,
+  type MealType as JournalMealType,
+  type QueuedMeal,
+} from "@/lib/nutrition/log-input";
 import { parseFreeTextInput } from "@/lib/nutrition/parse-input";
 import { createClient } from "@/lib/supabase/server";
 
-const MEALS = [
-  "petit_dej",
-  "dej",
-  "diner",
-  "collation",
-  "chabbat_vendredi",
-  "chabbat_samedi",
-] as const;
-
-export type MealType = (typeof MEALS)[number];
+// A type alias (erased) rather than `export type { X }`: Turbopack's Server
+// Action transform keeps re-exports as values and the build fails.
+export type MealType = JournalMealType;
 
 export type FoodCandidate = {
   food_id: string;
@@ -147,24 +148,8 @@ export async function parseFoodInput(input: {
   return { items, mealGuess: null, usedAi: false };
 }
 
-const logMealSchema = z.object({
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  meal: z.enum(MEALS),
-  items: z.array(foodLogItemSchema).min(1).max(20),
-  source: z.enum([
-    "text",
-    "photo",
-    "voice",
-    "barcode",
-    "recipe",
-    "repeat",
-    "manual",
-  ]),
-  rawInput: z.string().max(2000).nullish(),
-});
-
-export async function logMeal(input: z.infer<typeof logMealSchema>) {
-  const parsed = logMealSchema.parse(input);
+export async function logMeal(input: LogMealInput) {
+  const parsed = logMealInputSchema.parse(input);
   const { supabase, user } = await requireUser();
 
   const totals = computeTotals(parsed.items);
@@ -201,14 +186,8 @@ export async function deleteFoodLog(id: string) {
 }
 
 export async function repeatDay(fromDate: string, toDate: string) {
-  const from = z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/)
-    .parse(fromDate);
-  const to = z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/)
-    .parse(toDate);
+  const from = dateSchema.parse(fromDate);
+  const to = dateSchema.parse(toDate);
   const { supabase, user } = await requireUser();
 
   const { data: logs } = await supabase
@@ -259,6 +238,41 @@ export async function logFavorite(label: string, date: string, meal: MealType) {
 
   const items = z.array(foodLogItemSchema).parse(favorite.items);
   return logMeal({ date, meal, items, source: "manual", rawInput: label });
+}
+
+/**
+ * Replays a meal captured offline (brief §10.14). Foods were not resolvable
+ * without network, so each item is matched again against the base by name
+ * with the grams the user confirmed, then logged like any other meal.
+ */
+export async function syncQueuedMeal(raw: QueuedMeal) {
+  const queued = queuedMealSchema.parse(raw);
+  if (queued.kind === "favorite") {
+    return logFavorite(queued.label, queued.date, queued.meal);
+  }
+  const { supabase } = await requireUser();
+  const items = await Promise.all(
+    queued.items.map(async (item) => {
+      const candidates = await searchCandidates(supabase, item.name, 5);
+      const { candidates: found, ...draft } = toDraft(
+        item.name,
+        item.grams,
+        item.grams,
+        "g",
+        0.7,
+        candidates,
+      );
+      void found;
+      return draft;
+    }),
+  );
+  return logMeal({
+    date: queued.date,
+    meal: queued.meal,
+    items,
+    source: queued.source,
+    rawInput: queued.rawInput,
+  });
 }
 
 const OFF_FIELDS =

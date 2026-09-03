@@ -1,7 +1,7 @@
 "use client";
 
 import { Camera, ClipboardPaste, Link2, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import {
@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { fr } from "@/i18n/fr";
+import type { SharedImport } from "@/lib/pwa/share-target";
 import { cn } from "@/lib/utils/cn";
 
 const t = fr.recettes.importPage;
@@ -63,10 +64,17 @@ const ERROR_MESSAGES = {
   no_recipe: t.noRecipe,
 } as const;
 
-export function ImportClient() {
-  const [mode, setMode] = useState<"url" | "text" | "photo">("url");
-  const [url, setUrl] = useState("");
-  const [text, setText] = useState("");
+export function ImportClient({
+  shared = null,
+}: {
+  shared?: SharedImport | null;
+}) {
+  const [mode, setMode] = useState<"url" | "text" | "photo">(
+    shared?.mode ?? "url",
+  );
+  const [url, setUrl] = useState(shared?.mode === "url" ? shared.url : "");
+  const [text, setText] = useState(shared?.mode === "text" ? shared.text : "");
+  const sharedHandled = useRef(false);
   const [pending, setPending] = useState(false);
   const [needCaption, setNeedCaption] = useState(false);
   const [source, setSource] = useState<{
@@ -76,18 +84,17 @@ export function ImportClient() {
   }>({ url: null, author: null, title: null });
   const [initial, setInitial] = useState<EditorInitial | null>(null);
 
-  async function submitUrl(event: React.FormEvent) {
-    event.preventDefault();
+  async function runUrlImport(value: string) {
     setPending(true);
     try {
-      const result = await importRecipeFromUrl(url);
+      const result = await importRecipeFromUrl(value);
       if (result.ok) {
         setInitial(draftToInitial(result.draft));
         return;
       }
       if (result.code === "need_caption") {
         setSource({
-          url,
+          url: value,
           author: result.sourceAuthor ?? null,
           title: result.title ?? null,
         });
@@ -102,6 +109,20 @@ export function ImportClient() {
       setPending(false);
     }
   }
+
+  async function submitUrl(event: React.FormEvent) {
+    event.preventDefault();
+    await runUrlImport(url);
+  }
+
+  // A shared link is analysed right away; shared text is only prefilled so
+  // the person can trim it before Kémia reads it.
+  useEffect(() => {
+    if (!shared || shared.mode !== "url" || sharedHandled.current) return;
+    sharedHandled.current = true;
+    toast(fr.pwa.share.received);
+    void runUrlImport(shared.url);
+  }, [shared]);
 
   async function submitText(event: React.FormEvent) {
     event.preventDefault();

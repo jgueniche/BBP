@@ -1,6 +1,14 @@
 "use client";
 
-import { Barcode, Camera, Mic, MicOff, Plus, RotateCcw } from "lucide-react";
+import {
+  Barcode,
+  Camera,
+  CloudOff,
+  Mic,
+  MicOff,
+  Plus,
+  RotateCcw,
+} from "lucide-react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
@@ -26,6 +34,9 @@ import { Input } from "@/components/ui/input";
 import { KashrutPill } from "@/components/ui/kashrut-pill";
 import { fr } from "@/i18n/fr";
 import type { KashrutClass } from "@/lib/kashrut/meal";
+import { parseFreeTextInput } from "@/lib/nutrition/parse-input";
+import { isNetworkError } from "@/lib/pwa/offline-queue";
+import { queueMeal } from "@/lib/pwa/offline-store";
 import { cn } from "@/lib/utils/cn";
 
 const BarcodeScanner = dynamic(
@@ -90,6 +101,31 @@ function guessMealByHour(): MealType {
   return "collation";
 }
 
+/**
+ * Without network the base cannot be searched: the free-text parser still
+ * splits the sentence into items (names + grams) so the meal can be queued
+ * and re-resolved server side when the connection is back (brief §10.14).
+ */
+function offlineDraft(text: string): DraftItem[] {
+  return parseFreeTextInput(text).map((part) => ({
+    food_id: null,
+    name: part.query,
+    qty: part.qty,
+    unit: part.unit,
+    grams: part.grams,
+    per_100g: {},
+    kashrut_class: null,
+    is_fish: false,
+    kosher_hint: null,
+    confidence: 0.3,
+    candidates: [],
+  }));
+}
+
+function isOffline(): boolean {
+  return typeof navigator !== "undefined" && navigator.onLine === false;
+}
+
 export function LogComposer({
   date,
   favorites,
@@ -109,6 +145,7 @@ export function LogComposer({
     "text" | "photo" | "voice" | "barcode"
   >("text");
   const [meal, setMeal] = useState<MealType>(guessMealByHour());
+  const [draftOffline, setDraftOffline] = useState(false);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const rawInputRef = useRef<string | null>(null);
@@ -129,11 +166,38 @@ export function LogComposer({
       if (result.mealGuess) setMeal(result.mealGuess);
       rawInputRef.current = input.text ?? null;
       setDraftSource(source);
+      setDraftOffline(false);
       setDraft(result.items);
-    } catch {
-      toast(t.parseFailed);
+    } catch (error) {
+      const fallback =
+        input.text && isNetworkError(error) ? offlineDraft(input.text) : [];
+      if (fallback.length === 0) {
+        toast(t.parseFailed);
+        return;
+      }
+      rawInputRef.current = input.text ?? null;
+      setDraftSource(source);
+      setDraftOffline(true);
+      setDraft(fallback);
     } finally {
       setBusy(false);
+    }
+  }
+
+  function queueDraft(items: DraftItem[]) {
+    const entry = queueMeal({
+      kind: "text",
+      date,
+      meal,
+      items: items.map((item) => ({ name: item.name, grams: item.grams })),
+      rawInput: rawInputRef.current,
+      source: draftSource === "voice" ? "voice" : "text",
+    });
+    toast(entry ? t.offlineQueued : t.parseFailed);
+    if (entry) {
+      setDraft(null);
+      setDraftOffline(false);
+      setText("");
     }
   }
 
@@ -178,6 +242,10 @@ export function LogComposer({
       toast(t.aiOff);
       return;
     }
+    if (isOffline()) {
+      toast(t.offlineOnly);
+      return;
+    }
     setBusy(true);
     try {
       const { base64, mediaType } = await fileToJpegBase64(file);
@@ -193,6 +261,10 @@ export function LogComposer({
 
   async function onBarcode(code: string) {
     setScanning(false);
+    if (isOffline()) {
+      toast(t.offlineOnly);
+      return;
+    }
     setBusy(true);
     try {
       const item = await lookupBarcode(code);
@@ -211,6 +283,10 @@ export function LogComposer({
 
   async function confirmDraft() {
     if (!draft || draft.length === 0) return;
+    if (draftOffline || isOffline()) {
+      queueDraft(draft);
+      return;
+    }
     setBusy(true);
     try {
       const result = await logMeal({
@@ -228,7 +304,11 @@ export function LogComposer({
       setDraft(null);
       setText("");
       router.refresh();
-    } catch {
+    } catch (error) {
+      if (isNetworkError(error)) {
+        queueDraft(draft);
+        return;
+      }
       toast(t.parseFailed);
     } finally {
       setBusy(false);
@@ -236,6 +316,10 @@ export function LogComposer({
   }
 
   async function onRepeatYesterday() {
+    if (isOffline()) {
+      toast(t.offlineOnly);
+      return;
+    }
     setBusy(true);
     try {
       const from = new Date(`${date}T12:00:00`);
@@ -248,13 +332,26 @@ export function LogComposer({
     }
   }
 
+  function queueFavorite(label: string) {
+    const entry = queueMeal({ kind: "favorite", date, meal, label });
+    toast(entry ? t.offlineQueued : t.parseFailed);
+  }
+
   async function onFavorite(label: string) {
+    if (isOffline()) {
+      queueFavorite(label);
+      return;
+    }
     setBusy(true);
     try {
       await logFavorite(label, date, meal);
       toast(t.logged);
       router.refresh();
-    } catch {
+    } catch (error) {
+      if (isNetworkError(error)) {
+        queueFavorite(label);
+        return;
+      }
       toast(t.parseFailed);
     } finally {
       setBusy(false);
@@ -383,6 +480,12 @@ export function LogComposer({
               ))}
             </select>
           </div>
+          {draftOffline && (
+            <p className="mt-2 flex items-center gap-2 rounded-[10px] bg-warn-soft px-3 py-2 text-xs font-medium">
+              <CloudOff size={14} strokeWidth={2} aria-hidden />
+              {t.offlineDraft}
+            </p>
+          )}
           <ul className="mt-3 flex flex-col gap-2">
             {draft.map((item, index) => (
               <li
@@ -433,7 +536,10 @@ export function LogComposer({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setDraft(null)}
+              onClick={() => {
+                setDraft(null);
+                setDraftOffline(false);
+              }}
               disabled={busy}
             >
               {t.confirmCancel}

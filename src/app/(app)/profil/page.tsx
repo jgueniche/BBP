@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { InstallCard } from "@/components/pwa/install-prompt";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { fr } from "@/i18n/fr";
@@ -165,6 +166,8 @@ export default async function ProfilPage() {
             <NotificationsCard
               vapidPublicKey={process.env.VAPID_PUBLIC_KEY ?? null}
             />
+
+            <InstallCard />
 
             <div className="flex flex-wrap gap-2 md:col-span-2">
               <Button asChild variant="secondary" size="sm">
