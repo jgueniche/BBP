@@ -15,6 +15,7 @@ import { z } from "zod";
 import { isAiConfigured } from "@/ai/agents/food-logger";
 import { LogComposer } from "@/components/journal/log-composer";
 import { MealList, type MealLogView } from "@/components/journal/meal-list";
+import { PendingMeals } from "@/components/journal/pending-meals";
 import { KemiaAvatar } from "@/components/illustrations/kemia-avatar";
 import { EmptyState } from "@/components/ui/empty-state";
 import { MacroRing } from "@/components/ui/macro-ring";
@@ -235,7 +236,7 @@ export default async function JournalPage({
         <div className="ml-auto flex items-center gap-2 lg:ml-4">
           <Link
             href={`/journal?d=${shiftDate(date, -1)}`}
-            aria-label="Jour précédent"
+            aria-label={fr.a11y.prevDay}
             className="rounded-full border border-input bg-card p-2"
           >
             <ChevronLeft size={18} strokeWidth={2} />
@@ -246,7 +247,7 @@ export default async function JournalPage({
           {date < today ? (
             <Link
               href={`/journal?d=${shiftDate(date, 1)}`}
-              aria-label="Jour suivant"
+              aria-label={fr.a11y.nextDay}
               className="rounded-full border border-input bg-card p-2"
             >
               <ChevronRight size={18} strokeWidth={2} />
@@ -332,6 +333,8 @@ export default async function JournalPage({
             ]}
             aiEnabled={isAiConfigured()}
           />
+
+          <PendingMeals date={date} />
 
           {logs.length === 0 ? (
             <EmptyState
