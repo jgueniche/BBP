@@ -21,6 +21,10 @@ Dernière mise à jour : 03/09/2026 · Sessions 1 à 16
 
 Limites : la base Supabase de BBP n'est pas exposée au connecteur MCP de cette session, donc `/r/[slug]` et les pages connectées (qui nécessitent une session) n'ont pas pu être auditées en local ; à re-mesurer sur la prod (Chrome DevTools › Lighthouse, mobile) après connexion.
 
+### Vérification de production (03/09/2026, PR #5 mergée → déploiement Vercel `28a561e` READY sur `bbp-mu.vercel.app`, région cdg1)
+- Smoke test OK : `/login`, `/~offline`, `/manifest.webmanifest`, `/robots.txt`, `/sitemap.xml` (35 recettes publiques, URLs canoniques prod), `/apple-icon.png`, `/serwist/sw.js` (47 Ko, `Service-Worker-Allowed: /`, handlers push présents, entrée `/~offline` précachée), ancien `/sw.js` en 404 attendu, `/r/couscous-au-poisson` avec JSON-LD `Recipe` + canonical + image OG (PNG 58 Ko).
+- Audit Lighthouse **de la prod** non réalisable depuis la sandbox de session : le proxy de sortie coupe les connexions TLS de Chromium (refus de politique, pas un défaut de l'app) et le quota anonyme de PageSpeed Insights était épuisé. Les scores ci-dessus proviennent du même build en local ; à confirmer d'un clic dans Chrome DevTools › Lighthouse (mobile) sur `https://bbp-mu.vercel.app/login` et `/r/couscous-au-poisson`.
+
 ### DoD « log hors ligne resaisi → synchronisé au retour du réseau »
 - Logique testée unitairement (`offline-queue.test.ts` : échec réseau → file conservée → rejeu intégral au retour) et parcours e2e du shell hors ligne. Le parcours complet avec compte (saisie sans réseau → bandeau → reconnexion → repas en base avec calories) est à rejouer en prod une fois connecté : Chrome DevTools › Network › Offline, saisir « couscous et boulettes », confirmer, repasser en ligne.
 
