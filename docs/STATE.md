@@ -1,6 +1,28 @@
 # STATE.md — État du projet BBP
 
-Dernière mise à jour : 30/08/2026 · Sessions 1 à 15
+Dernière mise à jour : 03/09/2026 · Sessions 1 à 16
+
+## Fait — Session 16 (PWA, performance, accessibilité, SEO — brief §10.14, ADR-025/026)
+- **PWA Serwist (`@serwist/turbopack`)** : service worker compilé par esbuild et servi par la route `/serwist/sw.js` (scope `/` via `Service-Worker-Allowed`), précache de l'app shell (`/_next/static`, marque, page `/~offline`), stratégies par défaut Next + **cache dédié des recettes consultées** (`/recettes/[slug]`, mode cuisine, `/r/[slug]` — 60 entrées, 14 jours) ; **fallback `/~offline`** pour toute page non mise en cache. **Web Push intégré** dans le même worker (handlers `push`/`notificationclick` portés de `public/sw.js`, supprimé) : même scope, l'enregistrement est mis à jour en place — **les abonnements existants sont conservés**.
+- **Manifest** (`/manifest.webmanifest`) : icônes 192/512 + maskable, `standalone`, couleurs de la coquille, raccourcis Journal/Kémia, **Web Share Target** (GET → `/recettes/importer?url=&text=&title=`) : un lien partagé depuis TikTok/Instagram/un site est analysé automatiquement, un texte est prérempli. Icône Apple 180 px, `theme-color` clair/sombre, `viewport-fit=cover`.
+- **Install prompt** : carte flottante au-dessus de la bottom bar dès que le navigateur le permet (« Plus tard » = silence 30 jours), carte « Installer BBP » dans Moi (état installé / bouton / consigne iOS).
+- **File hors ligne du journal** : sans réseau, la saisie texte/voix est découpée localement (parseur FR), confirmée puis **mise en attente** (localStorage, Zod) avec les favoris ; bandeau « Hors ligne » puis « N repas en attente » + bouton Synchroniser ; **rejeu automatique** au retour du réseau, au focus et au montage via `syncQueuedMeal` (les aliments sont ré-appariés à la base côté serveur, calories comprises). Liste « En attente de synchronisation » dans le journal (retrait possible). Photo, scan et « comme hier » restent réseau (message explicite).
+- **SEO pages publiques** : `/r/[slug]` en **SSG + ISR 1 h** (`generateStaticParams` sur les 200 dernières recettes communautaires) avec ingrédients, étapes, nutrition par portion et **JSON-LD `Recipe`** (durées ISO 8601, `HowToStep`, `NutritionInformation`, crédit auteur `isBasedOn`) ; `sitemap.xml` (recettes publiques + login, revalidé 1 h), `robots.txt` (app privée interdite), canonical + Open Graph `article`, `metadataBase` (`NEXT_PUBLIC_SITE_URL` ou domaine Vercel), **`noindex` sur tout l'espace connecté**, page 404 brandée. Image OG passée au style « pro & chaleureux ».
+- **Accessibilité AA** : lien d'évitement « Aller au contenu » + `main#main` partout, **focus visible** global (outline ring 2 px) en complément des rings du kit, `--ink-50` remonté à `#6b6b6b` (contraste 5,3:1 sur blanc, 4,8:1 sur la coquille — l'ancien `#7a7a7a` était à 4,48:1), libellés FR des boutons de fermeture (dialog/sheet), `prefers-reduced-motion` respecté globalement, libellés de navigation externalisés.
+- **Performance** : polices `display: swap`, images AVIF/WebP, `poweredByHeader` off, précache incrémental (79 entrées, 3,5 Mo au premier install — chunks hashés réutilisés d'un déploiement à l'autre).
+- **Nudger** : `maxOutputTokens` 100 → **512** + `thinkingLevel: low` (Gemini 3.7 Flash raisonne avant de répondre, la phrase était tronquée).
+- **Tests** : 215 unitaires verts (+15 : file hors ligne rejouée offline → online, entrée toxique abandonnée après 5 tentatives, parsing du partage, règle de la bannière d'installation, JSON-LD) ; **3 tests Playwright** (`pnpm test:e2e`, build de prod requis, Chromium via `CHROME_PATH`) : manifest + SW enregistré sur `/serwist/sw.js` scope `/`, **page jamais visitée servie par le shell hors ligne**, lien d'évitement premier focus. lint/typecheck/build OK.
+
+### Audit Lighthouse mobile (DoD §10.14) — build de production locale, Lighthouse 13.4, Chromium 141, émulation mobile
+| Page | Performance | Accessibilité | Bonnes pratiques | SEO |
+|---|---|---|---|---|
+| `/login` | 92 (LCP 3,3 s, TBT 60 ms, CLS 0) | 100 | 100 | 100 |
+| `/~offline` | 98 (LCP 2,5 s, CLS 0) | 100 | 100 | 63 (`noindex` volontaire) |
+
+Limites : la base Supabase de BBP n'est pas exposée au connecteur MCP de cette session, donc `/r/[slug]` et les pages connectées (qui nécessitent une session) n'ont pas pu être auditées en local ; à re-mesurer sur la prod (Chrome DevTools › Lighthouse, mobile) après connexion.
+
+### DoD « log hors ligne resaisi → synchronisé au retour du réseau »
+- Logique testée unitairement (`offline-queue.test.ts` : échec réseau → file conservée → rejeu intégral au retour) et parcours e2e du shell hors ligne. Le parcours complet avec compte (saisie sans réseau → bandeau → reconnexion → repas en base avec calories) est à rejouer en prod une fois connecté : Chrome DevTools › Network › Offline, saisir « couscous et boulettes », confirmer, repasser en ligne.
 
 ## Fait — Session 15 (Kémia : conversations multiples + passe UI/UX du chat, ADR-024)
 - **Conversations multiples** : liste (panneau latéral Historique), bascule via `/coach?c=<id>` (défaut = plus récente), **nouvelle conversation** (bouton + dans l'en-tête et le panneau), **suppression** avec confirmation en deux taps (messages en cascade, mémoires conservées). Titre auto = premier message (60 car., figé), tri par activité (`updated_at` retouché à chaque échange). L'API `/api/coach` reçoit `conversationId` (vérifié possédé, zod) — le fil actif ne peut plus sauter sur une autre conversation. Lien « Ce que Kémia sait de toi » déplacé dans le panneau.
@@ -129,6 +151,7 @@ Dernière mise à jour : 30/08/2026 · Sessions 1 à 15
 - Rien.
 
 ## Reste à faire (actions côté Jeremy)
+- (Facultatif) `NEXT_PUBLIC_SITE_URL=https://bbp-mu.vercel.app` sur Vercel si un domaine custom arrive ; sans elle, le domaine de production Vercel est utilisé pour sitemap/JSON-LD/OG.
 0. **Notifications push** : générer les clés (`npx web-push generate-vapid-keys`) puis poser `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (mailto:ton@email) + `SUPABASE_SERVICE_ROLE_KEY` + `CRON_SECRET` sur Vercel. Sans elles, la carte Notifications l'explique et le cron répond 501 (aucun crash).
 1. **`GOOGLE_GENERATIVE_AI_API_KEY` sur Vercel** (+ `.env.local`) → active toute l'IA sur Gemini 3.7 Flash (ADR-010) : parsing texte/photo du journal, chat Kémia, vérificateur casher des recettes, génération « version Protéine ». Clé gratuite sur https://aistudio.google.com/apikey. Sans elle, mode dégradé opérationnel partout.
 2. Dashboard Supabase (2 min) : Authentication → Sign In / Providers → Email → décocher « Confirm email » ; URL Configuration → Site URL = `https://bbp-mu.vercel.app`.
@@ -137,6 +160,9 @@ Dernière mise à jour : 30/08/2026 · Sessions 1 à 15
 5. Valider a posteriori les plans des sessions 1-4 (sessions autonomes, cf. ADR-002).
 
 ## Backlog
+- PWA : le Web Share Target passe par le garde-fou de session — non connecté, la redirection vers `/login` perd `url/text` (ajouter un `next=`) ; file hors ligne limitée au texte/voix + favoris (photo/scan/« comme hier » restent réseau) ; Background Sync API non utilisée (rejeu au retour de l'app, suffisant en v1) ; précache complet des chunks (3,5 Mo au premier install) à affiner si la 4G se plaint ; e2e Playwright hors CI (navigateur requis).
+- SEO : `/r/[slug]` ne montre pas encore la version Protéine liée ni les photos (colonnes prêtes) ; audit Lighthouse des pages connectées à joindre après connexion en prod.
+- Branches distantes non mergées repérées (03/09) : `feat/coach-conversations` = implémentation concurrente des conversations multiples (session parallèle), **remplacée** par la PR #4 → à supprimer après accord ; `claude/kemia-agent-ui-ux-moo7wp` = même patch que `3e9c110` déjà sur master (patch-id identique) → suppression sans risque.
 - Kémia : renommer une conversation à la main (v1 = titre auto du premier message) ; recherche dans l'historique si les fils se multiplient.
 - Refonte : fiche recette et import encore mono-colonne sur desktop (2 col. à envisager) ; message Kémia de `/accueil` déterministe (brancher l'IA légère comme les nudges) ; onglet mobile Cuisine → accès Communauté à fluidifier (lien croisé dans l'en-tête des deux pages).
 - ~~DoD session 6~~ **faite (30/08)** : `pnpm eval:coach` **40/40** (persona 20/20, garde-fous 20/20) avec la clé Gemini posée — 6 itérations : harnais adapté à Gemini 3.7 Flash (thinkingLevel, budget de sortie, mode sans outils, faux positif « rendez-vous ») + prompt Kémia **v1.1.0** (bornes citées lors d'un refus, orientation pro sur demande extrême, « indication seulement » pour le casher, gestion des plateaux). Température 0,7 : petite variance possible d'un run à l'autre, relançable à volonté.

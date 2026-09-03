@@ -1,5 +1,19 @@
 # DECISIONS.md — ADR courts (≤ 5 lignes chacun)
 
+## ADR-026 — SEO : `/r/[slug]` statique + ISR, JSON-LD Recipe, app privée `noindex` (03/09/2026)
+La page publique de recette est prérendue (SSG des 200 dernières recettes communautaires, `dynamicParams`
+pour le reste) et revalidée toutes les heures ; elle porte ingrédients, étapes, nutrition et un JSON-LD
+`Recipe` construit par une lib pure testée. `sitemap.xml`/`robots.txt` n'exposent que `/r/` et `/login` ;
+tout l'espace connecté est `noindex` (données de santé, brief §9). Les URLs absolues viennent de
+`NEXT_PUBLIC_SITE_URL`, sinon du domaine de production Vercel.
+
+## ADR-025 — PWA : Serwist via route Turbopack, même scope que l'ancien `/sw.js`, file hors ligne côté client (03/09/2026)
+Le build reste sur Turbopack : `@serwist/turbopack` compile `src/sw.ts` (esbuild, cible ES2020) et le sert
+sur `/serwist/sw.js` avec `Service-Worker-Allowed: /`. Le scope `/` est conservé : le navigateur met à jour
+l'enregistrement créé par `public/sw.js` (supprimé) et **les abonnements push survivent**, les handlers push
+étant portés dans le worker. Les logs hors ligne ne passent pas par Background Sync : file localStorage
+validée Zod (noms + grammes), rejouée par Server Action au retour du réseau, aliments ré-appariés serveur.
+
 ## ADR-024 — Kémia : conversations multiples, fil scopé par `?c=` (30/08/2026)
 Le chat passe du fil unique aux conversations multiples : `/coach?c=<id>` (défaut = plus récente),
 création/suppression par Server Actions, `conversationId` envoyé dans le body du POST `/api/coach`
