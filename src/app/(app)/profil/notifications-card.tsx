@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { fr } from "@/i18n/fr";
+import { SW_SCOPE, SW_URL } from "@/lib/pwa/sw";
 
 import { deletePushSubscription, savePushSubscription } from "./push-actions";
 
@@ -42,7 +43,15 @@ export function NotificationsCard({
     let cancelled = false;
     (async () => {
       try {
-        const registration = await navigator.serviceWorker.register("/sw.js");
+        // The Serwist provider registers the worker in production; outside
+        // of it (dev, or before the provider ran) register the same script
+        // at the same scope so the push subscription stays attached.
+        const registration =
+          (await navigator.serviceWorker.getRegistration(SW_SCOPE)) ??
+          (await navigator.serviceWorker.register(SW_URL, {
+            scope: SW_SCOPE,
+            type: "module",
+          }));
         const subscription = await registration.pushManager.getSubscription();
         if (cancelled) return;
         if (subscription) setState("subscribed");

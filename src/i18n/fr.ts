@@ -167,6 +167,17 @@ export const fr = {
     noTargets: "Mode Boutargue : pas de cible stricte, on suit la tendance.",
     dayEmptyHint: "Texte libre, photo, scan ou favoris — 10 secondes chrono.",
     unknownFood: "hors base",
+    offlineDraft:
+      "Hors ligne : les calories seront calculées à la synchronisation.",
+    offlineQueued:
+      "Pas de réseau — repas mis en attente, je le note dès que ça revient.",
+    offlineOnly:
+      "Cette action a besoin du réseau. Tes repas texte, eux, s'enregistrent hors ligne.",
+    pendingTitle: "En attente de synchronisation",
+    pendingHint:
+      "Ces repas seront enregistrés, calories comprises, dès le retour du réseau.",
+    pendingFavorite: "Favori",
+    pendingRemove: "Retirer de la file",
   },
   recettes: {
     title: "Recettes",
@@ -216,6 +227,15 @@ export const fr = {
     steps: "Préparation",
     nutrition: "Nutrition",
     flagsTitle: "À vérifier",
+    public: {
+      kashrut: "Casher",
+      time: "Temps total",
+      servings: "Portions",
+      kcal: "Calories",
+      protein: "Protéines",
+      carbs: "Glucides",
+      fat: "Lipides",
+    },
     kosherDisclaimer:
       "Classification indicative, jamais une certification : en cas de doute, vérifie le hekhsher et demande à ton rabbin.",
     fork: "Ma version",
@@ -791,6 +811,54 @@ export const fr = {
       "Suppression définitive de toutes tes données BBP. Tape SUPPRIMER pour confirmer :",
     disclaimer:
       "BBP n'est ni un dispositif médical ni un avis médical. Pour toute question de santé, parle à ton médecin.",
+  },
+  a11y: {
+    skipToContent: "Aller au contenu",
+    close: "Fermer",
+    mainNav: "Navigation principale",
+    prevDay: "Jour précédent",
+    nextDay: "Jour suivant",
+  },
+  pwa: {
+    manifestDescription:
+      "Coach nutrition, sport et communauté, casher-natif — journal, recettes, planning et Kémia, même hors ligne.",
+    offline: {
+      title: "Tu es hors ligne",
+      body: "Pas de réseau pour l'instant. Tes recettes déjà ouvertes restent lisibles, et tes repas notés attendent sagement la reconnexion.",
+      retry: "Réessayer",
+      backToJournal: "Ouvrir le journal",
+      banner:
+        "Hors ligne — tes saisies seront synchronisées au retour du réseau.",
+      pending: (count: number) =>
+        count > 1
+          ? `${count} repas en attente de synchronisation.`
+          : "1 repas en attente de synchronisation.",
+      synced: (count: number) =>
+        count > 1
+          ? `${count} repas synchronisés, bsahtek !`
+          : "Repas synchronisé, bsahtek !",
+      syncFailed: "La synchronisation a échoué, je réessaie plus tard.",
+      syncNow: "Synchroniser maintenant",
+    },
+    install: {
+      title: "Installer BBP",
+      body: "Sur ton écran d'accueil, en plein écran, et ça marche même hors ligne.",
+      cta: "Installer",
+      later: "Plus tard",
+      installed: "BBP est installée sur cet appareil.",
+      iosHint:
+        "Sur iPhone : bouton Partager de Safari, puis « Sur l'écran d'accueil ».",
+      unavailable:
+        "Ton navigateur proposera l'installation dès qu'il le juge utile (Chrome, Edge ou Safari iOS).",
+    },
+    share: {
+      received: "Contenu reçu depuis le partage — Kémia l'analyse.",
+    },
+  },
+  notFound: {
+    title: "Cette page n'existe pas",
+    body: "Peut-être un lien périmé ou une recette retirée. Le reste de la cuisine est ouvert.",
+    cta: "Revenir à l'accueil",
   },
   kashrut: {
     bassari: "Bassari",
