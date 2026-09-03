@@ -12,7 +12,7 @@
   --boutargue-soft: #ffd9bf;
   --boutargue-tint: #fdeee3;
   --ink-70: #3d3d3d;
-  --ink-50: #7a7a7a;
+  --ink-50: #6b6b6b;
   --ink-30: #b8b8b8;
   --ink-10: #ebeae5;
   --ok: #2e7d4f;
@@ -155,5 +155,32 @@
 
   body {
     @apply bg-background font-sans text-ink antialiased;
+  }
+
+  /* Keyboard focus (AA): every focusable element without its own ring
+     gets a visible outline. Kit components keep their utility rings. */
+  a:focus-visible,
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  summary:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* Brief §2: respect prefers-reduced-motion globally (tw-animate-css
+     transitions, sonner, custom keyframes). */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }

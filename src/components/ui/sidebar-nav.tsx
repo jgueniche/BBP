@@ -97,7 +97,7 @@ export function SidebarNav() {
         </span>
       </Link>
 
-      <nav aria-label="Navigation principale" className="flex flex-col">
+      <nav aria-label={fr.a11y.mainNav} className="flex flex-col">
         <GroupLabel>{fr.nav.groupSuivi}</GroupLabel>
         <ul className="flex flex-col gap-0.5">
           {suiviItems.map((item) => (
