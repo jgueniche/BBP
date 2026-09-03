@@ -51,7 +51,12 @@ export async function generateNudgeBody(input: {
       model: picked.model,
       system: NUDGER_SYSTEM,
       prompt: brief,
-      maxOutputTokens: 100,
+      // Gemini 3.7 Flash reasons before answering: a 100-token cap truncated
+      // the sentence. Same budget and thinking level as the promptfoo eval.
+      maxOutputTokens: 512,
+      providerOptions: {
+        google: { thinkingConfig: { thinkingLevel: "low" } },
+      },
     });
     const cleaned = text.trim().replace(/^"|"$/g, "");
     if (cleaned.length >= 10 && cleaned.length <= 160) return cleaned;
