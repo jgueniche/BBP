@@ -2,9 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { z } from "zod";
 
+import { runModeration } from "@/ai/agents/moderator";
 import { foodRulesInputSchema } from "@/lib/diets/preferences";
+import { readPushPrefs, type PushKind } from "@/lib/notifications/push-rules";
+import { AVATAR_BUCKET, isOwnAvatarPath } from "@/lib/social/avatars";
 import { POST_PHOTO_BUCKET } from "@/lib/social/photos";
+import { parseProfileInput } from "@/lib/social/profile";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
@@ -103,6 +108,161 @@ export async function updateProfileVisibility(publicProfile: boolean) {
   if (error) throw new Error(error.message);
   revalidatePath("/profil");
   revalidatePath("/communaute");
+  return { ok: true as const };
+}
+
+export type SaveProfileResult =
+  | { ok: true; handle: string | null }
+  | {
+      ok: false;
+      field?: "displayName" | "handle" | "bio";
+      code:
+        | "required"
+        | "length"
+        | "format"
+        | "reserved"
+        | "taken"
+        | "moderation"
+        | "error";
+    };
+
+/** Name, @handle and bio of « Mon profil », moderated like any public text. */
+export async function saveProfile(raw: {
+  displayName: string;
+  handle: string;
+  bio: string;
+}): Promise<SaveProfileResult> {
+  if (!isSupabaseConfigured) return { ok: false, code: "error" };
+  const parsed = parseProfileInput(raw);
+  if (!parsed.ok) {
+    return { ok: false, field: parsed.field, code: parsed.reason };
+  }
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { displayName, handle, bio } = parsed.value;
+  // A bio has no review queue: sensitive content is refused, not flagged.
+  const verdict = await runModeration(
+    [displayName, handle ?? "", bio ?? ""].join("\n"),
+  );
+  if (!verdict.allow || verdict.severity !== "none") {
+    return { ok: false, code: "moderation" };
+  }
+  const { error } = await supabase
+    .from("profiles")
+    .update({ display_name: displayName, username: handle, bio })
+    .eq("id", user.id);
+  if (error?.code === "23505") {
+    return { ok: false, field: "handle", code: "taken" };
+  }
+  if (error) return { ok: false, code: "error" };
+  revalidatePath("/profil");
+  revalidatePath("/communaute", "layout");
+  return { ok: true, handle };
+}
+
+async function removeOtherAvatars(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  keep: string | null,
+) {
+  const { data: files } = await supabase.storage
+    .from(AVATAR_BUCKET)
+    .list(userId, { limit: 100 });
+  const stale = (files ?? [])
+    .map((file) => `${userId}/${file.name}`)
+    .filter((path) => path !== keep);
+  if (stale.length > 0) {
+    await supabase.storage.from(AVATAR_BUCKET).remove(stale);
+  }
+}
+
+/** Uses the photo just uploaded to my folder; older ones are deleted. */
+export async function setAvatar(rawPath: string) {
+  if (!isSupabaseConfigured) return { ok: false as const };
+  const path = z.string().max(120).parse(rawPath);
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  if (!isOwnAvatarPath(path, user.id)) return { ok: false as const };
+  const { error } = await supabase
+    .from("profiles")
+    .update({ avatar_url: path })
+    .eq("id", user.id);
+  if (error) return { ok: false as const };
+  await removeOtherAvatars(supabase, user.id, path);
+  revalidatePath("/profil");
+  revalidatePath("/communaute", "layout");
+  return { ok: true as const };
+}
+
+export async function removeAvatar() {
+  if (!isSupabaseConfigured) return { ok: false as const };
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  await supabase
+    .from("profiles")
+    .update({ avatar_url: null })
+    .eq("id", user.id);
+  await removeOtherAvatars(supabase, user.id, null);
+  revalidatePath("/profil");
+  revalidatePath("/communaute", "layout");
+  return { ok: true as const };
+}
+
+/** One push preference (« M'avertir quand… »). */
+export async function setPushPreference(kind: PushKind, enabled: boolean) {
+  if (!isSupabaseConfigured) return { ok: false as const };
+  const parsedKind = z.enum(["cooked", "tip", "follow", "comment"]).parse(kind);
+  const on = z.boolean().parse(enabled);
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  const { data: settings } = await supabase
+    .from("user_settings")
+    .select("notif_prefs")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  const current = settings?.notif_prefs;
+  const others =
+    current && typeof current === "object" && !Array.isArray(current)
+      ? current
+      : {};
+  const push = { ...readPushPrefs(current), [parsedKind]: on };
+  const { error } = await supabase
+    .from("user_settings")
+    .upsert(
+      { user_id: user.id, notif_prefs: { ...others, push } },
+      { onConflict: "user_id" },
+    );
+  return { ok: !error };
+}
+
+/** Opening the inbox marks everything as seen (badges clear). */
+export async function markNotificationsSeen() {
+  if (!isSupabaseConfigured) return { ok: false as const };
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false as const };
+  await supabase
+    .from("user_settings")
+    .upsert(
+      { user_id: user.id, notifications_seen_at: new Date().toISOString() },
+      { onConflict: "user_id" },
+    );
+  revalidatePath("/", "layout");
   return { ok: true as const };
 }
 

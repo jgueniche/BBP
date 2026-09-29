@@ -27,7 +27,9 @@ import {
   toggleFollow,
   type PostCommentItem,
 } from "@/app/(app)/communaute/actions";
+import { MemberAvatar } from "@/components/social/member-avatar";
 import { fr } from "@/i18n/fr";
+import { profileHref } from "@/lib/social/handles";
 import { cn } from "@/lib/utils/cn";
 
 const t = fr.communaute.post;
@@ -47,6 +49,8 @@ export type FeedPost = {
   createdAt: string;
   authorId: string;
   authorName: string | null;
+  authorHandle: string | null;
+  authorAvatar: string | null;
   isOwn: boolean;
   moderation: string;
   groupName: string | null;
@@ -177,11 +181,31 @@ export function PostCard({
   }
 
   return (
-    <article className="rounded-lg border bg-card p-3 shadow-soft">
+    <article
+      id={`post-${post.id}`}
+      className="scroll-mt-20 rounded-lg border bg-card p-3 shadow-soft"
+    >
       <header className="flex items-start gap-2">
+        <Link
+          href={profileHref({ id: post.authorId, handle: post.authorHandle })}
+          tabIndex={-1}
+          aria-hidden
+        >
+          <MemberAvatar
+            id={post.authorId}
+            name={post.authorName}
+            avatarUrl={post.authorAvatar}
+            size="md"
+          />
+        </Link>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-bold">
-            <Link href={`/communaute/membre/${post.authorId}`}>
+            <Link
+              href={profileHref({
+                id: post.authorId,
+                handle: post.authorHandle,
+              })}
+            >
               {post.authorName ?? fr.communaute.member.anonymous}
             </Link>
             {post.groupSlug && post.groupName && (

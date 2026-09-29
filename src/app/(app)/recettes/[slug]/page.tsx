@@ -23,6 +23,8 @@ import {
 } from "@/lib/recipes/social";
 import { creditLine } from "@/lib/recipes/versions";
 import type { Totals } from "@/lib/nutrition/items";
+import { profileHref } from "@/lib/social/handles";
+import { loadMembers } from "@/lib/social/members";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
@@ -127,19 +129,11 @@ export default async function RecipePage({
   const verdict = evaluateRecipe(forEngine, rules);
   const facts = recipeDietFacts(forEngine);
 
-  const authorIds = recipe.author_id ? [recipe.author_id] : [];
-  const { data: profiles } =
-    authorIds.length > 0
-      ? await supabase
-          .from("profiles")
-          .select("id, display_name, username")
-          .in("id", authorIds)
-      : { data: [] };
-  const nameById = new Map(
-    (profiles ?? []).map(
-      (p) => [p.id, p.display_name ?? p.username ?? null] as const,
-    ),
+  const members = await loadMembers(
+    supabase,
+    recipe.author_id ? [recipe.author_id] : [],
   );
+  const author = recipe.author_id ? members.get(recipe.author_id) : undefined;
 
   const parent = parentRes.data;
   const nutrition = (recipe.nutrition_per_serving ?? {}) as Totals;
@@ -152,9 +146,7 @@ export default async function RecipePage({
   const hasProteinVersion = (versions ?? []).some(
     (v) => v.version_kind === "proteine",
   );
-  const authorName = recipe.author_id
-    ? (nameById.get(recipe.author_id) ?? t.authorHidden)
-    : null;
+  const authorName = recipe.author_id ? (author?.name ?? t.authorHidden) : null;
 
   // Group consecutive steps into named phases; numbering stays global.
   const phases: Array<{
@@ -181,9 +173,18 @@ export default async function RecipePage({
             <h1 className="font-display text-3xl font-semibold tracking-tight">
               {recipe.title}
             </h1>
-            {authorName && (
+            {authorName && recipe.author_id && (
               <p className="text-xs text-ink-50">
-                {t.authorBy} {authorName}
+                {t.authorBy}{" "}
+                <Link
+                  href={profileHref({
+                    id: recipe.author_id,
+                    handle: author?.handle ?? null,
+                  })}
+                  className="font-medium underline-offset-2 hover:underline"
+                >
+                  {authorName}
+                </Link>
               </p>
             )}
           </div>

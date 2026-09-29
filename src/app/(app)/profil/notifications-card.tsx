@@ -5,9 +5,16 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { fr } from "@/i18n/fr";
+import {
+  PUSH_KINDS,
+  type PushKind,
+  type PushPrefs,
+} from "@/lib/notifications/push-rules";
 import { SW_SCOPE, SW_URL } from "@/lib/pwa/sw";
 
+import { setPushPreference } from "./actions";
 import { deletePushSubscription, savePushSubscription } from "./push-actions";
 
 const t = fr.notifications.card;
@@ -23,11 +30,20 @@ function urlBase64ToUint8Array(base64: string): Uint8Array {
 
 export function NotificationsCard({
   vapidPublicKey,
+  initialPrefs,
 }: {
   vapidPublicKey: string | null;
+  initialPrefs: PushPrefs;
 }) {
   const [state, setState] = useState<PushState>("loading");
   const [pending, setPending] = useState(false);
+  const [prefs, setPrefs] = useState(initialPrefs);
+
+  async function onPref(kind: PushKind, next: boolean) {
+    setPrefs((current) => ({ ...current, [kind]: next }));
+    const result = await setPushPreference(kind, next);
+    if (!result.ok) setPrefs((current) => ({ ...current, [kind]: !next }));
+  }
 
   const supported =
     typeof window !== "undefined" &&
@@ -117,7 +133,7 @@ export function NotificationsCard({
   }
 
   return (
-    <div className="rounded-lg bg-ciel p-4">
+    <div id="notifications" className="scroll-mt-6 rounded-lg bg-ciel p-4">
       <p className="flex items-center gap-2 font-display text-lg font-semibold">
         <Bell size={18} strokeWidth={2} aria-hidden />
         {t.title}
@@ -156,6 +172,28 @@ export function NotificationsCard({
           </Button>
         )}
       </div>
+
+      {vapidPublicKey && state === "subscribed" && (
+        <div className="mt-4 border-t border-ink-10 pt-3">
+          <p className="text-sm font-semibold">{t.prefsTitle}</p>
+          <ul className="mt-2 flex flex-col gap-2">
+            {PUSH_KINDS.map((kind) => (
+              <li
+                key={kind}
+                className="flex items-center justify-between gap-3 text-sm"
+              >
+                <span>{t.prefs[kind]}</span>
+                <Switch
+                  checked={prefs[kind]}
+                  onChange={(next) => onPref(kind, next)}
+                  label={t.prefs[kind]}
+                />
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-[11px] text-ink-50">{t.reactionsNote}</p>
+        </div>
+      )}
     </div>
   );
 }
