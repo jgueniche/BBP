@@ -567,10 +567,30 @@ export type Database = {
         };
         Relationships: [];
       };
+      recipe_comment_votes: {
+        Row: {
+          comment_id: string;
+          created_at: string;
+          user_id: string;
+        };
+        Insert: {
+          comment_id: string;
+          created_at?: string;
+          user_id: string;
+        };
+        Update: {
+          comment_id?: string;
+          created_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       recipe_comments: {
         Row: {
           created_at: string;
           id: string;
+          moderation: string;
+          moderation_reasons: string[];
           recipe_id: string;
           text: string;
           user_id: string;
@@ -578,6 +598,8 @@ export type Database = {
         Insert: {
           created_at?: string;
           id?: string;
+          moderation?: string;
+          moderation_reasons?: string[];
           recipe_id: string;
           text: string;
           user_id: string;
@@ -585,6 +607,8 @@ export type Database = {
         Update: {
           created_at?: string;
           id?: string;
+          moderation?: string;
+          moderation_reasons?: string[];
           recipe_id?: string;
           text?: string;
           user_id?: string;
@@ -870,6 +894,42 @@ export type Database = {
         };
         Relationships: [];
       };
+      tags: {
+        Row: {
+          canonical_id: string | null;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          label: string;
+          parent_id: string | null;
+          reviewed: boolean;
+          slug: string;
+          updated_at: string;
+        };
+        Insert: {
+          canonical_id?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          label: string;
+          parent_id?: string | null;
+          reviewed?: boolean;
+          slug: string;
+          updated_at?: string;
+        };
+        Update: {
+          canonical_id?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          label?: string;
+          parent_id?: string | null;
+          reviewed?: boolean;
+          slug?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       user_settings: {
         Row: {
           allergens: string[];
@@ -915,6 +975,21 @@ export type Database = {
           love: number;
           miam: number;
           post_id: string;
+        };
+        Relationships: [];
+      };
+      recipe_comment_stats: {
+        Row: {
+          comment_id: string;
+          helpful: number;
+        };
+        Relationships: [];
+      };
+      recipe_cooked_stats: {
+        Row: {
+          cooked: number;
+          cooks: number;
+          recipe_id: string;
         };
         Relationships: [];
       };
