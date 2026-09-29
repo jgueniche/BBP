@@ -193,9 +193,11 @@ export default async function NotificationsPage() {
               <ul className="flex flex-col gap-2">
                 {list.map((group) => {
                   const Icon = ICONS[group.kind];
-                  const lead =
-                    members.get(group.actorIds[0]!) ??
-                    anonymousMember(group.actorIds[0]!);
+                  // The face of the group is the person its sentence names.
+                  const leadId =
+                    group.actorIds.find((id) => members.get(id)?.name) ??
+                    group.actorIds[0]!;
+                  const lead = members.get(leadId) ?? anonymousMember(leadId);
                   const recipe = group.recipeId
                     ? recipeById.get(group.recipeId)
                     : undefined;

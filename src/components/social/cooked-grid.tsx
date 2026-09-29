@@ -14,7 +14,7 @@ const dayFormat = new Intl.DateTimeFormat("fr-FR", {
 /** A member's shared « j'ai cuisiné », photos first, each tied to its recipe. */
 export function CookedGrid({ posts }: { posts: FeedPost[] }) {
   return (
-    <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+    <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
       {posts.map((post) => {
         const tile = (
           <>

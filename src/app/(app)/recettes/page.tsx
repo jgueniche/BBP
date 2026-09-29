@@ -436,12 +436,9 @@ async function ToCookTab({ userId }: { userId: string | null }) {
               <RecipeCard
                 recipe={recipe as RecipeCardData}
                 verdict={statuses.get(recipe.id) ?? null}
+                tag={item.source === "import" ? t.toCook.fromImport : null}
+                className="pr-10"
               />
-              {item.source === "import" && (
-                <span className="pointer-events-none absolute right-10 top-2 rounded-full bg-ciel px-1.5 py-0.5 text-[10px] font-semibold text-ink-70">
-                  {t.toCook.fromImport}
-                </span>
-              )}
               <ToCookRemoveButton recipeId={recipe.id} />
             </li>
           ))}

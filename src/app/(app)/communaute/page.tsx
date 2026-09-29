@@ -194,7 +194,9 @@ async function FriendsTab({ userId }: { userId: string }) {
           title={t.emptyFollowing}
         />
       ) : null}
-      {suggestions && <SuggestionsList suggestions={suggestions} />}
+      {suggestions && (suggestions.length > 0 || followedIds.length === 0) && (
+        <SuggestionsList suggestions={suggestions} />
+      )}
       {posts.length > 0 && (
         <div className="flex flex-col gap-3">
           {posts.map((post) => (
