@@ -90,9 +90,21 @@ describe("analyzeIngredient — neutral attributes", () => {
     expect(attrs("saucisses halal")).not.toContain("pork");
   });
 
-  it("uses the linked reference food name too", () => {
+  it("uses the linked reference food name when the label is vague", () => {
     const analysis = analyzeIngredient("bouillon", "Bouillon de volaille");
     expect(analysis.attributes).toContain("meat");
+  });
+
+  it("ignores a nutrition proxy when the label is explicit", () => {
+    // Boutargue is linked to lumpfish roe for its nutrition only.
+    const analysis = analyzeIngredient("boutargue", "Oeufs de lompe");
+    expect([...analysis.attributes]).toEqual(["fish"]);
+  });
+
+  it("reads dashi as a fish stock", () => {
+    expect([...analyzeIngredient("bouillon dashi").attributes]).toEqual([
+      "fish",
+    ]);
   });
 });
 

@@ -348,11 +348,17 @@ export function analyzeIngredient(
     allergens: new Set(),
     maybeAllergens: new Set(),
   };
-  const texts = [normalize(label)];
-  if (foodName) texts.push(normalize(foodName));
+  const labelText = normalize(label);
+  scan(labelText, out);
+  // The linked reference food is often a nutrition proxy (boutargue → lumpfish
+  // roe): it only speaks when the label itself says nothing certain.
+  const texts = [labelText];
+  if (foodName && out.attributes.size + out.allergens.size === 0) {
+    const foodText = normalize(foodName);
+    texts.push(foodText);
+    scan(foodText, out);
+  }
   const all = texts.join(" | ");
-
-  for (const text of texts) scan(text, out);
 
   // Free-from and label markers, read on the whole description.
   if (PLANT.test(all)) {
