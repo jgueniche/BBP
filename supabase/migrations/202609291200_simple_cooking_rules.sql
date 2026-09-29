@@ -48,12 +48,13 @@ alter table public.recipes drop constraint recipes_category_check;
 alter table public.recipes add constraint recipes_category_check check (
   category in (
     'kemia', 'petit_dej', 'entree', 'soupe', 'salade', 'plat',
-    'accompagnement', 'dessert', 'pain', 'boisson'
+    'accompagnement', 'dessert', 'pain', 'boisson', 'sauce'
   )
 );
 
 -- Collection colours are named after their pastel (same colours, no more
--- kosher or BBP names).
+-- kosher or BBP names). The old keys stay accepted until 202609291210 so the
+-- code deployed before session 19 keeps creating collections.
 alter table public.collections drop constraint collections_color_check;
 update public.collections set color = case color
   when 'boutargue' then 'rose'
@@ -65,7 +66,9 @@ update public.collections set color = case color
   when 'ink' then 'nacre'
   else color
 end;
-alter table public.collections alter column color set default 'rose';
 alter table public.collections add constraint collections_color_check check (
-  color in ('rose', 'ciel', 'peche', 'menthe', 'beurre', 'lilas', 'nacre')
+  color in (
+    'rose', 'ciel', 'peche', 'menthe', 'beurre', 'lilas', 'nacre',
+    'boutargue', 'halavi', 'bassari', 'ok', 'warn', 'parve', 'ink'
+  )
 );

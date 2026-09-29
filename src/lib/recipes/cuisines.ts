@@ -50,5 +50,6 @@ export const CATEGORIES = [
   "dessert",
   "pain",
   "boisson",
+  "sauce",
 ] as const;
 export type Category = (typeof CATEGORIES)[number];

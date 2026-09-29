@@ -72,3 +72,21 @@ alter table public.profiles
   drop column city,
   drop column lat,
   drop column lng;
+
+-- Collection colours: last old keys written by the previous code, then only
+-- the pastel names.
+alter table public.collections drop constraint collections_color_check;
+update public.collections set color = case color
+  when 'boutargue' then 'rose'
+  when 'halavi' then 'ciel'
+  when 'bassari' then 'peche'
+  when 'ok' then 'menthe'
+  when 'warn' then 'beurre'
+  when 'parve' then 'lilas'
+  when 'ink' then 'nacre'
+  else color
+end;
+alter table public.collections alter column color set default 'rose';
+alter table public.collections add constraint collections_color_check check (
+  color in ('rose', 'ciel', 'peche', 'menthe', 'beurre', 'lilas', 'nacre')
+);

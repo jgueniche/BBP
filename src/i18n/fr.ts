@@ -88,6 +88,7 @@ export const fr = {
       dessert: "Dessert",
       pain: "Pain",
       boisson: "Boisson",
+      sauce: "Sauce",
     },
     difficulties: {
       facile: "Facile",
