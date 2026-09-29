@@ -21,12 +21,11 @@ drop table public.weight_logs;
 drop table public.goals;
 drop table public.health_profile;
 
--- Private progress photos (objects first, then the bucket and its policies).
+-- Private progress photos: policies go here; the objects and the bucket are
+-- removed through the Storage API (Supabase forbids direct SQL deletion).
 drop policy if exists "progress_photos_select_own" on storage.objects;
 drop policy if exists "progress_photos_insert_own" on storage.objects;
 drop policy if exists "progress_photos_delete_own" on storage.objects;
-delete from storage.objects where bucket_id = 'progress-photos';
-delete from storage.buckets where id = 'progress-photos';
 
 -- Profile data that only served the calorie maths or the levels.
 alter table public.profiles
