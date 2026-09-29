@@ -75,7 +75,7 @@ export function PostComposer({ groupId }: { groupId?: string | null }) {
   return (
     <form
       onSubmit={submit}
-      className="flex flex-col gap-2 rounded-lg bg-rose p-3"
+      className="flex flex-col gap-2 rounded-lg bg-beurre p-3"
     >
       <textarea
         value={text}
@@ -176,7 +176,7 @@ export function PostComposer({ groupId }: { groupId?: string | null }) {
         >
           {t.charterLink}
         </Link>
-        <span className="flex-1 text-right text-[11px] text-ink-30">
+        <span className="flex-1 text-right text-[11px] text-ink-50">
           {t.nameNotice}
         </span>
         <Button

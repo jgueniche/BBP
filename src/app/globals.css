@@ -9,6 +9,7 @@
   --encre: #2b2230;
   --framboise: #c0265e;
   --framboise-deep: #9a1c4a;
+  --framboise-soft: #f6c6d8;
   --nacre: #f7f3f5;
 
   /* Pastels: panel and secondary-button fills, never text. */
@@ -24,7 +25,7 @@
   --paper: #ffffff;
   --boutargue: var(--framboise);
   --boutargue-deep: var(--framboise-deep);
-  --boutargue-soft: #f6c6d8;
+  --boutargue-soft: var(--framboise-soft);
   --boutargue-tint: var(--rose);
   --ink-70: #4a3f4e;
   --ink-50: #6f6272;
@@ -57,10 +58,10 @@
   --line: #eee6ea;
   --line-soft: #f4eff2;
 
-  --shadow-soft: 0 1px 2px rgb(43 34 48 / 0.04),
-    0 8px 24px -12px rgb(43 34 48 / 0.12);
-  --shadow-pop: 0 2px 4px rgb(43 34 48 / 0.05),
-    0 20px 44px -20px rgb(43 34 48 / 0.22);
+  --shadow-soft:
+    0 1px 2px rgb(43 34 48 / 0.04), 0 8px 24px -12px rgb(43 34 48 / 0.12);
+  --shadow-pop:
+    0 2px 4px rgb(43 34 48 / 0.05), 0 20px 44px -20px rgb(43 34 48 / 0.22);
 
   --chart-trend: var(--framboise-deep);
 
@@ -92,6 +93,7 @@
     --encre: #f6eef3;
     --framboise: #f28db2;
     --framboise-deep: #f7a3c2;
+    --framboise-soft: #5a2e44;
     --nacre: #2a2230;
 
     --rose: #3f2433;
@@ -102,7 +104,6 @@
     --ciel: #1f2e40;
 
     --paper: #1a1520;
-    --boutargue-soft: #5a2e44;
     --ink-70: #d9cedb;
     --ink-50: #c3b6c6;
     --ink-30: #6a5e70;
@@ -137,6 +138,7 @@
   --color-encre: var(--encre);
   --color-framboise: var(--framboise);
   --color-framboise-deep: var(--framboise-deep);
+  --color-framboise-soft: var(--framboise-soft);
   --color-nacre: var(--nacre);
   --color-rose: var(--rose);
   --color-lilas: var(--lilas);
@@ -201,6 +203,22 @@
   --radius-md: calc(var(--radius) - 4px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* Signature: a very fine raspberry gingham, only as a thin band (4-6px)
+   or inside an empty state — never as a page background. */
+@utility vichy {
+  background-image:
+    linear-gradient(
+      90deg,
+      color-mix(in oklab, var(--framboise) 10%, transparent) 50%,
+      transparent 50%
+    ),
+    linear-gradient(
+      color-mix(in oklab, var(--framboise) 10%, transparent) 50%,
+      transparent 50%
+    );
+  background-size: 6px 6px;
 }
 
 /* Soft elevation utilities. */

@@ -563,20 +563,45 @@ export const fr = {
   design: {
     title: "Charte Copine en cuisine",
     subtitle:
-      "Charte provisoire en attendant l'identité issue de Claude Design : tokens, composants, assistante et illustrations.",
+      "Charte v1 issue de Claude Design : fond blanc, panneaux pastel et un seul accent framboise. Tokens, composants, assistante et illustrations.",
     sections: {
       colors: "Couleurs",
+      pastels: "Pastels",
       typography: "Typographie",
-      buttons: "Boutons",
+      buttons: "Boutons et badges",
       cards: "Cartes",
       forms: "Formulaires",
       kashrut: "Pastilles casher",
       progress: "Progression",
       kemia: "Copine",
       illustrations: "Illustrations",
-      logos: "Logo",
+      logos: "Logo et signature",
       states: "États",
       copy: "Ton éditorial",
     },
+    pastelsHint:
+      "Un pastel par panneau, jamais deux voisins de la même teinte ; le texte reste toujours en encre.",
+    pastelNames: {
+      rose: "Rose poudré",
+      lilas: "Lilas",
+      menthe: "Menthe",
+      beurre: "Beurre",
+      peche: "Pêche",
+      ciel: "Ciel",
+    },
+    pastelUses: {
+      rose: "Carnets, états vides, tes messages",
+      lilas: "Copine, règles de cuisine, onboarding",
+      menthe: "Substitutions, minuteur, compatible",
+      beurre: "Notes perso, types de publication",
+      peche: "Alertes douces de l'import",
+      ciel: "Aides, notifications, installation",
+    },
+    kashrutHint:
+      "Module opt-in : ces pastilles n'apparaissent que si la règle est activée dans Moi.",
+    signature:
+      "Liseré vichy : la seule touche décorative, toujours en bande fine.",
+    copyAvoid: "À éviter",
+    copyPrefer: "Plutôt",
   },
 } as const;
