@@ -5,10 +5,7 @@ import { toast } from "sonner";
 
 import { CoachBubble } from "@/components/coach/coach-bubble";
 import { ILLUSTRATIONS } from "@/components/illustrations";
-import {
-  KemiaAvatar,
-  type KemiaExpression,
-} from "@/components/illustrations/kemia-avatar";
+import { CopineAvatar } from "@/components/illustrations/copine-avatar";
 import { Logo } from "@/components/illustrations/logo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -61,14 +58,6 @@ const COLORS = [
   { name: "parve", cls: "bg-parve", hex: "#7A7A7A" },
 ];
 
-const EXPRESSIONS: KemiaExpression[] = [
-  "sourire",
-  "clin",
-  "surprise",
-  "fiere",
-  "douce",
-];
-
 function Section({
   title,
   children,
@@ -78,7 +67,7 @@ function Section({
 }) {
   return (
     <section className="mt-12">
-      <h2 className="font-display text-2xl font-extrabold tracking-tight">
+      <h2 className="font-display text-2xl font-semibold tracking-tight">
         {title}
       </h2>
       <div className="mt-4">{children}</div>
@@ -93,11 +82,11 @@ export function DesignShowcase() {
     <main className="mx-auto max-w-3xl px-4 py-10 pb-24">
       <header className="flex flex-col gap-4">
         <Logo variant="ink" height={48} />
-        <h1 className="font-display text-4xl font-extrabold tracking-tight">
+        <h1 className="font-display text-4xl font-semibold tracking-tight">
           {fr.design.title}
         </h1>
         <p className="text-ink-70">{fr.design.subtitle}</p>
-        <p className="font-display text-lg font-bold text-boutargue-deep">
+        <p className="font-display text-lg font-semibold text-boutargue-deep">
           {fr.app.tagline}
         </p>
       </header>
@@ -120,21 +109,21 @@ export function DesignShowcase() {
 
       <Section title={s.typography}>
         <div className="flex flex-col gap-3">
-          <p className="font-display text-5xl font-extrabold tracking-tight">
-            Bricolage Grotesque
+          <p className="font-display text-5xl font-semibold tracking-tight">
+            Cormorant Garamond
           </p>
           <p className="text-lg">
-            Inter pour le corps — les chiffres sont tabulaires : 1 234,5 kcal.
+            Inter pour le corps — les chiffres sont tabulaires : 1 234,5 g.
           </p>
           <p className="font-mono text-sm">
-            JetBrains Mono · P 132 g · G 210 g · L 64 g
+            JetBrains Mono · farine 250 g · beurre 125 g · sucre 80 g
           </p>
         </div>
       </Section>
 
       <Section title={s.buttons}>
         <div className="flex flex-wrap items-center gap-4">
-          <Button>Bsahtek, on y va</Button>
+          <Button>C&apos;est parti</Button>
           <Button variant="secondary">Plus tard</Button>
           <Button variant="outline">Option</Button>
           <Button variant="ghost">Discret</Button>
@@ -142,9 +131,7 @@ export function DesignShowcase() {
           <Button size="icon" aria-label="Ajouter">
             <Plus />
           </Button>
-          <Button onClick={() => toast("Bsahtek ! C'est enregistré.")}>
-            Toast
-          </Button>
+          <Button onClick={() => toast("C'est enregistré.")}>Toast</Button>
         </div>
       </Section>
 
@@ -231,29 +218,22 @@ export function DesignShowcase() {
 
       <Section title={s.progress}>
         <div className="flex flex-wrap items-center gap-6">
-          <MacroRing value={1450} max={1800} label="kcal" />
-          <MacroRing value={96} max={130} label="Protéines" unit="g" />
+          <MacroRing value={3} max={4} label="portions" unit="" />
+          <MacroRing value={4} max={6} label="Étapes" unit="" />
           <div className="w-48">
             <Progress value={66} aria-label="Progression 66 %" />
           </div>
-          <Badge variant="ok">−0,4 kg cette semaine</Badge>
-          <Badge variant="warn">Belek au déficit</Badge>
+          <Badge variant="ok">Compatible</Badge>
+          <Badge variant="warn">À vérifier</Badge>
         </div>
       </Section>
 
       <Section title={s.kemia}>
         <div className="flex flex-col gap-6">
-          <div className="flex flex-wrap gap-4">
-            {EXPRESSIONS.map((e) => (
-              <div key={e} className="flex flex-col items-center gap-1">
-                <KemiaAvatar expression={e} size={72} />
-                <span className="text-xs text-ink-50">{e}</span>
-              </div>
-            ))}
-          </div>
-          <CoachBubble expression="fiere">
-            Trois recettes testées cette semaine, mabrouk ma brik ! On en tente
-            une nouvelle la semaine prochaine ?
+          <CopineAvatar size={72} />
+          <CoachBubble>
+            Trois recettes testées cette semaine, bravo ! On en tente une
+            nouvelle la semaine prochaine ?
           </CoachBubble>
         </div>
       </Section>
@@ -282,7 +262,6 @@ export function DesignShowcase() {
           </div>
           <div className="flex flex-wrap items-center gap-6 rounded-lg bg-[#0B0B0B] p-4">
             <Logo variant="paper" height={36} />
-            <Logo variant="boutargue" height={36} />
           </div>
         </div>
       </Section>
@@ -290,10 +269,10 @@ export function DesignShowcase() {
       <Section title={s.states}>
         <div className="flex flex-col gap-4">
           <EmptyState
-            illustration={<KemiaAvatar expression="douce" size={64} />}
-            title="Rien dans l'assiette ?"
-            hint="Raconte-moi ton petit-déj, ça prend 10 secondes."
-            action={<Button size="sm">Raconter mon petit-déj</Button>}
+            illustration={<CopineAvatar size={64} />}
+            title="Ton carnet est vide"
+            hint="Importe ta première recette depuis Instagram, TikTok ou un site."
+            action={<Button size="sm">Importer une recette</Button>}
           />
           <div className="flex items-center gap-3">
             <span
@@ -301,7 +280,7 @@ export function DesignShowcase() {
               className="size-5 animate-spin rounded-full border border-t-boutargue"
             />
             <span className="text-sm text-ink-50">
-              Kémia est en cuisine, deux secondes…
+              Copine réfléchit, deux secondes…
             </span>
           </div>
         </div>
@@ -310,14 +289,14 @@ export function DesignShowcase() {
       <Section title={s.copy}>
         <ul className="flex list-none flex-col gap-2 text-sm">
           <li>
-            ❌ « Objectif dépassé de 320 kcal » → ✅ « Journée généreuse (+320).
-            On équilibre demain, tranquille. »
+            ❌ « Aucune recette » → ✅ « Ton carnet attend ses premières
+            recettes. »
           </li>
           <li>
-            ❌ « Série perdue » → ✅ « Petite pause. On reprend aujourd’hui, ya
-            benti. »
+            ❌ « Erreur d’import » → ✅ « On n’a pas trouvé la recette : colle
+            la légende ou une capture. »
           </li>
-          <li>✅ « Chabbat approche : ta liste de courses est prête. »</li>
+          <li>✅ « Ta liste de courses est prête. »</li>
         </ul>
       </Section>
     </main>

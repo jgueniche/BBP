@@ -116,8 +116,8 @@ export function recipeJsonLd(
     image: [`${base}/api/og/recette/${recipe.slug}`],
     author: recipe.source_author
       ? { "@type": "Person", name: recipe.source_author }
-      : { "@type": "Organization", name: fr.app.fullName, url: base },
-    publisher: { "@type": "Organization", name: fr.app.fullName, url: base },
+      : { "@type": "Organization", name: fr.app.name, url: base },
+    publisher: { "@type": "Organization", name: fr.app.name, url: base },
     recipeYield: `${recipe.servings} ${fr.recettes.servings}`,
   };
   if (recipe.description) json.description = recipe.description;

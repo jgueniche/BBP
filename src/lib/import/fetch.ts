@@ -15,7 +15,8 @@ export async function fetchHtml(url: string): Promise<string | null> {
       signal: AbortSignal.timeout(10_000),
       redirect: "follow",
       headers: {
-        "user-agent": "Mozilla/5.0 (compatible; BBP-RecipeImport/1.0)",
+        "user-agent":
+          "Mozilla/5.0 (compatible; CopineEnCuisine-RecipeImport/1.0)",
         accept: "text/html,application/xhtml+xml",
       },
     });

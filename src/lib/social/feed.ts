@@ -75,7 +75,7 @@ export async function loadFeedPosts(
   ] = await Promise.all([
     supabase
       .from("post_stats")
-      .select("post_id, bsahtek, mabrouk, yaouili, comments")
+      .select("post_id, love, bravo, miam, comments")
       .in("post_id", postIds),
     supabase
       .from("post_reactions")
@@ -133,9 +133,9 @@ export async function loadFeedPosts(
         ? { slug: recipe.slug, title: recipe.title, icon: recipe.icon }
         : null,
       stats: {
-        bsahtek: stat?.bsahtek ?? 0,
-        mabrouk: stat?.mabrouk ?? 0,
-        yaouili: stat?.yaouili ?? 0,
+        love: stat?.love ?? 0,
+        bravo: stat?.bravo ?? 0,
+        miam: stat?.miam ?? 0,
         comments: stat?.comments ?? 0,
       },
       myReaction: myReactionById.get(post.id) ?? null,

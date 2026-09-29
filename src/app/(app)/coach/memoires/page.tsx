@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { KemiaAvatar } from "@/components/illustrations/kemia-avatar";
+import { CopineAvatar } from "@/components/illustrations/copine-avatar";
 import { EmptyState } from "@/components/ui/empty-state";
 import { fr } from "@/i18n/fr";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -27,14 +27,14 @@ export default async function MemoriesPage() {
 
   return (
     <section className="flex flex-col gap-4">
-      <h1 className="font-display text-3xl font-extrabold tracking-tight">
+      <h1 className="font-display text-3xl font-semibold tracking-tight">
         {t.memoriesTitle}
       </h1>
       <p className="text-sm text-ink-70">{t.memoriesHint}</p>
 
       {!memories || memories.length === 0 ? (
         <EmptyState
-          illustration={<KemiaAvatar expression="douce" size={64} />}
+          illustration={<CopineAvatar size={64} />}
           title={t.memoriesEmpty}
         />
       ) : (

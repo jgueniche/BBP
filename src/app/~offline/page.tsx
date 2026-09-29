@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { KemiaAvatar } from "@/components/illustrations/kemia-avatar";
+import { CopineAvatar } from "@/components/illustrations/copine-avatar";
 import { RetryButton } from "@/components/pwa/retry-button";
 import { Button } from "@/components/ui/button";
 import { fr } from "@/i18n/fr";
@@ -21,15 +21,15 @@ export default function OfflinePage() {
       id="main"
       className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center gap-4 px-6 text-center"
     >
-      <KemiaAvatar expression="douce" size={96} />
-      <h1 className="font-display text-3xl font-extrabold tracking-tight">
+      <CopineAvatar size={96} />
+      <h1 className="font-display text-3xl font-semibold tracking-tight">
         {t.title}
       </h1>
       <p className="text-ink-70">{t.body}</p>
       <div className="mt-2 flex flex-wrap justify-center gap-2">
         <RetryButton />
         <Button asChild variant="secondary">
-          <Link href="/journal">{t.backToJournal}</Link>
+          <Link href="/recettes">{t.backToRecipes}</Link>
         </Button>
       </div>
     </main>

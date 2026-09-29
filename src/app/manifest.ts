@@ -2,23 +2,23 @@ import type { MetadataRoute } from "next";
 
 import { fr } from "@/i18n/fr";
 
-// Web app manifest (brief §10.14): installable, standalone, share target
-// towards the recipe importer. Colours follow the "pro & chaleureux" shell.
+// Web app manifest: installable, standalone, share target towards the recipe
+// importer (Android; iOS needs the native shell, see docs/PIVOT-2026.md).
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/",
-    name: `${fr.app.name} — ${fr.app.fullName}`,
+    name: fr.app.name,
     short_name: fr.app.name,
-    description: `${fr.app.tagline} ${fr.pwa.manifestDescription}`,
+    description: fr.pwa.manifestDescription,
     lang: "fr",
     dir: "ltr",
-    start_url: "/accueil",
+    start_url: "/recettes",
     scope: "/",
     display: "standalone",
     orientation: "portrait",
     background_color: "#F3F1EA",
     theme_color: "#F3F1EA",
-    categories: ["health", "food", "lifestyle"],
+    categories: ["food", "lifestyle", "social"],
     icons: [
       { src: "/brand/png/icon-192.png", sizes: "192x192", type: "image/png" },
       { src: "/brand/png/icon-512.png", sizes: "512x512", type: "image/png" },
@@ -31,8 +31,8 @@ export default function manifest(): MetadataRoute.Manifest {
     ],
     shortcuts: [
       {
-        name: fr.nav.journal,
-        url: "/journal",
+        name: fr.recettes.importCta,
+        url: "/recettes/importer",
         icons: [{ src: "/brand/png/icon-192.png", sizes: "192x192" }],
       },
       {

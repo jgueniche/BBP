@@ -1,7 +1,7 @@
 import { Clock, Heart } from "lucide-react";
 import Link from "next/link";
 
-import { IlluCouscoussier } from "@/components/illustrations";
+import { IlluCasserole } from "@/components/illustrations";
 import { Badge } from "@/components/ui/badge";
 import { KashrutPill } from "@/components/ui/kashrut-pill";
 import { fr } from "@/i18n/fr";
@@ -41,11 +41,11 @@ export function RecipeCard({
             {recipe.icon}
           </span>
         ) : (
-          <IlluCouscoussier size={40} />
+          <IlluCasserole size={40} />
         )}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate font-display text-base font-bold">
+        <span className="block truncate font-display text-base font-semibold">
           {recipe.title}
         </span>
         <span className="mt-1 flex flex-wrap items-center gap-1.5">

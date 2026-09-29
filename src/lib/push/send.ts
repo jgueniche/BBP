@@ -4,7 +4,8 @@ import webpush from "web-push";
 
 const publicKey = process.env.VAPID_PUBLIC_KEY;
 const privateKey = process.env.VAPID_PRIVATE_KEY;
-const subject = process.env.VAPID_SUBJECT ?? "mailto:contact@bbp.example";
+const subject =
+  process.env.VAPID_SUBJECT ?? "mailto:contact@copine-en-cuisine.example";
 
 /** Push is optional infrastructure — everything degrades without the keys. */
 export const isPushConfigured = Boolean(publicKey && privateKey);

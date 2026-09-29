@@ -24,7 +24,7 @@ export default async function OnboardingPage({
       .select("onboarding_completed_at")
       .eq("id", user.id)
       .maybeSingle();
-    if (profile?.onboarding_completed_at && edit !== "1") redirect("/journal");
+    if (profile?.onboarding_completed_at && edit !== "1") redirect("/recettes");
   }
 
   return (

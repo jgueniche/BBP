@@ -16,7 +16,7 @@ const t = fr.communaute.composer;
 
 type Attached = { id: string; title: string; icon: string | null };
 
-const KINDS = ["text", "shabbat_plate", "progress"] as const;
+const KINDS = ["text", "cooked"] as const;
 
 export function PostComposer({ groupId }: { groupId?: string | null }) {
   const router = useRouter();
@@ -28,8 +28,6 @@ export function PostComposer({ groupId }: { groupId?: string | null }) {
   const [candidates, setCandidates] = useState<Attached[]>([]);
   const [pending, setPending] = useState(false);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const isFriday = new Date().getDay() === 5;
 
   function onQuery(value: string) {
     setQuery(value);
@@ -79,11 +77,6 @@ export function PostComposer({ groupId }: { groupId?: string | null }) {
       onSubmit={submit}
       className="flex flex-col gap-2 rounded-lg border bg-card p-3 shadow-soft"
     >
-      {isFriday && !groupId && (
-        <p className="text-xs font-semibold text-boutargue-deep">
-          {t.shabbatHint}
-        </p>
-      )}
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}

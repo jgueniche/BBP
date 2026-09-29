@@ -22,7 +22,7 @@ export default async function ModerationPage() {
   if (isAdmin !== true) {
     return (
       <section>
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
+        <h1 className="font-display text-3xl font-semibold tracking-tight">
           {t.title}
         </h1>
         <p className="mt-3 text-sm text-ink-70">{t.notAdmin}</p>
@@ -76,13 +76,13 @@ export default async function ModerationPage() {
 
   return (
     <section className="flex flex-col gap-5">
-      <h1 className="flex items-center gap-2 font-display text-3xl font-extrabold tracking-tight">
+      <h1 className="flex items-center gap-2 font-display text-3xl font-semibold tracking-tight">
         <ShieldCheck size={26} strokeWidth={2} aria-hidden />
         {t.title}
       </h1>
 
       <div>
-        <h2 className="font-display text-lg font-extrabold">{t.openReports}</h2>
+        <h2 className="font-display text-lg font-semibold">{t.openReports}</h2>
         {(reports ?? []).length === 0 ? (
           <p className="mt-2 text-sm text-ink-50">{t.noReports}</p>
         ) : (
@@ -118,9 +118,7 @@ export default async function ModerationPage() {
       </div>
 
       <div>
-        <h2 className="font-display text-lg font-extrabold">
-          {t.flaggedTitle}
-        </h2>
+        <h2 className="font-display text-lg font-semibold">{t.flaggedTitle}</h2>
         {(flaggedPosts ?? []).length === 0 &&
         (flaggedComments ?? []).length === 0 ? (
           <p className="mt-2 text-sm text-ink-50">{t.noFlagged}</p>

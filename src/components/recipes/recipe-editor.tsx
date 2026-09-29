@@ -412,7 +412,7 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
       </div>
 
       <fieldset className="flex flex-col gap-2">
-        <legend className="mb-1 font-display text-base font-extrabold">
+        <legend className="mb-1 font-display text-base font-semibold">
           {t.ingredients}
         </legend>
         {state.ingredients.map((ingredient, index) => (
@@ -511,7 +511,7 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
       </fieldset>
 
       <fieldset className="flex flex-col gap-2">
-        <legend className="mb-1 font-display text-base font-extrabold">
+        <legend className="mb-1 font-display text-base font-semibold">
           {t.steps}
         </legend>
         <datalist id="recipe-sections">

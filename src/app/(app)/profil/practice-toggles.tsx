@@ -122,7 +122,7 @@ export function PracticeToggles({
 
   return (
     <div className="rounded-lg border bg-card p-4 shadow-soft">
-      <h2 className="font-display text-base font-extrabold">{t.title}</h2>
+      <h2 className="font-display text-base font-semibold">{t.title}</h2>
       <p className="mt-0.5 text-xs text-ink-50">{t.intro}</p>
       <div className="mt-3 flex flex-col gap-3">
         <div className="flex items-start justify-between gap-3">

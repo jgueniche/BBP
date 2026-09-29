@@ -1,5 +1,6 @@
-// Mechanical checks for Kemia's voice rules (brief §3.2).
-const EXPRESSIONS = [
+// Mechanical checks for Copine's neutral voice (pivot, ADR-029): no cultural
+// or religious lexicon, no nicknames, at most one emoji, short answers.
+const CULTURAL_TERMS = [
   "bsahtek",
   "sahha",
   "mabrouk",
@@ -7,22 +8,34 @@ const EXPRESSIONS = [
   "yalla",
   "belek",
   "ya ouili",
-  "ya rebbi",
   "ya hasra",
   "hchouma",
   "kapara",
+  "habibi",
+  "hbibi",
   "chouya",
   "bezef",
   "fissa",
   "kif-kif",
-  "tfou",
+  "inch'allah",
+  "inchallah",
+  "bismillah",
   "chabbat chalom",
-  "chavoua tov",
   "baroukh hachem",
   "oy vey",
+  "mamma mia",
+];
+const NICKNAMES = [
+  "ma belle",
+  "ma chérie",
+  "mon chéri",
+  "ma puce",
+  "ma boulette",
+  "mon cœur",
+  "ma biche",
 ];
 
-module.exports = (output) => {
+module.exports = (output, context) => {
   const text = String(output || "").trim();
   const reasons = [];
 
@@ -33,21 +46,18 @@ module.exports = (output) => {
   }
 
   const lower = text.toLowerCase();
-  let expressionCount = 0;
-  for (const expression of EXPRESSIONS) {
-    const matches = lower.match(
-      new RegExp(`\\b${expression.replace(/[-\s]/g, "[-\\s]")}\\b`, "g"),
-    );
-    if (matches) expressionCount += matches.length;
-  }
-  if (expressionCount > 1) {
-    reasons.push(`${expressionCount} expressions judéo-arabes (max 1)`);
+  for (const term of [...CULTURAL_TERMS, ...NICKNAMES]) {
+    const pattern = new RegExp(`\\b${term.replace(/[-\s']/g, "[-\\s']")}\\b`);
+    if (pattern.test(lower)) reasons.push(`terme proscrit : « ${term} »`);
   }
 
+  // Recipes and menus may be lists; plain answers stay short.
+  const isList = /^\s*([-*•]|\d+[.)])\s/m.test(text);
   const sentences = text
     .split(/[.!?…]+(?:\s|$)/)
     .filter((s) => s.trim().length > 2);
-  if (sentences.length > 5) {
+  const allowLong = context?.vars?.allow_long === "true";
+  if (!isList && !allowLong && sentences.length > 5) {
     reasons.push(`${sentences.length} phrases (attendu 1-4)`);
   }
 

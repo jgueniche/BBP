@@ -35,7 +35,7 @@ export function NoteEditor({
 
   return (
     <section className="rounded-lg border bg-card p-4 shadow-soft">
-      <h2 className="flex items-center gap-1.5 font-display text-base font-extrabold">
+      <h2 className="flex items-center gap-1.5 font-display text-base font-semibold">
         <NotebookPen size={16} strokeWidth={2} aria-hidden />
         {t.title}
       </h2>

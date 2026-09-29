@@ -74,7 +74,7 @@ self.addEventListener("push", (event) => {
   } catch {
     payload = { body: event.data ? event.data.text() : "" };
   }
-  const title = payload.title || "BBP";
+  const title = payload.title || "Copine en cuisine";
   event.waitUntil(
     self.registration.showNotification(title, {
       body: payload.body || "",

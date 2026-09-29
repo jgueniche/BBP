@@ -29,7 +29,7 @@ export async function GET(
         .maybeSingle()
     : { data: null };
 
-  const title = recipe?.title ?? "Boukha, Boutargue & Protéines";
+  const title = recipe?.title ?? "Copine en cuisine";
   const icon = recipe?.icon ?? "🥘";
   const kashrut = recipe?.kashrut_class ?? null;
   const kashrutLabel = kashrut
@@ -128,11 +128,9 @@ export async function GET(
           color: "#0B0B0B",
         }}
       >
-        <div style={{ display: "flex" }}>
-          BBP — Boukha, Boutargue & Protéines
-        </div>
+        <div style={{ display: "flex" }}>Copine en cuisine</div>
         <div style={{ display: "flex", color: "#F26A1B" }}>
-          Mange. Bouge. Bsahtek.
+          Tes recettes, à plusieurs mains.
         </div>
       </div>
     </div>,

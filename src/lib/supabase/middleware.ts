@@ -41,7 +41,7 @@ export async function updateSession(request: NextRequest) {
 
   if (user && isLoginPage) {
     const url = request.nextUrl.clone();
-    url.pathname = "/journal";
+    url.pathname = "/recettes";
     return NextResponse.redirect(url);
   }
 

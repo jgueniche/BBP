@@ -33,9 +33,9 @@ import { cn } from "@/lib/utils/cn";
 const t = fr.communaute.post;
 
 const REACTION_EMOJI = {
-  bsahtek: "🧡",
-  mabrouk: "⭐",
-  yaouili: "😮",
+  love: "❤️",
+  bravo: "👏",
+  miam: "😋",
 } as const;
 
 export type ReactionKind = keyof typeof REACTION_EMOJI;
@@ -53,9 +53,9 @@ export type FeedPost = {
   groupSlug: string | null;
   recipe: { slug: string; title: string; icon: string | null } | null;
   stats: {
-    bsahtek: number;
-    mabrouk: number;
-    yaouili: number;
+    love: number;
+    bravo: number;
+    miam: number;
     comments: number;
   };
   myReaction: ReactionKind | null;

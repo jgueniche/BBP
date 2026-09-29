@@ -92,7 +92,7 @@ export default async function EditRecipePage({
 
   return (
     <section className="flex flex-col gap-4">
-      <h1 className="font-display text-3xl font-extrabold tracking-tight">
+      <h1 className="font-display text-3xl font-semibold tracking-tight">
         {fr.recettes.editorTitleEdit}
       </h1>
       <RecipeEditor initial={initial} />

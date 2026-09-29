@@ -70,7 +70,7 @@ describe("recipeJsonLd", () => {
     expect(json.keywords).toBe("salade, grillé, Parvé, tunisie");
     expect(json.author).toEqual({
       "@type": "Organization",
-      name: "Boukha, Boutargue & Protéines",
+      name: "Copine en cuisine",
       url: "https://bbp.example",
     });
   });

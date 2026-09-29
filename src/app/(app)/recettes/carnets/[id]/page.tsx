@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 
-import { IlluCouscoussier } from "@/components/illustrations";
+import { IlluCasserole } from "@/components/illustrations";
 import {
   RecipeCard,
   type RecipeCardData,
@@ -74,7 +74,7 @@ export default async function CollectionPage({
             {collection.icon}
           </span>
           <div>
-            <h1 className="font-display text-3xl font-extrabold tracking-tight">
+            <h1 className="font-display text-3xl font-semibold tracking-tight">
               {collection.name}
             </h1>
             <p className="text-xs text-ink-50">
@@ -97,7 +97,7 @@ export default async function CollectionPage({
 
       {ordered.length === 0 ? (
         <EmptyState
-          illustration={<IlluCouscoussier size={64} />}
+          illustration={<IlluCasserole size={64} />}
           title={t.emptyDetail}
         />
       ) : (

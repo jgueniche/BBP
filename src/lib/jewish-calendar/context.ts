@@ -1,8 +1,6 @@
 import {
-  activePostFeast,
   computeCalendarDays,
   DEFAULT_CALENDAR_SETTINGS,
-  type CalendarDay,
   type CalendarSettings,
 } from "./engine";
 import { resolveLocation } from "./locations";
@@ -21,32 +19,10 @@ function frDate(dateKey: string): string {
   }).format(new Date(`${dateKey}T12:00:00Z`));
 }
 
-function weekdayOf(dateKey: string): number {
-  return new Date(`${dateKey}T12:00:00Z`).getUTCDay();
-}
-
-function wishesFor(today: CalendarDay, tomorrow: CalendarDay | undefined) {
-  const wishes: string[] = [];
-  if (today.isFast) {
-    wishes.push("Souhaite un jeûne facile (tsom kal).");
-  } else if (today.isErev && weekdayOf(today.date) === 5 && !tomorrow?.isChag) {
-    wishes.push("C'est erev chabbat : souhaite chabbat chalom.");
-  } else if (today.isErev && tomorrow?.isChag) {
-    wishes.push("C'est veille de fête : souhaite hag saméah.");
-  } else if (today.isChag) {
-    wishes.push("Souhaite hag saméah.");
-  } else if (today.isHanouka) {
-    wishes.push("Souhaite hanouka saméah.");
-  } else if (today.holidays.includes("Purim")) {
-    wishes.push("Souhaite Pourim saméah.");
-  }
-  return wishes;
-}
-
 /**
- * Kémia's calendar block: today's Hebrew date, fasts (no calorie talk),
- * Pessah, upcoming candle times, budget-kiff feasts, Chavouot dairy note,
- * après-fêtes mode and the matching wishes (brief §10.13).
+ * The assistant's calendar block, only for people who follow the Jewish
+ * calendar: factual dates, fasts, Pessah, feasts and candle times. No wishes
+ * or cultural lexicon — the assistant keeps a neutral voice (ADR-029).
  */
 export function buildCalendarContext(
   now: Date = new Date(),
@@ -71,22 +47,20 @@ export function buildCalendarContext(
 
   if (today.isFast) {
     lines.push(
-      `JEÛNE AUJOURD'HUI (${today.fastName}) : aucun objectif calorique, conseils hydratation et repas d'avant/après uniquement, jamais présenter le jeûne comme un outil minceur.`,
+      `JEÛNE AUJOURD'HUI (${today.fastName}) : aucune suggestion de repas en journée ; propose seulement des idées pour le repas d'avant ou d'après.`,
     );
   }
   if (today.isPessah) {
     lines.push(
-      "PESSAH en cours : pas de hametz (blé, orge, seigle, avoine, épeautre levés) ; kitniyot selon le minhag de la personne.",
+      "PESSAH en cours : aucun ingrédient levé à base de blé, orge, seigle, avoine ou épeautre ; légumineuses selon le profil.",
     );
   }
   if (today.isFeast) {
-    lines.push(
-      "Jour de fête : mode « budget kiff » — on célèbre, aucun discours de déficit aujourd'hui.",
-    );
+    lines.push("Jour de fête : propose volontiers des recettes de fête.");
   }
   if (today.isChavouot || upcoming[0]?.isChavouot) {
     lines.push(
-      "Chavouot : le repas lacté est la tradition (cheesecake compris).",
+      "Chavouot : un repas à base de produits laitiers est de tradition.",
     );
   }
   if (today.labels.length > 0 && !today.isFast) {
@@ -107,15 +81,6 @@ export function buildCalendarContext(
   if (today.havdalahTime) {
     lines.push(`Sortie (havdalah) à ${today.havdalahTime}.`);
   }
-
-  const postFeast = activePostFeast(days, todayKey);
-  if (postFeast) {
-    lines.push(
-      "Mode après-fêtes actif : semaine de recadrage doux, retour aux habitudes sans aucune culpabilisation.",
-    );
-  }
-
-  lines.push(...wishesFor(today, upcoming[0]));
 
   return { text: lines.join(" "), isFastToday: today.isFast };
 }

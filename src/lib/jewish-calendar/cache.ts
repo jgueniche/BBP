@@ -34,7 +34,7 @@ export async function loadCalendarSettings(
     supabase.from("profiles").select("city").eq("id", userId).maybeSingle(),
   ]);
   return {
-    enabled: settings?.jewish_calendar_enabled ?? true,
+    enabled: settings?.jewish_calendar_enabled ?? false,
     settings: {
       city: profile?.city ?? null,
       israelCalendar: settings?.israel_calendar ?? false,

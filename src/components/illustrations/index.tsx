@@ -27,55 +27,17 @@ function Frame({
   );
 }
 
-export function IlluBoutargue(props: IllustrationProps) {
+export function IlluCasserole(props: IllustrationProps) {
   return (
-    <Frame {...props} label="Tranche de boutargue">
-      <ellipse cx="32" cy="34" rx="22" ry="13" fill="var(--boutargue)" />
-      <ellipse cx="32" cy="34" rx="14" ry="7.5" />
-      <circle
-        cx="27"
-        cy="34"
-        r="1.6"
-        fill="var(--boutargue-deep)"
-        stroke="none"
+    <Frame {...props} label="Cocotte">
+      <path d="M12 30 h40 v12 a10 10 0 0 1 -10 10 h-20 a10 10 0 0 1 -10 -10 z" />
+      <path d="M8 30 h48" />
+      <path d="M6 34 h6 M52 34 h6" />
+      <path d="M26 22 q6 -6 12 0" stroke="var(--primary)" />
+      <path
+        d="M24 14 q2 -3 0 -6 M32 14 q2 -3 0 -6 M40 14 q2 -3 0 -6"
+        strokeWidth="2"
       />
-      <circle
-        cx="35"
-        cy="31"
-        r="1.6"
-        fill="var(--boutargue-deep)"
-        stroke="none"
-      />
-      <circle
-        cx="37"
-        cy="37"
-        r="1.6"
-        fill="var(--boutargue-deep)"
-        stroke="none"
-      />
-    </Frame>
-  );
-}
-
-export function IlluCouscoussier(props: IllustrationProps) {
-  return (
-    <Frame {...props} label="Couscoussier">
-      <path d="M16 34 h32 l-4 16 a4 4 0 0 1 -4 3 h-16 a4 4 0 0 1 -4 -3 z" />
-      <path d="M19 20 h26 l3 14 h-32 z" />
-      <path d="M22 27 h20" strokeDasharray="1 5" />
-      <path d="M24 14 q8 -5 16 0" />
-      <circle cx="32" cy="12" r="2.5" fill="var(--boutargue)" />
-      <path d="M13 40 h-4 M55 40 h-4" />
-    </Frame>
-  );
-}
-
-export function IlluBrik(props: IllustrationProps) {
-  return (
-    <Frame {...props} label="Brik à l'œuf">
-      <path d="M12 48 L52 14 q4 10 -2 20 q-6 10 -18 14 q-10 3 -20 0 z" />
-      <path d="M18 44 q10 0 18 -7" strokeDasharray="1 5" />
-      <circle cx="38" cy="30" r="5" fill="var(--boutargue)" />
     </Frame>
   );
 }
@@ -87,43 +49,6 @@ export function IlluOlive(props: IllustrationProps) {
       <path d="M34 22 q4 -8 14 -9" />
       <path d="M44 15 q7 -1 8 5 q-7 3 -10 -1" fill="var(--boutargue)" />
       <path d="M25 33 q-2 4 0 8" />
-    </Frame>
-  );
-}
-
-export function IlluHarissa(props: IllustrationProps) {
-  return (
-    <Frame {...props} label="Tube de harissa">
-      <path d="M24 18 h16 v34 a4 4 0 0 1 -4 4 h-8 a4 4 0 0 1 -4 -4 z" />
-      <path d="M26 12 h12 v6 h-12 z" fill="var(--boutargue)" />
-      <path d="M24 30 h16" />
-      <path d="M28 38 q4 6 0 10 M36 38 q-4 6 0 10" />
-      <path d="M40 22 q4 2 3 6" fill="none" stroke="var(--boutargue)" />
-    </Frame>
-  );
-}
-
-export function IlluKemiaPlatter(props: IllustrationProps) {
-  return (
-    <Frame {...props} label="Plateau de kémia">
-      <circle cx="32" cy="32" r="24" />
-      <circle cx="24" cy="24" r="7" />
-      <circle cx="42" cy="26" r="6" fill="var(--boutargue-soft)" />
-      <circle cx="26" cy="42" r="6" />
-      <circle cx="42" cy="41" r="5" fill="var(--boutargue)" />
-      <circle cx="24" cy="24" r="1.5" fill="currentColor" stroke="none" />
-      <circle cx="27" cy="42" r="1.5" fill="currentColor" stroke="none" />
-    </Frame>
-  );
-}
-
-export function IlluBalance(props: IllustrationProps) {
-  return (
-    <Frame {...props} label="Balance">
-      <rect x="12" y="14" width="40" height="36" rx="8" />
-      <path d="M24 22 a10 10 0 0 1 16 0" />
-      <path d="M32 27 l4 -5" stroke="var(--boutargue)" />
-      <path d="M22 38 h20" strokeDasharray="1 5" />
     </Frame>
   );
 }
@@ -152,174 +77,9 @@ export function IlluEtoile(props: IllustrationProps) {
   );
 }
 
-export function IlluBougies(props: IllustrationProps) {
-  return (
-    <Frame {...props} label="Bougies de chabbat">
-      <rect x="20" y="26" width="6" height="22" rx="2" />
-      <rect x="38" y="26" width="6" height="22" rx="2" />
-      <path d="M14 52 h36 v4 h-36 z" />
-      <path d="M23 14 q4 4 0 8 q-4 -4 0 -8 z" fill="var(--boutargue)" />
-      <path d="M41 14 q4 4 0 8 q-4 -4 0 -8 z" fill="var(--boutargue)" />
-      <path d="M23 22 v4 M41 22 v4" />
-    </Frame>
-  );
-}
-
-/**
- * Brand hero: a bottarga lobe, half sliced — wide format (220×120), height
- * driven by `size`. Warm fills over the usual 2.5px ink line work.
- */
-export function IlluBoutargueDemiTranchee({
-  size = 96,
-  className,
-}: IllustrationProps) {
-  return (
-    <svg
-      viewBox="0 0 220 120"
-      width={(size * 220) / 120}
-      height={size}
-      role="img"
-      aria-label="Boutargue à moitié tranchée"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={cn("shrink-0", className)}
-    >
-      {/* Twine loop at the narrow tip of the lobe. */}
-      <path d="M14 56 C6 52 4 64 13 63" />
-      {/* Intact half of the lobe, cut flat on the right. */}
-      <path
-        d="M13 62 C13 50 28 40 54 38 C86 35 110 44 116 56 L116 68 C110 80 86 89 54 86 C28 84 13 74 13 62 Z"
-        fill="var(--boutargue)"
-      />
-      {/* Waxed sheen. */}
-      <path
-        d="M32 48 C50 43 76 42 96 47"
-        stroke="var(--boutargue-soft)"
-        strokeWidth="3.5"
-        opacity="0.8"
-      />
-      {/* Cut face with roe grain. */}
-      <ellipse cx="116" cy="62" rx="9" ry="23" fill="var(--boutargue-soft)" />
-      <circle
-        cx="114"
-        cy="52"
-        r="1.7"
-        fill="var(--boutargue-deep)"
-        stroke="none"
-      />
-      <circle
-        cx="118"
-        cy="61"
-        r="1.7"
-        fill="var(--boutargue-deep)"
-        stroke="none"
-      />
-      <circle
-        cx="113"
-        cy="70"
-        r="1.7"
-        fill="var(--boutargue-deep)"
-        stroke="none"
-      />
-      {/* Two slices standing against the lobe… */}
-      <ellipse
-        cx="146"
-        cy="66"
-        rx="10"
-        ry="22"
-        transform="rotate(-12 146 66)"
-        fill="var(--boutargue-soft)"
-      />
-      <circle
-        cx="143"
-        cy="56"
-        r="1.6"
-        fill="var(--boutargue-deep)"
-        stroke="none"
-      />
-      <circle
-        cx="148"
-        cy="66"
-        r="1.6"
-        fill="var(--boutargue-deep)"
-        stroke="none"
-      />
-      <circle
-        cx="143"
-        cy="76"
-        r="1.6"
-        fill="var(--boutargue-deep)"
-        stroke="none"
-      />
-      <ellipse
-        cx="168"
-        cy="70"
-        rx="10"
-        ry="21"
-        transform="rotate(-7 168 70)"
-        fill="var(--boutargue-soft)"
-      />
-      <circle
-        cx="165"
-        cy="61"
-        r="1.6"
-        fill="var(--boutargue-deep)"
-        stroke="none"
-      />
-      <circle
-        cx="170"
-        cy="71"
-        r="1.6"
-        fill="var(--boutargue-deep)"
-        stroke="none"
-      />
-      <circle
-        cx="165"
-        cy="80"
-        r="1.6"
-        fill="var(--boutargue-deep)"
-        stroke="none"
-      />
-      {/* …and one lying flat on the board. */}
-      <ellipse cx="194" cy="88" rx="17" ry="8.5" fill="var(--boutargue-soft)" />
-      <circle
-        cx="188"
-        cy="87"
-        r="1.6"
-        fill="var(--boutargue-deep)"
-        stroke="none"
-      />
-      <circle
-        cx="196"
-        cy="90"
-        r="1.6"
-        fill="var(--boutargue-deep)"
-        stroke="none"
-      />
-      <circle
-        cx="200"
-        cy="86"
-        r="1.6"
-        fill="var(--boutargue-deep)"
-        stroke="none"
-      />
-    </svg>
-  );
-}
-
 export const ILLUSTRATIONS = [
-  { name: "Boutargue", Component: IlluBoutargue },
-  { name: "Boutargue demi-tranchée", Component: IlluBoutargueDemiTranchee },
-  { name: "Couscoussier", Component: IlluCouscoussier },
-  { name: "Brik", Component: IlluBrik },
+  { name: "Cocotte", Component: IlluCasserole },
   { name: "Olive", Component: IlluOlive },
-  { name: "Harissa", Component: IlluHarissa },
-  { name: "Plateau de kémia", Component: IlluKemiaPlatter },
-  { name: "Balance", Component: IlluBalance },
   { name: "Cœur", Component: IlluCoeur },
   { name: "Étoile", Component: IlluEtoile },
-  { name: "Bougies de chabbat", Component: IlluBougies },
 ] as const;

@@ -38,7 +38,7 @@ export default async function MemberPage({
   return (
     <section className="flex w-full max-w-3xl flex-col gap-4">
       <header>
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
+        <h1 className="font-display text-3xl font-semibold tracking-tight">
           {name}
         </h1>
         {profile?.bio && (
@@ -46,7 +46,7 @@ export default async function MemberPage({
         )}
       </header>
 
-      <h2 className="font-display text-lg font-extrabold">{t.posts}</h2>
+      <h2 className="font-display text-lg font-semibold">{t.posts}</h2>
       {posts.length === 0 ? (
         <p className="text-sm text-ink-50">{t.noPosts}</p>
       ) : (

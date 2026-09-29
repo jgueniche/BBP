@@ -1,21 +1,12 @@
 "use client";
 
-import {
-  BookOpenCheck,
-  Dices,
-  Flame,
-  Plus,
-  RefreshCw,
-  Sparkles,
-  X,
-} from "lucide-react";
+import { Dices, Flame, Plus, RefreshCw, Sparkles, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 
 import {
-  addDayToJournal,
   clearSlot,
   generateWeek,
   moveSlot,
@@ -78,13 +69,11 @@ export function PlanningGrid({
   weekStart,
   days,
   slots,
-  calorieTarget,
   shomerShabbat,
 }: {
   weekStart: string;
   days: GridDay[];
   slots: GridSlot[];
-  calorieTarget: number | null;
   shomerShabbat: boolean;
 }) {
   const router = useRouter();
@@ -183,11 +172,6 @@ export function PlanningGrid({
     router.refresh();
   }
 
-  async function onAddDay(date: string) {
-    const result = await addDayToJournal(date);
-    toast(result.added > 0 ? t.addedToJournal : t.nothingToAdd);
-  }
-
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2 rounded-lg border bg-card p-3 shadow-soft">
@@ -210,12 +194,6 @@ export function PlanningGrid({
             meal,
             slot: slotAt(day.date, meal),
           }));
-          const kcalPlanned = daySlots.reduce(
-            (sum, { slot }) =>
-              sum +
-              (slot?.kcal === null || !slot ? 0 : slot.kcal * slot.servings),
-            0,
-          );
           return (
             <section
               key={day.date}
@@ -226,7 +204,7 @@ export function PlanningGrid({
             >
               <header className="flex flex-wrap items-baseline justify-between gap-1">
                 <div className="flex flex-wrap items-baseline gap-2">
-                  <h2 className="font-display text-base font-extrabold capitalize">
+                  <h2 className="font-display text-base font-semibold capitalize">
                     {day.label}
                   </h2>
                   <span className="text-[11px] text-ink-50">
@@ -246,24 +224,6 @@ export function PlanningGrid({
                       {badge}
                     </span>
                   ))}
-                </div>
-                <div className="flex items-center gap-2">
-                  {kcalPlanned > 0 && (
-                    <span className="font-mono text-[11px] text-ink-50">
-                      {Math.round(kcalPlanned)} kcal {t.plannedKcal}
-                      {calorieTarget !== null &&
-                        ` · ${t.target} ${calorieTarget}`}
-                    </span>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => onAddDay(day.date)}
-                    aria-label={`${t.addDayToJournal} — ${day.label}`}
-                    className="rounded-full border bg-card p-1 shadow-soft"
-                    title={t.addDayToJournal}
-                  >
-                    <BookOpenCheck size={13} strokeWidth={2} />
-                  </button>
                 </div>
               </header>
 
@@ -315,11 +275,9 @@ export function PlanningGrid({
                             className="scale-75"
                           />
                         )}
-                        {slot.kcal !== null && (
+                        {slot.servings !== 1 && (
                           <span className="shrink-0 font-mono text-[11px] text-ink-50">
-                            {Math.round(slot.kcal * slot.servings)} kcal
-                            {slot.servings !== 1 &&
-                              ` · ${slot.servings} ${t.portions}`}
+                            {slot.servings} {t.portions}
                           </span>
                         )}
                         <button
@@ -411,11 +369,6 @@ export function PlanningGrid({
                         kind={candidate.kashrutClass}
                         className="scale-75"
                       />
-                    )}
-                    {candidate.kcal !== null && (
-                      <span className="shrink-0 font-mono text-[11px] text-ink-50">
-                        {Math.round(candidate.kcal)} kcal
-                      </span>
                     )}
                   </button>
                 </li>
