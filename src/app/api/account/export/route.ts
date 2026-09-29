@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { loadCreatorLinks, loadCreatorsByIds } from "@/lib/creators/server";
 import { createClient } from "@/lib/supabase/server";
 
 // RGPD self-service export: everything the person created in the app, as
@@ -32,6 +33,8 @@ export async function GET() {
     following,
     followers,
     blocks,
+    claims,
+    links,
   ] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
     supabase.from("user_settings").select("*").maybeSingle(),
@@ -60,6 +63,22 @@ export async function GET() {
     supabase.from("follows").select("*").eq("follower_id", user.id),
     supabase.from("follows").select("*").eq("followed_id", user.id),
     supabase.from("blocks").select("*").eq("blocker_id", user.id),
+    supabase
+      .from("creator_claims")
+      .select("id, creator_id, code, status, reason, created_at, decided_at")
+      .eq("user_id", user.id),
+    loadCreatorLinks(supabase, { memberIds: [user.id] }),
+  ]);
+  // Her verified creator profiles and the posts she withdrew from Copine.
+  const creatorIds = links.creatorsOf.get(user.id) ?? [];
+  const [creators, withdrawals] = await Promise.all([
+    loadCreatorsByIds(supabase, creatorIds),
+    creatorIds.length > 0
+      ? supabase
+          .from("creator_withdrawals")
+          .select("creator_id, source_key, created_at")
+          .in("creator_id", creatorIds)
+      : Promise.resolve({ data: [] }),
   ]);
 
   const payload = {
@@ -83,6 +102,14 @@ export async function GET() {
     following: following.data,
     followers: followers.data,
     blocked_members: blocks.data,
+    creator_claims: claims.data,
+    creator_profiles: [...creators.values()].map((creator) => ({
+      platform: creator.platform,
+      handle: creator.handle,
+      profile_url: creator.profileUrl,
+      imports_blocked: creator.importsBlocked,
+    })),
+    creator_withdrawals: withdrawals.data,
   };
 
   return new NextResponse(JSON.stringify(payload, null, 2), {

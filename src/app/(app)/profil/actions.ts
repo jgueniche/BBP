@@ -289,6 +289,8 @@ export async function deleteAccountData() {
       .remove(photos.map((photo) => `${user.id}/${photo.name}`));
   }
   await removeOtherAvatars(supabase, user.id, null);
+  // Creator claims go; her creator profiles become unclaimed (ADR-035).
+  await supabase.rpc("forget_creator_claims");
   await supabase.from("post_comments").delete().eq("author_id", user.id);
   await supabase.from("posts").delete().eq("author_id", user.id);
   await supabase.from("follows").delete().eq("follower_id", user.id);
