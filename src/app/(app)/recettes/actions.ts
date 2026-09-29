@@ -160,16 +160,7 @@ export async function saveRecipe(raw: RecipeInput): Promise<SaveRecipeResult> {
           : null,
       };
     }
-    if (identity) {
-      // A channel or account name, never a site's (a site has many authors).
-      const displayName =
-        identity.platform !== "web" &&
-        input.sourceAuthor &&
-        !input.sourceAuthor.startsWith("@")
-          ? input.sourceAuthor
-          : null;
-      creatorId = await resolveCreatorId(supabase, identity, displayName);
-    }
+    if (identity) creatorId = await resolveCreatorId(supabase, identity);
   }
 
   const nutrition = await recipeNutrition(

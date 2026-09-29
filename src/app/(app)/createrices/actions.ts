@@ -178,15 +178,11 @@ export async function joinAsCreator(
   const { supabase, user } = await requireUser();
   const handle = normalizeCreatorHandle(input.platform, input.handle);
   if (!handle) return { ok: false, code: "invalid" };
-  const creatorId = await resolveCreatorId(
-    supabase,
-    {
-      platform: input.platform,
-      handle,
-      profileUrl: profileUrlFor(input.platform, handle),
-    },
-    null,
-  );
+  const creatorId = await resolveCreatorId(supabase, {
+    platform: input.platform,
+    handle,
+    profileUrl: profileUrlFor(input.platform, handle),
+  });
   if (!creatorId) return { ok: false, code: "error" };
   const claim = await openClaim(supabase, user.id, creatorId);
   return { ok: true, path: creatorPath(input.platform, handle), claim };

@@ -160,9 +160,6 @@ export default async function CreatorPage({
           </h1>
           {creator.verified && <VerifiedBadge />}
         </div>
-        {creator.displayName && (
-          <p className="text-sm text-ink-70">{creator.displayName}</p>
-        )}
         <p className="text-sm text-ink-70">
           {[
             count(totals.posts, p.postsOne, p.posts),

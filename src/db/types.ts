@@ -315,7 +315,6 @@ export type Database = {
           claimed_at: string | null;
           claimed_by: string | null;
           created_at: string;
-          display_name: string | null;
           handle: string;
           id: string;
           imports_blocked: boolean;
@@ -328,7 +327,6 @@ export type Database = {
           claimed_at?: string | null;
           claimed_by?: string | null;
           created_at?: string;
-          display_name?: string | null;
           handle: string;
           id?: string;
           imports_blocked?: boolean;
@@ -340,7 +338,6 @@ export type Database = {
           claimed_at?: string | null;
           claimed_by?: string | null;
           created_at?: string;
-          display_name?: string | null;
           handle?: string;
           id?: string;
           imports_blocked?: boolean;
@@ -1291,6 +1288,10 @@ export type Database = {
           withdrawn: boolean;
         }[];
       };
+      creator_profile_url: {
+        Args: { p_platform: string; p_handle: string };
+        Returns: string;
+      };
       creator_links: {
         Args: { p_creators: string[]; p_members: string[] };
         Returns: { creator_id: string; member_id: string }[];
@@ -1319,6 +1320,10 @@ export type Database = {
         Args: { claim: string; approve: boolean; why: string | null };
         Returns: boolean;
       };
+      is_withdrawn_post: {
+        Args: { key: string; author: string };
+        Returns: boolean;
+      };
       forget_creator_claims: {
         Args: never;
         Returns: boolean;
@@ -1340,12 +1345,7 @@ export type Database = {
         Returns: boolean;
       };
       resolve_creator: {
-        Args: {
-          p_platform: string;
-          p_handle: string;
-          p_display_name: string | null;
-          p_profile_url: string;
-        };
+        Args: { p_platform: string; p_handle: string };
         Returns: string | null;
       };
       restore_creator_post: {

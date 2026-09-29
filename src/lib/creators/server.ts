@@ -19,21 +19,18 @@ export type CreatorRow = {
   platform: CreatorPlatform;
   handle: string;
   label: string;
-  displayName: string | null;
   profileUrl: string;
   /** Claimed and checked by the team (who claimed it stays private). */
   verified: boolean;
   importsBlocked: boolean;
 };
 
-const SELECT =
-  "id, platform, handle, display_name, profile_url, verified, imports_blocked";
+const SELECT = "id, platform, handle, profile_url, verified, imports_blocked";
 
 function toRow(row: {
   id: string;
   platform: string;
   handle: string;
-  display_name: string | null;
   profile_url: string;
   verified: boolean;
   imports_blocked: boolean;
@@ -44,7 +41,6 @@ function toRow(row: {
     platform: row.platform,
     handle: row.handle,
     label: creatorLabel(row.platform, row.handle),
-    displayName: row.display_name,
     profileUrl: row.profile_url,
     verified: row.verified,
     importsBlocked: row.imports_blocked,
@@ -136,16 +132,14 @@ export async function loadClaimedCreators(
   return byMember;
 }
 
+/** Finds or creates her profile (its link is computed by the database). */
 export async function resolveCreatorId(
   supabase: Supabase,
   identity: CreatorIdentity,
-  displayName: string | null,
 ): Promise<string | null> {
   const { data } = await supabase.rpc("resolve_creator", {
     p_platform: identity.platform,
     p_handle: identity.handle,
-    p_display_name: displayName,
-    p_profile_url: identity.profileUrl,
   });
   return typeof data === "string" ? data : null;
 }

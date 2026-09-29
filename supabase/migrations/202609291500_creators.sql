@@ -39,7 +39,6 @@ create table public.creators (
   id uuid primary key default gen_random_uuid(),
   platform text not null check (platform in ('instagram', 'tiktok', 'youtube', 'web')),
   handle text not null check (handle ~ '^[a-z0-9._-]{1,100}$'),
-  display_name text check (display_name is null or char_length(display_name) between 1 and 80),
   profile_url text not null check (profile_url ~ '^https://'),
   claimed_by uuid references auth.users(id) on delete set null,
   claimed_at timestamptz,
@@ -62,20 +61,29 @@ create policy "creators_select" on public.creators
 
 revoke select on public.creators from anon, authenticated;
 grant select (
-  id, platform, handle, display_name, profile_url, verified,
-  imports_blocked, created_at, updated_at
+  id, platform, handle, profile_url, verified, imports_blocked, created_at, updated_at
 ) on public.creators to authenticated;
 
 create trigger creators_updated_at before update on public.creators
   for each row execute function public.set_updated_at();
 
--- Finds or creates the creator an import comes from.
-create or replace function public.resolve_creator(
-  p_platform text,
-  p_handle text,
-  p_display_name text,
-  p_profile_url text
-)
+-- Her account page, from the platform and the handle only (a member never
+-- chooses where « Voir son compte » leads).
+create or replace function public.creator_profile_url(p_platform text, p_handle text)
+returns text
+language sql immutable parallel safe
+as $$
+  select case p_platform
+    when 'instagram' then 'https://www.instagram.com/' || p_handle || '/'
+    when 'tiktok' then 'https://www.tiktok.com/@' || p_handle
+    when 'youtube' then 'https://www.youtube.com/@' || p_handle
+    else 'https://' || p_handle
+  end;
+$$;
+
+-- Finds or creates the creator an import comes from. No name typed by a
+-- member: her page shows her @ or her domain.
+create or replace function public.resolve_creator(p_platform text, p_handle text)
 returns uuid
 language plpgsql security definer
 set search_path = public
@@ -86,17 +94,11 @@ begin
   if auth.uid() is null
     or p_platform not in ('instagram', 'tiktok', 'youtube', 'web')
     or p_handle !~ '^[a-z0-9._-]{1,100}$'
-    or p_profile_url !~ '^https://'
   then
     return null;
   end if;
-  insert into creators (platform, handle, display_name, profile_url)
-  values (
-    p_platform,
-    p_handle,
-    nullif(left(btrim(coalesce(p_display_name, '')), 80), ''),
-    left(p_profile_url, 300)
-  )
+  insert into creators (platform, handle, profile_url)
+  values (p_platform, p_handle, public.creator_profile_url(p_platform, p_handle))
   on conflict (platform, handle) do nothing;
   select id into cid from creators where platform = p_platform and handle = p_handle;
   return cid;
@@ -184,6 +186,43 @@ create policy "creator_withdrawals_select" on public.creator_withdrawals
 
 create trigger creator_withdrawals_updated_at before update on public.creator_withdrawals
   for each row execute function public.set_updated_at();
+
+-- A withdrawn post never comes back through a new copy, whatever the path
+-- (the app refuses first; this is the floor). Her own recipes are spared.
+create or replace function public.is_withdrawn_post(key text, author uuid)
+returns boolean
+language sql stable security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from creator_withdrawals w
+    left join creators c on c.id = w.creator_id
+    where w.source_key = key and c.claimed_by is distinct from author
+  );
+$$;
+
+create or replace function public.recipes_guard_withdrawn_posts()
+returns trigger
+language plpgsql
+set search_path = public
+as $$
+begin
+  if current_user in ('authenticated', 'anon')
+    and new.source_url is not null
+    and new.withdrawn_at is null
+    and (tg_op = 'INSERT' or new.source_url is distinct from old.source_url)
+    and public.is_withdrawn_post(public.recipe_source_key(new.source_url), new.author_id)
+  then
+    new.withdrawn_at := now();
+    new.visibility := 'private';
+  end if;
+  return new;
+end;
+$$;
+
+-- Runs after recipes_guard_creator_fields (triggers fire by name).
+create trigger recipes_guard_withdrawn_posts before insert or update on public.recipes
+  for each row execute function public.recipes_guard_withdrawn_posts();
 
 -- ---------------------------------------------------------------------------
 -- Claims: a verification code in the creator's bio (checked by the team) or
@@ -598,7 +637,7 @@ $$;
 -- ---------------------------------------------------------------------------
 -- Existing imports are tied to their creator when the link or the credit
 -- names one (same rules as src/lib/creators/identity.ts). A website is its
--- domain: no display name from a recipe author.
+-- domain, whoever wrote the recipe.
 -- ---------------------------------------------------------------------------
 create temporary table import_creators as
 with src as (
@@ -635,12 +674,7 @@ insert into public.creators (platform, handle, profile_url)
 select distinct on (platform, handle)
   platform,
   handle,
-  case platform
-    when 'instagram' then 'https://www.instagram.com/' || handle || '/'
-    when 'tiktok' then 'https://www.tiktok.com/@' || handle
-    when 'youtube' then 'https://www.youtube.com/@' || handle
-    else 'https://' || handle
-  end
+  public.creator_profile_url(platform, handle)
 from import_creators
 order by platform, handle
 on conflict (platform, handle) do nothing;
