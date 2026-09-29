@@ -2,8 +2,9 @@
 
 **Mange. Bouge. Bsahtek.**
 
-Coach nutrition + sport + communauté, casher-natif et culturellement judéo-oriental. Suivi du poids et de l'alimentation, coach IA (Kémia), recettes du patrimoine en versions Boutargue (authentique) et Protéine (allégée), planning de repas qui respecte viande/lait, chabbat et fêtes.
+Coach nutrition + communauté, casher-natif et culturellement judéo-oriental. Suivi du poids et de l'alimentation, coach IA (Kémia), recettes du patrimoine en versions Boutargue (authentique) et Protéine (allégée), planning de repas qui respecte viande/lait, chabbat et fêtes.
 
+- **Pivot en cours** : [`docs/PIVOT-2026.md`](./docs/PIVOT-2026.md) — app de cuisine collaborative et inclusive (le sport est supprimé)
 - **Source de vérité** : [`BRIEF-BBP.md`](./BRIEF-BBP.md)
 - **Guide opérationnel** : [`CLAUDE.md`](./CLAUDE.md)
 - **État du projet** : [`docs/STATE.md`](./docs/STATE.md) · **Décisions** : [`docs/DECISIONS.md`](./docs/DECISIONS.md)

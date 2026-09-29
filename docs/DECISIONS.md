@@ -1,5 +1,12 @@
 # DECISIONS.md — ADR courts (≤ 5 lignes chacun)
 
+## ADR-027 — Pivot vers la cuisine collaborative ; le sport est supprimé (29/09/2026)
+Demande de Jeremy : sa femme reprend l'app pour en faire une app de cuisine collaborative, « girly », ouverte
+à toutes les communautés et à tous les régimes (casher, halal, vegan, végétarien indien…), l'import social
+restant central. Le sport sort du code (pages, moteur, agent, seed, outil Kémia, badges/défis/série) ; la
+migration `202609291000` supprime ses tables et convertit les posts « séance » — à appliquer après déploiement.
+Le reste du pivot attend les réponses aux questions de cadrage de `docs/PIVOT-2026.md`.
+
 ## ADR-026 — SEO : `/r/[slug]` statique + ISR, JSON-LD Recipe, app privée `noindex` (03/09/2026)
 La page publique de recette est prérendue (SSG des 200 dernières recettes communautaires, `dynamicParams`
 pour le reste) et revalidée toutes les heures ; elle porte ingrédients, étapes, nutrition et un JSON-LD

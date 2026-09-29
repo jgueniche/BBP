@@ -1,6 +1,8 @@
 # CLAUDE.md — BBP (Boukha, Boutargue & Protéines)
 
-Coach nutrition + sport + communauté, casher-natif, culturellement judéo-oriental. Source de vérité : `BRIEF-BBP.md`. État courant : `docs/STATE.md`. Décisions : `docs/DECISIONS.md`.
+Coach nutrition + communauté, casher-natif, culturellement judéo-oriental. Source de vérité : `BRIEF-BBP.md`. État courant : `docs/STATE.md`. Décisions : `docs/DECISIONS.md`.
+
+> **Pivot en cours (session 17, ADR-027)** : BBP devient une app de cuisine collaborative, inclusive (tous régimes, toutes communautés) et « girly », reprise par la femme de Jeremy. Le sport est supprimé. Audit, benchmark, vision et questions de cadrage : `docs/PIVOT-2026.md`. Tant que le brief v2 n'est pas validé, ne rien construire de nouveau sur le suivi santé ni sur Kémia.
 
 ## Rituel de session
 1. Lire ce fichier + `docs/STATE.md` + la section §10.<N> de `BRIEF-BBP.md`.
@@ -21,8 +23,8 @@ Coach nutrition + sport + communauté, casher-natif, culturellement judéo-orien
 ## Arborescence
 ```
 src/
-  app/          (auth)/ (app)/ journal/ poids/ coach/ recettes/ planning/ sport/ communaute/ profil/ design/ admin/ api/
-  components/   ui/ coach/ journal/ recipes/ planner/ workout/ social/ illustrations/
+  app/          (auth)/ (app)/ journal/ poids/ coach/ recettes/ planning/ communaute/ profil/ design/ admin/ api/
+  components/   ui/ coach/ journal/ recipes/ planner/ social/ illustrations/
   ai/           prompts/ tools/ agents/ evals/
   lib/          supabase/ kashrut/ jewish-calendar/ nutrition/ import/ push/ utils/
   db/           seed/ types.ts (migrations : supabase/migrations/, cf. ADR-004)

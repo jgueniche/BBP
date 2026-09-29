@@ -1,6 +1,13 @@
 # STATE.md — État du projet BBP
 
-Dernière mise à jour : 03/09/2026 · Sessions 1 à 16
+Dernière mise à jour : 29/09/2026 · Sessions 1 à 17
+
+## Fait — Session 17 (Pivot : audit, veille, vision ; suppression du sport — ADR-027)
+- **Pivot demandé par Jeremy** : sa femme reprend BBP pour en faire une app de cuisine **collaborative**, « girly », ouverte à **toutes les communautés et tous les régimes** (casher, halal, vegan, végétarien, pescétarien, végétarien indien…), l'**import depuis les réseaux sociaux** restant central ; charte à refaire en session dédiée Claude Design.
+- **Audit complet + benchmark + vision + feuille de route + questions de cadrage** : `docs/PIVOT-2026.md` (verdict module par module : garder / généraliser / transformer / supprimer ; dette à traiter ; brief prêt à coller dans Claude Design).
+- **Sport supprimé** : pages `/sport` (programme, séance guidée, log rapide), moteur `lib/workout` + agent `workout_planner` + seed des 188 exercices, outil Kémia `create_workout_program` (prompt coach **v1.2.0**), carte sport de l'accueil, liens journal/profil, série « sport », badges `yalla`/`marcheur-belleville`, défis `paris-tel-aviv`/`hanouka-8-8`, posts « séance », illustrations haltère/chaussure, récap hebdo sans séances. Les niveaux d'activité de l'onboarding restent (ils nourrissent le TDEE).
+- **Migration `202609291000_drop_sport_module.sql` écrite mais NON appliquée** : supprime `workout_sessions`, `workout_programs`, `exercises`, convertit les posts « séance » en messages, retire série/badges/défis sport et resserre les contraintes. Types `src/db/types.ts` alignés sur le schéma post-migration.
+- 205 tests verts (−10 : moteur sport et badges sport), lint/typecheck/build OK.
 
 ## Fait — Session 16 (PWA, performance, accessibilité, SEO — brief §10.14, ADR-025/026)
 - **PWA Serwist (`@serwist/turbopack`)** : service worker compilé par esbuild et servi par la route `/serwist/sw.js` (scope `/` via `Service-Worker-Allowed`), précache de l'app shell (`/_next/static`, marque, page `/~offline`), stratégies par défaut Next + **cache dédié des recettes consultées** (`/recettes/[slug]`, mode cuisine, `/r/[slug]` — 60 entrées, 14 jours) ; **fallback `/~offline`** pour toute page non mise en cache. **Web Push intégré** dans le même worker (handlers `push`/`notificationclick` portés de `public/sw.js`, supprimé) : même scope, l'enregistrement est mis à jour en place — **les abonnements existants sont conservés**.
@@ -155,6 +162,8 @@ Limites : la base Supabase de BBP n'est pas exposée au connecteur MCP de cette 
 - Rien.
 
 ## Reste à faire (actions côté Jeremy)
+- **Répondre aux questions de cadrage du pivot** (`docs/PIVOT-2026.md` › Questions) : elles conditionnent le brief v2 et la session suivante.
+- **Après merge de la PR de la session 17** : appliquer la migration `202609291000_drop_sport_module.sql` sur Supabase (destructive : historique sport supprimé). Sans elle, rien ne casse — le code ne lit plus ces tables.
 - (Facultatif) `NEXT_PUBLIC_SITE_URL=https://bbp-mu.vercel.app` sur Vercel si un domaine custom arrive ; sans elle, le domaine de production Vercel est utilisé pour sitemap/JSON-LD/OG.
 0. **Notifications push** : générer les clés (`npx web-push generate-vapid-keys`) puis poser `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (mailto:ton@email) + `SUPABASE_SERVICE_ROLE_KEY` + `CRON_SECRET` sur Vercel. Sans elles, la carte Notifications l'explique et le cron répond 501 (aucun crash).
 1. **`GOOGLE_GENERATIVE_AI_API_KEY` sur Vercel** (+ `.env.local`) → active toute l'IA sur Gemini 3.7 Flash (ADR-010) : parsing texte/photo du journal, chat Kémia, vérificateur casher des recettes, génération « version Protéine ». Clé gratuite sur https://aistudio.google.com/apikey. Sans elle, mode dégradé opérationnel partout.
@@ -186,7 +195,6 @@ Limites : la base Supabase de BBP n'est pas exposée au connecteur MCP de cette 
 - Profil : ajouter un interrupteur « profil visible par la communauté » (aujourd'hui `visibility` reste `private` → les recettes affichent « Membre BBP » au lieu du prénom).
 - Import Instagram sans collage : poser `INSTAGRAM_OEMBED_TOKEN` (app Meta, facultatif).
 - Social : feed Realtime (v1 = rafraîchissement), mentions @, groupes privés sur invitation, réactions sur commentaires, pagination du feed (v1 = 30 derniers), Communauté dans la bottom bar à arbitrer ; notifications sociales (bsahtek/commentaire reçus) non branchées — l'infra push de la session 12 est prête à les porter.
-- Sport : graphique de volume par groupe musculaire ; page détail d'un exercice (erreurs fréquentes affichées en séance) ; sons discrets réels (v1 = vibration) ; bouton Sport dans la bottom bar à arbitrer (5 places prises) ; éval promptfoo du workout_planner avec clé IA.
 - Planning : vue mois avec dates hébraïques ; verrouillage de créneaux dans l'UI (le moteur le gère déjà) ; drag & drop tactile (v1 = souris/HTML5 + boutons swap) ; quota fin « 2 plannings/semaine free » à calibrer (garde-fou à 20 aujourd'hui) ; éval promptfoo du meal_planner dès la clé IA posée.
 
 ## Bugs connus
