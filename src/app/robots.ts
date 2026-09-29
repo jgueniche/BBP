@@ -15,6 +15,8 @@ export default function robots(): MetadataRoute.Robots {
           "/coach",
           "/planning",
           "/communaute",
+          "/createrices",
+          "/notifications",
           "/recettes",
           "/profil",
           "/admin",
