@@ -4,6 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { FeedPost, ReactionKind } from "@/components/social/post-card";
 import type { Database } from "@/db/types";
+import { loadCreatorLinks } from "@/lib/creators/server";
 import { loadMembers } from "@/lib/social/members";
 import { publicPhotoUrl } from "@/lib/social/photos";
 
@@ -76,6 +77,7 @@ export async function loadFeedPosts(
     { data: follows },
     { data: recipes },
     { data: groups },
+    creatorLinks,
   ] = await Promise.all([
     supabase
       .from("post_stats")
@@ -100,6 +102,7 @@ export async function loadFeedPosts(
     groupIds.length > 0
       ? supabase.from("groups").select("id, slug, name").in("id", groupIds)
       : Promise.resolve({ data: [] }),
+    loadCreatorLinks(supabase, { memberIds: authorIds }),
   ]);
 
   const statsById = new Map((stats ?? []).map((s) => [s.post_id, s]));
@@ -124,6 +127,7 @@ export async function loadFeedPosts(
       authorName: author?.name ?? null,
       authorHandle: author?.handle ?? null,
       authorAvatar: author?.avatarUrl ?? null,
+      authorVerified: creatorLinks.creatorsOf.has(post.author_id),
       isOwn: post.author_id === currentUserId,
       moderation: post.moderation,
       groupName: group?.name ?? null,

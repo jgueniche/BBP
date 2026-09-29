@@ -2,6 +2,7 @@ import { Pencil, Users } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
+import { VerifiedBadge } from "@/components/creators/verified-badge";
 import {
   RecipeCard,
   type RecipeCardData,
@@ -13,6 +14,8 @@ import { MemberMenu, UnblockButton } from "@/components/social/member-menu";
 import { PostCard } from "@/components/social/post-card";
 import { Button } from "@/components/ui/button";
 import { fr } from "@/i18n/fr";
+import { creatorPath } from "@/lib/creators/identity";
+import { loadClaimedCreators } from "@/lib/creators/server";
 import { loadFoodRules } from "@/lib/diets/preferences";
 import { verdictStatuses } from "@/lib/diets/recipes";
 import { loadFeedPosts } from "@/lib/social/feed";
@@ -59,34 +62,38 @@ export default async function MemberPage({
   }
 
   const isMe = member.id === user.id;
-  const [counts, followingRes, followsMeRes, blockRes] = await Promise.all([
-    loadProfileCounts(supabase, member.id),
-    isMe
-      ? Promise.resolve({ data: null })
-      : supabase
-          .from("follows")
-          .select("followed_id")
-          .eq("follower_id", user.id)
-          .eq("followed_id", member.id)
-          .maybeSingle(),
-    isMe
-      ? Promise.resolve({ data: null })
-      : supabase
-          .from("follows")
-          .select("follower_id")
-          .eq("follower_id", member.id)
-          .eq("followed_id", user.id)
-          .maybeSingle(),
-    isMe
-      ? Promise.resolve({ data: null })
-      : supabase
-          .from("blocks")
-          .select("blocked_id")
-          .eq("blocker_id", user.id)
-          .eq("blocked_id", member.id)
-          .maybeSingle(),
-  ]);
+  const [counts, followingRes, followsMeRes, blockRes, claimed] =
+    await Promise.all([
+      loadProfileCounts(supabase, member.id),
+      isMe
+        ? Promise.resolve({ data: null })
+        : supabase
+            .from("follows")
+            .select("followed_id")
+            .eq("follower_id", user.id)
+            .eq("followed_id", member.id)
+            .maybeSingle(),
+      isMe
+        ? Promise.resolve({ data: null })
+        : supabase
+            .from("follows")
+            .select("follower_id")
+            .eq("follower_id", member.id)
+            .eq("followed_id", user.id)
+            .maybeSingle(),
+      isMe
+        ? Promise.resolve({ data: null })
+        : supabase
+            .from("blocks")
+            .select("blocked_id")
+            .eq("blocker_id", user.id)
+            .eq("blocked_id", member.id)
+            .maybeSingle(),
+      loadClaimedCreators(supabase, [member.id]),
+    ]);
   const iBlocked = blockRes.data !== null;
+  // Her verified creator profiles (linked only while her profile is public).
+  const creatorProfiles = claimed.get(member.id) ?? [];
   const name = member.name ?? t.anonymous;
 
   return (
@@ -103,6 +110,7 @@ export default async function MemberPage({
             <h1 className="font-display text-3xl font-semibold tracking-tight">
               {name}
             </h1>
+            {creatorProfiles.length > 0 && <VerifiedBadge />}
             {followsMeRes.data && (
               <span className="rounded-full bg-ink-10 px-2 py-0.5 text-[11px] font-semibold text-ink-70">
                 {t.followsYou}
@@ -111,6 +119,23 @@ export default async function MemberPage({
           </div>
           {member.handle && (
             <p className="font-mono text-xs text-ink-50">@{member.handle}</p>
+          )}
+          {creatorProfiles.length > 0 && (
+            <p className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-ink-70">
+              {creatorProfiles.map((creator) => (
+                <Link
+                  key={creator.id}
+                  href={creatorPath(creator.platform, creator.handle)}
+                  className="font-semibold underline underline-offset-2"
+                >
+                  {creator.label}
+                  <span className="font-normal text-ink-50">
+                    {" "}
+                    · {fr.creators.platforms[creator.platform]}
+                  </span>
+                </Link>
+              ))}
+            </p>
           )}
           {member.bio && (
             <p className="max-w-prose whitespace-pre-wrap text-sm text-ink-70">
