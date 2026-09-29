@@ -9,7 +9,6 @@ export const fr = {
     accueilMobile: "Accueil",
     journal: "Journal",
     progres: "Progrès",
-    sport: "Sport",
     planning: "Planning",
     recettes: "Recettes",
     cuisine: "Cuisine",
@@ -42,13 +41,6 @@ export const fr = {
     plateEmpty:
       "Rien dans l'assiette pour l'instant — raconte-moi ton premier repas.",
     plannedLabel: "Prévu au planning :",
-    sportTitle: "Sport",
-    sportThisWeek: "cette semaine",
-    sportSession: "séance",
-    sportSessions: "séances",
-    sportKcalNote: "kcal, à titre indicatif",
-    sportEmpty: "Pas encore de programme — on t'en génère un en 2 minutes.",
-    sportCta: "Ouvrir le sport",
     planningTonight: "Ce soir au planning",
     planningEmpty:
       "Rien de prévu ce soir. Le planning te compose une semaine complète en un clic.",
@@ -482,81 +474,6 @@ export const fr = {
       backToPlanning: "Retour au planning",
     },
   },
-  sport: {
-    title: "Sport",
-    empty:
-      "Pas encore de programme. Dis-moi ton objectif et Kémia t'en taille un sur mesure.",
-    generate: "Créer mon programme",
-    regenerate: "Nouveau programme",
-    generating: "Kémia construit ton programme…",
-    generated: "Programme prêt, bsahtek !",
-    generatedFallback: "Programme prêt (construit maison, sans IA).",
-    generateFailed: "Impossible de générer le programme, réessaie.",
-    goal: "Objectif",
-    goals: {
-      force: "Force",
-      muscle: "Prise de muscle",
-      perte: "Perte de poids",
-      forme: "Remise en forme",
-    },
-    daysPerWeek: "Séances / semaine",
-    equipmentLabel: "Matériel",
-    equipments: {
-      rien: "Aucun matériel",
-      elastiques: "Élastiques",
-      halteres: "Haltères",
-      salle: "Salle complète",
-    },
-    levelLabel: "Niveau",
-    levels: {
-      debutant: "Débutant",
-      intermediaire: "Intermédiaire",
-      avance: "Avancé",
-    },
-    duration: "Durée cible (min)",
-    week: "Semaine",
-    start: "C'est parti",
-    setsShort: "×",
-    restShort: "repos",
-    quickLogTitle: "Activité express",
-    quickLogPlaceholder: "marche 30 min, foot 1h, natation 45 min…",
-    quickLogAdd: "Noter",
-    quickLogFailed: "Précise une durée, par exemple « marche 30 min ».",
-    weeklyKcal: "kcal de sport cette semaine",
-    history: "Historique",
-    historyEmpty:
-      "Aucune séance pour l'instant — la première est la plus belle.",
-    records: "Records perso",
-    recordsEmpty:
-      "Tes records apparaîtront dès que tu noteras des charges en séance.",
-    programBadgeAi: "par Kémia",
-    programBadgeFallback: "maison",
-    seance: {
-      exercise: "Exercice",
-      weightPlaceholder: "kg",
-      restTitle: "Repos",
-      skipRest: "Passer le repos",
-      finish: "Terminer",
-      rpe: "Effort ressenti",
-      save: "Enregistrer la séance",
-      saving: "Enregistrement…",
-      saved: "Séance enregistrée, mabrouk !",
-      exit: "Quitter",
-      doneTitle: "Séance terminée !",
-      minutes: "min",
-      kcalLabel: "kcal estimées",
-    },
-    reactions: [
-      "Bsahtek ! Une séance de plus dans la besace, ton futur toi te dit merci.",
-      "Mabrouk, tu l'as fait ! Va boire un grand verre d'eau, tu l'as mérité.",
-      "Et voilà le travail ! Régulier comme ça, tu vas me faire pleurer de fierté.",
-      "Tsahi ! Même pas mal — enfin si, mais du bon mal.",
-      "Encore une séance au compteur. Doucement mais sûrement, c'est comme ça qu'on gagne.",
-      "Chapeau ! Maintenant on s'étire un peu et on file sous la douche.",
-    ],
-    disclaimer:
-      "Écoute ton corps : douleur vive = on arrête. BBP ne remplace ni médecin ni kiné.",
-  },
   communaute: {
     title: "Communauté",
     tabs: {
@@ -567,12 +484,11 @@ export const fr = {
     empty: "Rien dans le fil pour l'instant. Poste le premier plat, bsahtek !",
     emptyFollowing: "Suis quelques membres et leur cuisine remplira ce fil.",
     composer: {
-      placeholder: "Raconte : ton plat, ta séance, ta petite victoire…",
+      placeholder: "Raconte : ton plat, ta petite victoire…",
       kinds: {
         text: "Message",
         shabbat_plate: "Plat de chabbat",
         progress: "Progrès",
-        workout: "Séance",
         recipe: "Recette",
       },
       attachRecipe: "Joindre une recette",
@@ -698,7 +614,6 @@ export const fr = {
     streaks: {
       title: "Séries",
       journal: "Journal",
-      sport: "Sport",
       pesee: "Pesée",
       days: "j",
       best: "record",
@@ -759,8 +674,8 @@ export const fr = {
       "Erev chabbat : plata, dafina, et on souffle. Chabbat chalom, neshama.",
       "La dafina n'attend pas — au feu doux dès maintenant. Chabbat chalom !",
     ],
-    recapBody: (journalDays: number, sessions: number) =>
-      `${journalDays} jour${journalDays > 1 ? "s" : ""} de journal et ${sessions} séance${sessions > 1 ? "s" : ""} cette semaine. Viens voir tes progrès !`,
+    recapBody: (journalDays: number) =>
+      `${journalDays} jour${journalDays > 1 ? "s" : ""} de journal cette semaine. Viens voir tes progrès !`,
   },
   profil: {
     title: "Moi",
@@ -821,7 +736,7 @@ export const fr = {
   },
   pwa: {
     manifestDescription:
-      "Coach nutrition, sport et communauté, casher-natif — journal, recettes, planning et Kémia, même hors ligne.",
+      "Coach nutrition et communauté, casher-natif — journal, recettes, planning et Kémia, même hors ligne.",
     offline: {
       title: "Tu es hors ligne",
       body: "Pas de réseau pour l'instant. Tes recettes déjà ouvertes restent lisibles, et tes repas notés attendent sagement la reconnexion.",

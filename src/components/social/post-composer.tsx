@@ -16,7 +16,7 @@ const t = fr.communaute.composer;
 
 type Attached = { id: string; title: string; icon: string | null };
 
-const KINDS = ["text", "shabbat_plate", "progress", "workout"] as const;
+const KINDS = ["text", "shabbat_plate", "progress"] as const;
 
 export function PostComposer({ groupId }: { groupId?: string | null }) {
   const router = useRouter();

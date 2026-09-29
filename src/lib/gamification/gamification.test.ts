@@ -10,9 +10,6 @@ function stats(overrides: Partial<GamificationStats> = {}): GamificationStats {
   return {
     journalDates: [],
     weighDates: [],
-    sportDates: [],
-    sessionsCount: 0,
-    walkKm: 0,
     publishedRecipes: 0,
     importedRecipes: 0,
     proteinRecipes: 0,
@@ -79,8 +76,8 @@ describe("streaks — chabbat tolerance", () => {
 });
 
 describe("badges — DoD: annexe B awarded correctly on fixtures", () => {
-  it("covers all 16 badges", () => {
-    expect(BADGE_RULES).toHaveLength(16);
+  it("covers the 14 remaining badges (sport ones removed)", () => {
+    expect(BADGE_RULES).toHaveLength(14);
   });
 
   const cases: Array<[string, BadgeContext]> = [
@@ -90,8 +87,6 @@ describe("badges — DoD: annexe B awarded correctly on fixtures", () => {
     ["roi-couscous", ctx({ publishedRecipes: 10 })],
     ["boutargue-dor", ctx({ maxRecipeLikes: 100 })],
     ["meme-approuve", ctx({ familyShared: true })],
-    ["yalla", ctx({ sessionsCount: 1 })],
-    ["marcheur-belleville", ctx({ walkKm: 100 })],
     ["belek-le-beurre", ctx({ meatWaitDays: 7 })],
     ["pessah-sans-hametz", ctx({ pessahCleanDays: 8 })],
     ["apres-fetes", ctx({ postFeastWeekDone: true })],
@@ -124,12 +119,10 @@ describe("XP and levels", () => {
         stats({
           journalDates: ["a", "b", "c"],
           weighDates: ["a"],
-          sessionsCount: 2,
           publishedRecipes: 1,
-          walkKm: 10,
         }),
       ),
-    ).toBe(30 + 5 + 40 + 30 + 20);
+    ).toBe(30 + 5 + 30);
   });
 
   it("maps XP to the five levels", () => {

@@ -1,7 +1,6 @@
 import {
   CalendarDays,
   ChevronRight,
-  Dumbbell,
   Flame,
   MoveDownRight,
   MoveUpRight,
@@ -86,7 +85,6 @@ export default async function AccueilPage() {
     logsRes,
     goalRes,
     weightsRes,
-    weekSessionsRes,
     planRes,
     summary,
     userCalendar,
@@ -112,12 +110,6 @@ export default async function AccueilPage() {
       .eq("user_id", user.id)
       .gte("date", addDays(today, -120))
       .order("date"),
-    supabase
-      .from("workout_sessions")
-      .select("label, kcal_est, date")
-      .eq("user_id", user.id)
-      .gte("date", weekStart)
-      .order("date", { ascending: false }),
     supabase
       .from("meal_plans")
       .select("id")
@@ -196,11 +188,6 @@ export default async function AccueilPage() {
   const weeklyChange = weeklyTrendChange(trendPoints);
 
   const journalStreak = summary.streaks.journal;
-  const weekSessions = weekSessionsRes.data ?? [];
-  const weekSportKcal = weekSessions.reduce(
-    (sum, s) => sum + (s.kcal_est ?? 0),
-    0,
-  );
 
   const firstName = profileRes.data?.display_name?.split(" ")[0] ?? null;
   const kemiaMessage =
@@ -412,49 +399,6 @@ export default async function AccueilPage() {
                     {t.planningCta}
                   </Link>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card className="gap-4">
-            <CardHeader className="items-center">
-              <CardTitle className="flex items-center gap-2">
-                <Dumbbell size={18} strokeWidth={2} aria-hidden />
-                {t.sportTitle}
-              </CardTitle>
-              <Link
-                href="/sport"
-                className="col-start-2 row-start-1 flex items-center gap-0.5 justify-self-end text-sm font-semibold text-boutargue-deep"
-              >
-                {t.sportCta}
-                <ChevronRight size={16} strokeWidth={2} aria-hidden />
-              </Link>
-            </CardHeader>
-            <CardContent>
-              {weekSessions.length > 0 ? (
-                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                  <p className="text-xl">
-                    <span className="font-mono font-semibold">
-                      {weekSessions.length}
-                    </span>{" "}
-                    <span className="text-sm text-ink-50">
-                      {weekSessions.length > 1
-                        ? t.sportSessions
-                        : t.sportSession}{" "}
-                      {t.sportThisWeek}
-                    </span>
-                  </p>
-                  {weekSportKcal > 0 && (
-                    <p className="text-sm text-ink-50">
-                      <span className="font-mono font-semibold text-ink-70">
-                        {Math.round(weekSportKcal)}
-                      </span>{" "}
-                      {t.sportKcalNote}
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <p className="text-sm text-ink-50">{t.sportEmpty}</p>
               )}
             </CardContent>
           </Card>

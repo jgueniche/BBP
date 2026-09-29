@@ -252,8 +252,8 @@ export function DesignShowcase() {
             ))}
           </div>
           <CoachBubble expression="fiere">
-            Trois séances cette semaine, mabrouk ma brik ! On vise la même chose
-            la semaine prochaine ?
+            Trois recettes testées cette semaine, mabrouk ma brik ! On en tente
+            une nouvelle la semaine prochaine ?
           </CoachBubble>
         </div>
       </Section>

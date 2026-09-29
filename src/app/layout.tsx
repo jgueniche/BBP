@@ -28,7 +28,7 @@ const jetbrains = JetBrains_Mono({
 });
 
 const defaultTitle = `${fr.app.name} — ${fr.app.fullName}`;
-const description = `${fr.app.tagline} Coach nutrition, sport et communauté, casher-natif.`;
+const description = `${fr.app.tagline} Coach nutrition et communauté, casher-natif.`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),

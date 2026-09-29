@@ -18,7 +18,7 @@ async function requireUser() {
 
 const postSchema = z.object({
   text: z.string().min(2).max(1000),
-  kind: z.enum(["text", "recipe", "progress", "shabbat_plate", "workout"]),
+  kind: z.enum(["text", "recipe", "progress", "shabbat_plate"]),
   recipeId: z.uuid().nullable(),
   groupId: z.uuid().nullable(),
 });

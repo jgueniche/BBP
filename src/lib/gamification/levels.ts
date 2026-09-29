@@ -25,9 +25,6 @@ export function levelForXp(xp: number) {
 export type GamificationStats = {
   journalDates: string[]; // YYYY-MM-DD, deduped
   weighDates: string[];
-  sportDates: string[];
-  sessionsCount: number;
-  walkKm: number;
   publishedRecipes: number;
   importedRecipes: number;
   proteinRecipes: number;
@@ -47,10 +44,8 @@ export function computeXp(stats: GamificationStats): number {
   return (
     stats.journalDates.length * 10 +
     stats.weighDates.length * 5 +
-    stats.sessionsCount * 20 +
     stats.publishedRecipes * 30 +
     stats.importedRecipes * 10 +
-    stats.postsCount * 5 +
-    Math.round(stats.walkKm) * 2
+    stats.postsCount * 5
   );
 }

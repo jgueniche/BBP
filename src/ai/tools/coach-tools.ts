@@ -10,7 +10,6 @@ import { computeTotals, type FoodLogItem } from "@/lib/nutrition/items";
 import { computeTrend, weeklyTrendChange } from "@/lib/nutrition/ewma";
 import { generateAndStoreWeek } from "@/lib/planning/generate";
 import { toDateString, weekStartOf } from "@/lib/planning/week";
-import { generateAndStoreProgram } from "@/lib/workout/generate";
 
 const NOT_AVAILABLE = (session: string) => ({
   available: false,
@@ -272,40 +271,6 @@ export function buildCoachTools(params: {
           mealsPlanned: result.mealsPlanned,
           url: `/planning?semaine=${weekStart}`,
           note: "Planning validé par les règles casher. Invite la personne à le voir sur la page Planning.",
-        };
-      },
-    }),
-
-    create_workout_program: tool({
-      description:
-        "Crée un programme sportif de 4 semaines et l'enregistre. À utiliser quand la personne demande un programme d'entraînement.",
-      inputSchema: z.object({
-        goal: z.enum(["force", "muscle", "perte", "forme"]).default("forme"),
-        daysPerWeek: z.number().int().min(1).max(6).default(3),
-        equipment: z
-          .enum(["rien", "elastiques", "halteres", "salle"])
-          .default("rien"),
-        level: z
-          .enum(["debutant", "intermediaire", "avance"])
-          .default("debutant"),
-        durationMin: z.number().int().min(15).max(120).default(45),
-      }),
-      execute: async ({ goal, daysPerWeek, equipment, level, durationMin }) => {
-        const result = await generateAndStoreProgram(supabase, userId, {
-          goal,
-          daysPerWeek,
-          equipment,
-          level,
-          durationMin,
-        });
-        if (!result.ok) {
-          return { ok: false, reason: "Génération impossible pour l'instant." };
-        }
-        return {
-          ok: true,
-          daysPerWeek: result.daysPerWeek,
-          url: "/sport",
-          note: "Programme de 4 semaines validé (ids et volume). Invite la personne à le voir sur la page Sport.",
         };
       },
     }),

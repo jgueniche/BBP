@@ -117,31 +117,6 @@ export function IlluKemiaPlatter(props: IllustrationProps) {
   );
 }
 
-export function IlluHaltere(props: IllustrationProps) {
-  return (
-    <Frame {...props} label="Haltère">
-      <path d="M22 28 h20 v8 h-20 z" />
-      <rect
-        x="12"
-        y="20"
-        width="8"
-        height="24"
-        rx="3"
-        fill="var(--boutargue-soft)"
-      />
-      <rect
-        x="44"
-        y="20"
-        width="8"
-        height="24"
-        rx="3"
-        fill="var(--boutargue-soft)"
-      />
-      <path d="M8 26 v12 M56 26 v12" />
-    </Frame>
-  );
-}
-
 export function IlluBalance(props: IllustrationProps) {
   return (
     <Frame {...props} label="Balance">
@@ -149,20 +124,6 @@ export function IlluBalance(props: IllustrationProps) {
       <path d="M24 22 a10 10 0 0 1 16 0" />
       <path d="M32 27 l4 -5" stroke="var(--boutargue)" />
       <path d="M22 38 h20" strokeDasharray="1 5" />
-    </Frame>
-  );
-}
-
-export function IlluChaussure(props: IllustrationProps) {
-  return (
-    <Frame {...props} label="Chaussure de sport">
-      <path d="M8 42 q1 -8 9 -9 l7 -1 8 -9 q5 8 15 10 l7 1 q4 1 4 8 z" />
-      <path
-        d="M8 42 h50 v4 a3 3 0 0 1 -3 3 h-44 a3 3 0 0 1 -3 -3 z"
-        fill="var(--boutargue-soft)"
-      />
-      <path d="M27 30 l4 3 M32 25 l4 3" />
-      <path d="M14 38 q7 -2 11 2" stroke="var(--boutargue)" />
     </Frame>
   );
 }
@@ -357,9 +318,7 @@ export const ILLUSTRATIONS = [
   { name: "Olive", Component: IlluOlive },
   { name: "Harissa", Component: IlluHarissa },
   { name: "Plateau de kémia", Component: IlluKemiaPlatter },
-  { name: "Haltère", Component: IlluHaltere },
   { name: "Balance", Component: IlluBalance },
-  { name: "Chaussure", Component: IlluChaussure },
   { name: "Cœur", Component: IlluCoeur },
   { name: "Étoile", Component: IlluEtoile },
   { name: "Bougies de chabbat", Component: IlluBougies },

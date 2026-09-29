@@ -8,7 +8,7 @@ export type BadgeContext = {
 
 type BadgeRule = { slug: string; earned: (ctx: BadgeContext) => boolean };
 
-/** Annexe B — the 16 badges, one pure predicate each (fixture-testable). */
+/** Annexe B minus the two sport badges — one pure predicate each (fixture-testable). */
 export const BADGE_RULES: BadgeRule[] = [
   {
     slug: "premiere-boulette",
@@ -22,8 +22,6 @@ export const BADGE_RULES: BadgeRule[] = [
   { slug: "roi-couscous", earned: ({ stats }) => stats.publishedRecipes >= 10 },
   { slug: "boutargue-dor", earned: ({ stats }) => stats.maxRecipeLikes >= 100 },
   { slug: "meme-approuve", earned: ({ stats }) => stats.familyShared },
-  { slug: "yalla", earned: ({ stats }) => stats.sessionsCount >= 1 },
-  { slug: "marcheur-belleville", earned: ({ stats }) => stats.walkKm >= 100 },
   { slug: "belek-le-beurre", earned: ({ stats }) => stats.meatWaitDays >= 7 },
   {
     slug: "pessah-sans-hametz",

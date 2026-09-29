@@ -5,7 +5,6 @@ import {
   CalendarDays,
   ChartLine,
   CookingPot,
-  Dumbbell,
   House,
   UserRound,
   UsersRound,
@@ -23,7 +22,6 @@ const suiviItems = [
   { href: "/accueil", label: fr.nav.accueil, icon: House },
   { href: "/journal", label: fr.nav.journal, icon: BookOpen },
   { href: "/progres", label: fr.nav.progres, icon: ChartLine },
-  { href: "/sport", label: fr.nav.sport, icon: Dumbbell },
   { href: "/planning", label: fr.nav.planning, icon: CalendarDays },
 ] as const;
 

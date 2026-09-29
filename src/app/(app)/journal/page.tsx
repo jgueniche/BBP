@@ -3,7 +3,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Droplets,
-  Dumbbell,
   History,
   Scale,
   Timer,
@@ -400,13 +399,6 @@ export default async function JournalPage({
             >
               <Scale size={16} strokeWidth={2} aria-hidden />
               {fr.poids.linkFromJournal}
-            </Link>
-            <Link
-              href="/sport"
-              className="flex items-center gap-1.5 text-sm font-semibold text-boutargue-deep"
-            >
-              <Dumbbell size={16} strokeWidth={2} aria-hidden />
-              {fr.sport.title}
             </Link>
           </div>
         </aside>

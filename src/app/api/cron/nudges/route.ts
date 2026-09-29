@@ -257,20 +257,13 @@ async function recapBody(
   const weekAgo = new Date(Date.parse(parisDate) - 7 * 86_400_000)
     .toISOString()
     .slice(0, 10);
-  const [logsRes, sessionsRes] = await Promise.all([
-    supabase
-      .from("food_logs")
-      .select("date")
-      .eq("user_id", userId)
-      .gte("date", weekAgo),
-    supabase
-      .from("workout_sessions")
-      .select("id")
-      .eq("user_id", userId)
-      .gte("date", weekAgo),
-  ]);
-  const journalDays = new Set((logsRes.data ?? []).map((l) => l.date)).size;
-  return t.recapBody(journalDays, (sessionsRes.data ?? []).length);
+  const { data: logs } = await supabase
+    .from("food_logs")
+    .select("date")
+    .eq("user_id", userId)
+    .gte("date", weekAgo);
+  const journalDays = new Set((logs ?? []).map((l) => l.date)).size;
+  return t.recapBody(journalDays);
 }
 
 /** Weekly recap by email too, when a Resend key is configured. Best-effort. */

@@ -34,7 +34,7 @@ function exemptDates(days: CalendarDay[]): Set<string> {
 
 export type GamificationSummary = {
   stats: GamificationStats;
-  streaks: Record<"journal" | "sport" | "pesee", StreakResult>;
+  streaks: Record<"journal" | "pesee", StreakResult>;
   xp: number;
   level: ReturnType<typeof levelForXp>;
   earned: string[];
@@ -53,7 +53,6 @@ export async function evaluateGamification(
     { data: profile },
     { data: foodLogs },
     { data: weights },
-    { data: sessions },
     { data: myRecipes },
     { data: myPosts },
     { data: planSlots },
@@ -77,11 +76,6 @@ export async function evaluateGamification(
       .gte("date", since)
       .order("date"),
     supabase
-      .from("workout_sessions")
-      .select("date, kind, label, duration_min")
-      .eq("user_id", userId)
-      .gte("date", since),
-    supabase
       .from("recipes")
       .select("id, visibility, status, source_url, version_kind")
       .eq("author_id", userId),
@@ -96,11 +90,6 @@ export async function evaluateGamification(
 
   const journalDates = [...new Set((foodLogs ?? []).map((l) => l.date))];
   const weighDates = [...new Set((weights ?? []).map((w) => w.date))];
-  const sportDates = [...new Set((sessions ?? []).map((s) => s.date))];
-
-  const walkKm = (sessions ?? [])
-    .filter((s) => s.kind === "activity" && /marche|rando/i.test(s.label ?? ""))
-    .reduce((km, s) => km + ((s.duration_min ?? 0) / 60) * 5, 0);
 
   const published = (myRecipes ?? []).filter(
     (r) => r.visibility === "community" && r.status === "published",
@@ -248,9 +237,6 @@ export async function evaluateGamification(
   const stats: GamificationStats = {
     journalDates,
     weighDates,
-    sportDates,
-    sessionsCount: (sessions ?? []).length,
-    walkKm,
     publishedRecipes: published.length,
     importedRecipes: (myRecipes ?? []).filter((r) => r.source_url !== null)
       .length,
@@ -271,7 +257,6 @@ export async function evaluateGamification(
   const exempt = exemptDates(horizonDays);
   const streaks = {
     journal: computeStreakFrom(journalDates, exempt, today),
-    sport: computeStreakFrom(sportDates, exempt, today),
     pesee: computeStreakFrom(weighDates, exempt, today),
   };
 
@@ -330,13 +315,9 @@ export async function evaluateGamification(
     const progress =
       metric === "journal_days"
         ? journalDates.length
-        : metric === "distance_km"
-          ? Math.round(walkKm * 10) / 10
-          : metric === "sessions"
-            ? stats.sessionsCount
-            : metric === "protein_recipes"
-              ? stats.proteinRecipes
-              : 0;
+        : metric === "protein_recipes"
+          ? stats.proteinRecipes
+          : 0;
     await supabase
       .from("challenge_participants")
       .update({ progress })

@@ -1,4 +1,4 @@
-import { BookOpen, Dumbbell, Flame, Scale, Star } from "lucide-react";
+import { BookOpen, Flame, Scale, Star } from "lucide-react";
 import { redirect } from "next/navigation";
 
 import { ChallengeButton } from "./challenge-button";
@@ -36,7 +36,6 @@ const tp = fr.poids;
 
 const STREAK_META = [
   { kind: "journal" as const, label: t.streaks.journal, Icon: BookOpen },
-  { kind: "sport" as const, label: t.streaks.sport, Icon: Dumbbell },
   { kind: "pesee" as const, label: t.streaks.pesee, Icon: Scale },
 ];
 
