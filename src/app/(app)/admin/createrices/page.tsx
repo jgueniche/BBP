@@ -127,7 +127,7 @@ export default async function CreatorsAdminPage() {
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-0.5 font-semibold underline underline-offset-2"
                     >
-                      {t.openAccount}
+                      {creator.platform === "web" ? t.openSite : t.openAccount}
                       <ExternalLink size={11} strokeWidth={2} aria-hidden />
                     </a>
                   </p>

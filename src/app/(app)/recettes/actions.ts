@@ -455,6 +455,8 @@ export async function createProteinVersion(id: string) {
       icon: source.icon,
       nutrition_per_serving: nutrition,
       substitutions: generated.substitutions,
+      // A variant of a withdrawn copy stays private and marked too.
+      withdrawn_at: source.withdrawn_at ? new Date().toISOString() : null,
     })
     .select("id")
     .single();

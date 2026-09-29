@@ -748,6 +748,7 @@ export const fr = {
       requester: "Demandée par",
       method: { bio: "Code dans la bio", site: "Code sur le site" },
       openAccount: "Ouvrir le compte",
+      openSite: "Ouvrir le site",
       approve: "Valider",
       reject: "Refuser",
       rejectPrompt: "Motif du refus (montré à la personne) :",

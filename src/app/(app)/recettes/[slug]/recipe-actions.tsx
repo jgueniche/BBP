@@ -22,11 +22,14 @@ export function RecipeActions({
   slug,
   isOwner,
   canGenerateProtein,
+  canShare = true,
 }: {
   recipeId: string;
   slug: string;
   isOwner: boolean;
   canGenerateProtein: boolean;
+  /** A copy withdrawn at the creator's request is not shared again. */
+  canShare?: boolean;
 }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -103,15 +106,17 @@ export function RecipeActions({
         <GitFork />
         {t.fork}
       </Button>
-      <Button
-        variant="secondary"
-        size="sm"
-        onClick={onShareToFeed}
-        disabled={busy}
-      >
-        <Megaphone />
-        {t.shareToFeed}
-      </Button>
+      {canShare && (
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={onShareToFeed}
+          disabled={busy}
+        >
+          <Megaphone />
+          {t.shareToFeed}
+        </Button>
+      )}
       {canGenerateProtein && (
         <Button size="sm" onClick={onGenerateProtein} disabled={busy}>
           <Sparkles />

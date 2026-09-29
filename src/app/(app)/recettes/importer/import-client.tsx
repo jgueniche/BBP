@@ -5,6 +5,7 @@ import {
   Camera,
   ClipboardPaste,
   ExternalLink,
+  Info,
   Link2,
   Sparkles,
 } from "lucide-react";
@@ -57,12 +58,21 @@ function GateCard({ gate, onReset }: { gate: Gate; onReset: () => void }) {
   return (
     <div className="flex flex-col gap-3 rounded-lg bg-lilas p-4">
       <p className="flex items-start gap-2 text-sm text-ink">
-        <BadgeCheck
-          size={18}
-          strokeWidth={2}
-          className="mt-0.5 shrink-0"
-          aria-hidden
-        />
+        {gate.code === "official" ? (
+          <BadgeCheck
+            size={18}
+            strokeWidth={2}
+            className="mt-0.5 shrink-0"
+            aria-hidden
+          />
+        ) : (
+          <Info
+            size={18}
+            strokeWidth={2}
+            className="mt-0.5 shrink-0"
+            aria-hidden
+          />
+        )}
         {(gate.code === "official"
           ? c.official
           : gate.code === "withdrawn"

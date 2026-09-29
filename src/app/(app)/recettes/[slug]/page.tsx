@@ -267,7 +267,7 @@ export default async function RecipePage({
         {sourceCredit && (
           <CreatorCredit view={sourceCredit} recipeId={recipe.id} />
         )}
-        {creator && !creator.verified && (
+        {creator && !creator.verified && !recipe.withdrawn_at && (
           <p className="text-[11px] text-ink-50">
             <Link
               href={`${creatorPath(creator.platform, creator.handle)}?retrait=${recipe.id}#retrait`}
@@ -386,6 +386,7 @@ export default async function RecipePage({
             canGenerateProtein={
               recipe.version_kind === "boutargue" && !hasProteinVersion
             }
+            canShare={!recipe.withdrawn_at}
           />
         </div>
       )}
