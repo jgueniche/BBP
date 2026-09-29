@@ -5,8 +5,8 @@ Dernière mise à jour : 29/09/2026 · Sessions 1 à 18 + charte Claude Design (
 ## Fait — Veille « plateforme sociale de la cuisine » (29/09/2026, ADR-031)
 - **Demande de Jeremy** : devenir LA plateforme sociale de la cuisine (il n'en existe pas de vraie) ; régimes pour tous mais **plus rien de communautaire** ni de détail religieux ; étiquettes et sous-catégories créées par les membres et les créatrices.
 - **Veille** : 7 recherches parallèles (communautés de recettes, applis sociales récentes, grandes plateformes et marché, économie des créatrices, mécaniques sociales, régimes et étiquettes, risques DSA/droit d'auteur/AI Act) → `docs/BENCHMARK-SOCIAL-2026.md`. Limite : startups FR/UE non recherchées (quota de recherche épuisé).
-- **Proposition** (à valider) : vision réécrite, régimes simples, fonctions priorisées, conformité, feuille de route 19 → 28 → `docs/PLAN-SOCIAL-2026.md`.
-- **Prochaine session proposée : 19 — Brief v3 & régimes simples** (réécrire `BRIEF.md` et `CLAUDE.md`, retirer le module casher détaillé et le calendrier juif, préférences simples + verdict par recette). La feuille de route de `BRIEF.md` §9 sera remplacée à cette occasion.
+- **Proposition validée par Jeremy le 29/09/2026** : vision réécrite, régimes simples, fonctions priorisées, conformité, feuille de route 19 → 28 → `docs/PLAN-SOCIAL-2026.md`.
+- **Prochaine session : 19 — Brief v3 & régimes simples** (réécrire `BRIEF.md` et `CLAUDE.md`, retirer le module casher détaillé et le calendrier juif, préférences simples + verdict par recette). La feuille de route de `BRIEF.md` §9 sera remplacée à cette occasion.
 
 ## Fait — Charte Claude Design : tokens appliqués (ADR-030)
 - **Canevas Claude Design** (privé, à partager depuis son menu) : https://claude.ai/artifact/FJCbHw9jW7rQzZGwxJ9EXD — logo, monogramme, avatar Copine, palette clair/sombre, typo, composants, pastilles, icônes d'app, OG, 11 écrans mobiles + onboarding, fiche recette et fil desktop, états.

@@ -1,6 +1,6 @@
 # PLAN-SOCIAL-2026.md — Devenir la plateforme sociale de la cuisine
 
-Proposition du 29/09/2026, à valider par Jeremy. S'appuie sur la veille `docs/BENCHMARK-SOCIAL-2026.md` (7 recherches parallèles, sources datées) et complète `docs/PIVOT-2026.md` §3.
+Proposition du 29/09/2026, **validée par Jeremy le 29/09/2026** (vision, retrait du détail casher et du calendrier juif, ordre des sessions). S'appuie sur la veille `docs/BENCHMARK-SOCIAL-2026.md` (7 recherches parallèles, sources datées) et complète `docs/PIVOT-2026.md` §3.
 
 ## 1. Le constat en cinq points
 1. **Il n'existe pas de vraie plateforme sociale de la cuisine du quotidien.** La cuisine vit sur TikTok, Instagram, Pinterest et YouTube, mais aucune de ces plateformes ne permet de cuisiner à partir de ses contenus (pas de liste d'ingrédients, pas de portions, pas de courses ; le seul test de fiche recette de TikTok date de 2021).

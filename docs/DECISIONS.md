@@ -2,7 +2,7 @@
 
 ## ADR-031 — Régimes simples, sans communautarisme ; la finesse vient des membres (29/09/2026)
 Décision de Jeremy : l'app n'est plus communautaire ; elle s'adapte à tous les régimes (casher, halal, vegan…) sans entrer
-dans le détail des traditions. Mise en œuvre proposée (à valider, session 19, `docs/PLAN-SOCIAL-2026.md` §3) : préférences
+dans le détail des traditions. Mise en œuvre validée le 29/09/2026 (session 19, `docs/PLAN-SOCIAL-2026.md` §3) : préférences
 simples en opt-in, verdict par recette (compatible · adaptable · à vérifier), attributs d'ingrédients neutres ; retrait de
 viande/lait/parvé, délais, Pessah et du calendrier juif ; étiquettes et catégories créées par les membres et les créatrices.
 
