@@ -79,7 +79,8 @@ self.addEventListener("push", (event) => {
     self.registration.showNotification(title, {
       body: payload.body || "",
       icon: "/brand/png/icon-192.png",
-      badge: "/brand/png/favicon-32.png",
+      // Monochrome: Android only keeps the alpha channel of the badge.
+      badge: "/brand/png/badge-96.png",
       data: { url: payload.url || "/" },
     }),
   );
