@@ -37,6 +37,8 @@ export default async function ModerationPage() {
         .from("reports")
         .select("id, target_kind, target_id, reason, created_at")
         .eq("status", "open")
+        // Removal requests from creators have their own queue.
+        .in("target_kind", ["post", "comment"])
         .order("created_at")
         .limit(50),
       supabase
@@ -93,6 +95,12 @@ export default async function ModerationPage() {
           className="text-sm font-semibold underline underline-offset-2"
         >
           {t.indicatorLink}
+        </Link>
+        <Link
+          href="/admin/createrices"
+          className="text-sm font-semibold underline underline-offset-2"
+        >
+          {fr.creators.admin.link}
         </Link>
       </div>
 
