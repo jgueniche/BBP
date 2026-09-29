@@ -1,14 +1,19 @@
-import { Users } from "lucide-react";
+import { Bell, UserRound, Users } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { FriendsCooked } from "@/components/social/friends-cooked";
 import { GroupDialog } from "@/components/social/group-dialog";
 import { PostCard } from "@/components/social/post-card";
 import { PostComposer } from "@/components/social/post-composer";
+import { SuggestionsList } from "@/components/social/suggestions-list";
+import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IlluCasserole } from "@/components/illustrations";
 import { fr } from "@/i18n/fr";
 import { loadFeedPosts } from "@/lib/social/feed";
+import { loadSuggestions } from "@/lib/social/friends";
+import { profileHref } from "@/lib/social/handles";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils/cn";
@@ -22,10 +27,13 @@ export default async function CommunautePage({
   searchParams: Promise<{ onglet?: string }>;
 }) {
   const params = await searchParams;
+  // « abonnements » is the address of the tab before session 21.
   const tab =
-    params.onglet === "abonnements" || params.onglet === "groupes"
-      ? params.onglet
-      : "tous";
+    params.onglet === "copines" || params.onglet === "abonnements"
+      ? "copines"
+      : params.onglet === "groupes"
+        ? "groupes"
+        : "tous";
 
   if (!isSupabaseConfigured) {
     return (
@@ -44,11 +52,59 @@ export default async function CommunautePage({
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  const [{ data: unread }, { data: me }] = await Promise.all([
+    supabase.rpc("unread_notification_count"),
+    supabase
+      .from("profiles")
+      .select("username")
+      .eq("id", user.id)
+      .maybeSingle(),
+  ]);
+  const unreadCount = typeof unread === "number" ? unread : 0;
+
   return (
     <section className="flex w-full max-w-2xl flex-col gap-4">
-      <h1 className="font-display text-3xl font-semibold tracking-tight">
-        {t.title}
-      </h1>
+      <header className="flex items-center gap-2">
+        <h1 className="font-display text-3xl font-semibold tracking-tight">
+          {t.title}
+        </h1>
+        <div className="ml-auto flex items-center gap-1.5">
+          <Link
+            href="/notifications"
+            aria-label={
+              unreadCount === 0
+                ? fr.notifications.title
+                : `${fr.notifications.title} : ${
+                    unreadCount === 1
+                      ? fr.notifications.unreadCountOne
+                      : fr.notifications.unreadCount.replace(
+                          "{n}",
+                          String(unreadCount),
+                        )
+                  }`
+            }
+            className="relative rounded-full border bg-card p-2 text-ink-70 shadow-soft hover:text-ink"
+          >
+            <Bell size={18} strokeWidth={2} aria-hidden />
+            {unreadCount > 0 && (
+              <span
+                aria-hidden
+                className="absolute -top-1 -right-1 min-w-5 rounded-full bg-primary px-1 text-center font-mono text-[11px] leading-5 font-semibold text-primary-foreground"
+              >
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
+          </Link>
+          <Button asChild size="sm" variant="secondary">
+            <Link
+              href={profileHref({ id: user.id, handle: me?.username ?? null })}
+            >
+              <UserRound />
+              {t.myProfile}
+            </Link>
+          </Button>
+        </div>
+      </header>
 
       <nav
         aria-label={t.title}
@@ -57,7 +113,7 @@ export default async function CommunautePage({
         {(
           [
             ["tous", t.tabs.all, "/communaute"],
-            ["abonnements", t.tabs.following, "/communaute?onglet=abonnements"],
+            ["copines", t.tabs.following, "/communaute?onglet=copines"],
             ["groupes", t.tabs.groups, "/communaute?onglet=groupes"],
           ] as const
         ).map(([key, label, href]) => (
@@ -77,35 +133,74 @@ export default async function CommunautePage({
 
       {tab === "groupes" ? (
         <GroupsTab userId={user.id} />
+      ) : tab === "copines" ? (
+        <FriendsTab userId={user.id} />
       ) : (
-        <FeedTab userId={user.id} onlyFollowed={tab === "abonnements"} />
+        <FeedTab userId={user.id} />
       )}
     </section>
   );
 }
 
-async function FeedTab({
-  userId,
-  onlyFollowed,
-}: {
-  userId: string;
-  onlyFollowed: boolean;
-}) {
+async function FeedTab({ userId }: { userId: string }) {
   const supabase = await createClient();
-  const posts = await loadFeedPosts(supabase, userId, { onlyFollowed });
+  const posts = await loadFeedPosts(supabase, userId);
 
   return (
     <div className="flex flex-col gap-3">
-      {!onlyFollowed && <PostComposer />}
+      <PostComposer />
       {posts.length === 0 ? (
         <EmptyState
           illustration={<IlluCasserole size={64} />}
-          title={onlyFollowed ? t.emptyFollowing : t.empty}
+          title={t.empty}
         />
       ) : (
         posts.map((post) => (
           <PostCard key={post.id} post={post} currentUserId={userId} />
         ))
+      )}
+    </div>
+  );
+}
+
+/** « Mes copines »: what the people I follow cooked, then their posts. */
+async function FriendsTab({ userId }: { userId: string }) {
+  const supabase = await createClient();
+  const { data: follows } = await supabase
+    .from("follows")
+    .select("followed_id")
+    .eq("follower_id", userId)
+    .limit(1000);
+  const followedIds = (follows ?? []).map((f) => f.followed_id);
+  const [cooked, posts] = await Promise.all([
+    loadFeedPosts(supabase, userId, {
+      onlyFollowed: true,
+      kind: "cooked",
+      limit: 12,
+    }),
+    loadFeedPosts(supabase, userId, { onlyFollowed: true }),
+  ]);
+  const suggestions =
+    followedIds.length < 3 || posts.length === 0
+      ? await loadSuggestions(supabase, userId, followedIds)
+      : null;
+
+  return (
+    <div className="flex flex-col gap-4">
+      <FriendsCooked posts={cooked} />
+      {posts.length === 0 ? (
+        <EmptyState
+          illustration={<IlluCasserole size={64} />}
+          title={t.emptyFollowing}
+        />
+      ) : null}
+      {suggestions && <SuggestionsList suggestions={suggestions} />}
+      {posts.length > 0 && (
+        <div className="flex flex-col gap-3">
+          {posts.map((post) => (
+            <PostCard key={post.id} post={post} currentUserId={userId} />
+          ))}
+        </div>
       )}
     </div>
   );

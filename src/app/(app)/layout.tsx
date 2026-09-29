@@ -17,24 +17,29 @@ export default async function AppLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  let unread = 0;
   if (isSupabaseConfigured) {
     const supabase = await createClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
     if (user) {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("onboarding_completed_at")
-        .eq("id", user.id)
-        .maybeSingle();
+      const [{ data: profile }, { data: count }] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("onboarding_completed_at")
+          .eq("id", user.id)
+          .maybeSingle(),
+        supabase.rpc("unread_notification_count"),
+      ]);
       if (!profile?.onboarding_completed_at) redirect("/onboarding");
+      unread = typeof count === "number" ? count : 0;
     }
   }
 
   return (
     <div className="min-h-dvh lg:flex">
-      <SidebarNav />
+      <SidebarNav unread={unread} />
       <div className="min-w-0 flex-1">
         <main
           id="main"
@@ -43,7 +48,7 @@ export default async function AppLayout({
           {children}
         </main>
       </div>
-      <BottomNav />
+      <BottomNav unread={unread} />
       <InstallBanner />
     </div>
   );

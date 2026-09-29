@@ -92,7 +92,7 @@ export function CommentsSection({
   }
 
   return (
-    <section className="flex flex-col gap-2">
+    <section id="astuces" className="flex scroll-mt-20 flex-col gap-2">
       <h2 className="font-display text-lg font-semibold">
         {t.title}
         {tips.length > 0 && (

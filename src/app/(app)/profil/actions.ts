@@ -248,24 +248,6 @@ export async function setPushPreference(kind: PushKind, enabled: boolean) {
   return { ok: !error };
 }
 
-/** Opening the inbox marks everything as seen (badges clear). */
-export async function markNotificationsSeen() {
-  if (!isSupabaseConfigured) return { ok: false as const };
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { ok: false as const };
-  await supabase
-    .from("user_settings")
-    .upsert(
-      { user_id: user.id, notifications_seen_at: new Date().toISOString() },
-      { onConflict: "user_id" },
-    );
-  revalidatePath("/", "layout");
-  return { ok: true as const };
-}
-
 export async function deleteAccountData() {
   if (!isSupabaseConfigured) redirect("/login");
   const supabase = await createClient();
@@ -277,6 +259,8 @@ export async function deleteAccountData() {
   // RLS restricts every delete to the current user's rows. Children go first;
   // recipes, collections, plans and conversations cascade to their rows.
   const byUser = [
+    "cook_logs",
+    "to_cook",
     "recipe_likes",
     "recipe_saves",
     "recipe_notes",
@@ -295,7 +279,7 @@ export async function deleteAccountData() {
   for (const table of byUser) {
     await supabase.from(table).delete().eq("user_id", user.id);
   }
-  // Post photos live in the person's own storage folder.
+  // Post and profile photos live in the person's own storage folders.
   const { data: photos } = await supabase.storage
     .from(POST_PHOTO_BUCKET)
     .list(user.id, { limit: 1000 });
@@ -304,9 +288,12 @@ export async function deleteAccountData() {
       .from(POST_PHOTO_BUCKET)
       .remove(photos.map((photo) => `${user.id}/${photo.name}`));
   }
+  await removeOtherAvatars(supabase, user.id, null);
   await supabase.from("post_comments").delete().eq("author_id", user.id);
   await supabase.from("posts").delete().eq("author_id", user.id);
   await supabase.from("follows").delete().eq("follower_id", user.id);
+  await supabase.from("follows").delete().eq("followed_id", user.id);
+  await supabase.from("blocks").delete().eq("blocker_id", user.id);
   await supabase.from("recipes").delete().eq("author_id", user.id);
   await supabase.from("collections").delete().eq("owner_id", user.id);
   await supabase.from("profiles").delete().eq("id", user.id);

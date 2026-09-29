@@ -10,6 +10,7 @@ export const fr = {
     coach: "Copine",
     coachSubtitle: "ta copine en cuisine",
     profil: "Moi",
+    notifications: "Notifications",
     groupCuisine: "Cuisine",
     groupEnsemble: "Ensemble",
   },
@@ -442,11 +443,24 @@ export const fr = {
     title: "Communauté",
     tabs: {
       all: "Tout le monde",
-      following: "Abonnements",
+      following: "Mes copines",
       groups: "Groupes",
     },
     empty: "Rien dans le fil pour l'instant. Partage la première actu !",
     emptyFollowing: "Suis quelques membres et leur cuisine remplira ce fil.",
+    myProfile: "Mon profil",
+    friends: {
+      cookedTitle: "Tes copines ont cuisiné",
+      by: "par",
+      suggestionsTitle: "Des membres à suivre",
+      suggestionsHint:
+        "Suis celles dont la cuisine te donne envie : leurs « J'ai cuisiné » rempliront ce fil.",
+      sharedOne: "1 recette en commun avec toi",
+      shared: "{n} recettes en commun avec toi",
+      recent: "Partage sa cuisine en ce moment",
+      noSuggestions:
+        "Pas encore de suggestion. Partage tes « J'ai cuisiné » : d'autres membres viendront.",
+    },
     composer: {
       placeholder: "Quoi de neuf en cuisine ?",
       kinds: {
@@ -584,6 +598,16 @@ export const fr = {
       done: "C'est traité.",
       notAdmin: "Cette page est réservée à la modération.",
       tagsLink: "Étiquettes à relire",
+      indicatorLink: "Indicateur clé",
+      indicatorTitle: "Indicateur clé",
+      indicatorIntro:
+        "Part des recettes importées que la personne qui les a importées a cuisinées au moins une fois (journal).",
+      indicatorAll: "Depuis le début",
+      indicator30: "Importées ces 30 derniers jours",
+      indicatorValue: "{cooked} sur {imported}",
+      indicatorEmpty: "Aucune recette importée pour l'instant.",
+      indicatorNote:
+        "Chiffre agrégé : aucune donnée personnelle, aucun régime, aucune allergie.",
       tagsTitle: "Étiquettes à relire",
       tagsHint:
         "Rattache les synonymes à une étiquette de référence et range les étiquettes dans des catégories. Seules les étiquettes de référence sont proposées à la saisie.",

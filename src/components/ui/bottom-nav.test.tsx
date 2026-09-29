@@ -30,4 +30,13 @@ describe("BottomNav", () => {
       "/recettes",
     );
   });
+
+  it("announces unread notifications on the community tab", () => {
+    render(<BottomNav unread={3} />);
+    expect(
+      screen.getByRole("link", {
+        name: "Communauté, 3 notifications non lues",
+      }),
+    ).toHaveAttribute("href", "/communaute");
+  });
 });

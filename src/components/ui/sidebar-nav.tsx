@@ -1,10 +1,17 @@
 "use client";
 
-import { CalendarDays, CookingPot, UserRound, UsersRound } from "lucide-react";
+import {
+  Bell,
+  CalendarDays,
+  CookingPot,
+  UserRound,
+  UsersRound,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { CopineAvatar } from "@/components/illustrations/copine-avatar";
+import { useUnreadCount } from "@/components/ui/use-unread-count";
 import { fr } from "@/i18n/fr";
 import { cn } from "@/lib/utils/cn";
 
@@ -17,6 +24,7 @@ const cuisineItems = [
 
 const ensembleItems = [
   { href: "/communaute", label: fr.nav.communaute, icon: UsersRound },
+  { href: "/notifications", label: fr.nav.notifications, icon: Bell },
 ] as const;
 
 function isActive(pathname: string, href: string): boolean {
@@ -28,6 +36,7 @@ function NavItem({
   label,
   icon: Icon,
   active,
+  badge = 0,
 }: {
   href: string;
   label: string;
@@ -37,6 +46,7 @@ function NavItem({
     className?: string;
   }>;
   active: boolean;
+  badge?: number;
 }) {
   return (
     <li>
@@ -54,6 +64,17 @@ function NavItem({
           className={cn("text-ink-50", active && "text-boutargue-deep")}
         />
         {label}
+        {badge > 0 && (
+          <span className="ml-auto min-w-5 rounded-full bg-primary px-1.5 text-center font-mono text-[11px] leading-5 font-semibold text-primary-foreground">
+            {badge > 9 ? "9+" : badge}
+            <span className="sr-only">
+              {", "}
+              {badge === 1
+                ? fr.notifications.unreadCountOne
+                : fr.notifications.unreadCount.replace("{n}", String(badge))}
+            </span>
+          </span>
+        )}
       </Link>
     </li>
   );
@@ -67,8 +88,9 @@ function GroupLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function SidebarNav() {
+export function SidebarNav({ unread = 0 }: { unread?: number }) {
   const pathname = usePathname();
+  const count = useUnreadCount(unread);
 
   return (
     <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r bg-surface-raised px-3.5 py-5 lg:flex">
@@ -99,6 +121,7 @@ export function SidebarNav() {
               key={item.href}
               {...item}
               active={isActive(pathname, item.href)}
+              badge={item.href === "/notifications" ? count : 0}
             />
           ))}
         </ul>
