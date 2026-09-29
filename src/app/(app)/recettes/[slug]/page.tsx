@@ -153,7 +153,7 @@ export default async function RecipePage({
           ? {
               platform: creator.platform,
               handle: creator.handle,
-              verified: creator.claimedBy !== null,
+              verified: creator.verified,
             }
           : null,
       )
@@ -267,7 +267,7 @@ export default async function RecipePage({
         {sourceCredit && (
           <CreatorCredit view={sourceCredit} recipeId={recipe.id} />
         )}
-        {creator && !creator.claimedBy && (
+        {creator && !creator.verified && (
           <p className="text-[11px] text-ink-50">
             <Link
               href={`${creatorPath(creator.platform, creator.handle)}?retrait=${recipe.id}#retrait`}

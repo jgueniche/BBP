@@ -61,6 +61,7 @@ async function creatorGate(
   identity: CreatorIdentity | null,
 ): Promise<ImportResult | null> {
   const check = await checkImport(supabase, url, identity);
+  if (check.mine) return null;
   const creator = identity
     ? creatorLabel(identity.platform, identity.handle)
     : null;
@@ -114,8 +115,10 @@ export async function importRecipeFromUrl(
 
   // A TikTok link or a site names its creator; others tell after oEmbed.
   const fromLink = creatorFromSource({ sourceUrl: url, sourceAuthor: null });
-  const early = await creatorGate(supabase, url, fromLink);
-  if (early) return early;
+  if (fromLink) {
+    const early = await creatorGate(supabase, url, fromLink);
+    if (early) return early;
+  }
 
   if (platform === "web") {
     const html = await fetchHtml(url);
@@ -141,7 +144,7 @@ export async function importRecipeFromUrl(
     ? handleFromUrl(platform, oembed.authorUrl)
     : null;
   const author = handle ? `@${handle}` : (oembed?.authorName ?? null);
-  if (handle && !fromLink) {
+  if (!fromLink) {
     const gate = await creatorGate(
       supabase,
       url,

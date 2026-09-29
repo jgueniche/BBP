@@ -310,6 +310,7 @@ export type Database = {
         Relationships: [];
       };
       creators: {
+        /** claimed_by and claimed_at are not readable by members. */
         Row: {
           claimed_at: string | null;
           claimed_by: string | null;
@@ -321,6 +322,7 @@ export type Database = {
           platform: string;
           profile_url: string;
           updated_at: string;
+          verified: boolean;
         };
         Insert: {
           claimed_at?: string | null;
@@ -1263,6 +1265,10 @@ export type Database = {
         Args: { gid: string };
         Returns: boolean;
       };
+      approve_site_claim: {
+        Args: { claim: string };
+        Returns: boolean;
+      };
       can_manage_creator: {
         Args: { cid: string };
         Returns: boolean;
@@ -1285,12 +1291,36 @@ export type Database = {
           withdrawn: boolean;
         }[];
       };
+      creator_links: {
+        Args: { p_creators: string[]; p_members: string[] };
+        Returns: { creator_id: string; member_id: string }[];
+      };
       creator_public_stats: {
         Args: { cid: string };
         Returns: Json;
       };
+      creator_removal_requests: {
+        Args: never;
+        Returns: {
+          created_at: string;
+          creator_handle: string | null;
+          creator_id: string | null;
+          creator_platform: string | null;
+          post_withdrawn: boolean;
+          reason: string;
+          recipe_title: string | null;
+          report_id: string;
+          source_key: string | null;
+          source_url: string | null;
+          target_kind: string;
+        }[];
+      };
       decide_creator_claim: {
         Args: { claim: string; approve: boolean; why: string | null };
+        Returns: boolean;
+      };
+      forget_creator_claims: {
+        Args: never;
         Returns: boolean;
       };
       import_status: {
@@ -1327,7 +1357,8 @@ export type Database = {
         Returns: boolean;
       };
       withdraw_creator_post: {
-        Args: { cid: string; key: string };
+        /** cid null: a post with no known creator (the team only). */
+        Args: { cid: string | null; key: string };
         Returns: number;
       };
       compute_recipe_nutrition: {

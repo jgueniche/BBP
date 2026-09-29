@@ -151,7 +151,7 @@ export async function saveRecipe(raw: RecipeInput): Promise<SaveRecipeResult> {
       sourceAuthor: input.sourceAuthor,
     });
     const check = await checkImport(supabase, input.sourceUrl, identity);
-    if (check.withdrawn || check.blocked) {
+    if (!check.mine && (check.withdrawn || check.blocked)) {
       return {
         ok: false,
         code: check.withdrawn ? "withdrawn" : "blocked",

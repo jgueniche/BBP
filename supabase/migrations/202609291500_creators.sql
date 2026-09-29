@@ -43,6 +43,7 @@ create table public.creators (
   profile_url text not null check (profile_url ~ '^https://'),
   claimed_by uuid references auth.users(id) on delete set null,
   claimed_at timestamptz,
+  verified boolean generated always as (claimed_by is not null) stored,
   imports_blocked boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -54,9 +55,16 @@ create index creators_claimed_by_idx on public.creators (claimed_by) where claim
 alter table public.creators enable row level security;
 
 -- Public figures' public accounts: readable in the app, written only
--- through the functions below.
+-- through the functions below. Who claimed a profile is not readable: a
+-- member with a private profile stays private (see creator_links).
 create policy "creators_select" on public.creators
   for select to authenticated using (true);
+
+revoke select on public.creators from anon, authenticated;
+grant select (
+  id, platform, handle, display_name, profile_url, verified,
+  imports_blocked, created_at, updated_at
+) on public.creators to authenticated;
 
 create trigger creators_updated_at before update on public.creators
   for each row execute function public.set_updated_at();
@@ -132,6 +140,31 @@ $$;
 create trigger recipes_guard_creator_fields before update on public.recipes
   for each row execute function public.recipes_guard_creator_fields();
 
+-- The verified creator herself, or the team.
+create or replace function public.can_manage_creator(cid uuid)
+returns boolean
+language sql stable security definer
+set search_path = public
+as $$
+  select public.is_admin()
+    or exists (select 1 from creators where id = cid and claimed_by = auth.uid());
+$$;
+
+-- The member behind a verified profile: only when her own profile is
+-- public, for herself, and for the team.
+create or replace function public.creator_links(p_creators uuid[], p_members uuid[])
+returns table (creator_id uuid, member_id uuid)
+language sql stable security definer
+set search_path = public
+as $$
+  select c.id, c.claimed_by
+  from creators c
+  join profiles p on p.id = c.claimed_by
+  where (c.id = any(p_creators) or c.claimed_by = any(p_members))
+    and (p.visibility = 'public' or c.claimed_by = auth.uid() or public.is_admin())
+  limit 500;
+$$;
+
 -- Posts a creator (or the moderation) withdrew from Copine: new imports of
 -- them are refused.
 create table public.creator_withdrawals (
@@ -147,13 +180,7 @@ create table public.creator_withdrawals (
 alter table public.creator_withdrawals enable row level security;
 
 create policy "creator_withdrawals_select" on public.creator_withdrawals
-  for select using (
-    public.is_admin()
-    or exists (
-      select 1 from public.creators c
-      where c.id = creator_id and c.claimed_by = auth.uid()
-    )
-  );
+  for select using (public.can_manage_creator(creator_id));
 
 create trigger creator_withdrawals_updated_at before update on public.creator_withdrawals
   for each row execute function public.set_updated_at();
@@ -192,7 +219,7 @@ create policy "creator_claims_insert" on public.creator_claims
     and decided_at is null
     and exists (
       select 1 from public.creators c
-      where c.id = creator_id and c.claimed_by is null
+      where c.id = creator_id and not c.verified
     )
   );
 -- The requester may only cancel her pending claim.
@@ -240,6 +267,42 @@ begin
 end;
 $$;
 
+-- A code found on the home page of the site, checked by the server: only
+-- the platform (service role) approves it, never a member.
+create or replace function public.approve_site_claim(claim uuid)
+returns boolean
+language plpgsql
+set search_path = public
+as $$
+declare
+  target record;
+begin
+  select cc.creator_id, cc.user_id into target
+  from creator_claims cc
+  join creators c on c.id = cc.creator_id
+  where cc.id = claim
+    and cc.status = 'pending'
+    and c.platform = 'web'
+    and c.claimed_by is null
+  for update of cc, c;
+  if not found then
+    return false;
+  end if;
+  update creators set claimed_by = target.user_id, claimed_at = now()
+  where id = target.creator_id;
+  update creator_claims
+  set status = 'approved', reason = null, decided_by = null, decided_at = now()
+  where id = claim;
+  update creator_claims
+  set status = 'rejected', reason = 'Profil déjà revendiqué.', decided_at = now()
+  where creator_id = target.creator_id and status = 'pending';
+  return true;
+end;
+$$;
+
+revoke execute on function public.approve_site_claim(uuid) from public, anon, authenticated;
+grant execute on function public.approve_site_claim(uuid) to service_role;
+
 -- The team can hand a profile back (claimed by mistake).
 create or replace function public.release_creator(cid uuid)
 returns boolean
@@ -258,14 +321,6 @@ $$;
 -- ---------------------------------------------------------------------------
 -- Creator controls: withdraw a post, restore it, refuse future imports.
 -- ---------------------------------------------------------------------------
-create or replace function public.can_manage_creator(cid uuid)
-returns boolean
-language sql stable security definer
-set search_path = public
-as $$
-  select public.is_admin()
-    or exists (select 1 from creators where id = cid and claimed_by = auth.uid());
-$$;
 
 -- Every copy of the post becomes private and marked; its owner keeps it.
 -- The creator's own recipes (her official version) are left alone.
@@ -326,7 +381,8 @@ end;
 $$;
 
 -- Before an import: is the post withdrawn, are imports refused, is there
--- an official version by the verified creator?
+-- an official version by the verified creator? Her own imports (« mine »)
+-- are always allowed.
 create or replace function public.import_status(url text, p_platform text, p_handle text)
 returns jsonb
 language sql stable security definer
@@ -343,6 +399,17 @@ as $$
       select 1 from creator_withdrawals w, k where w.source_key = k.key
     ),
     'blocked', coalesce((select imports_blocked from c), false),
+    'mine', coalesce((select claimed_by = auth.uid() from c), false)
+      or exists (
+        select 1 from creators cm, k
+        where cm.claimed_by = auth.uid()
+          and (
+            exists (select 1 from creator_withdrawals w
+              where w.source_key = k.key and w.creator_id = cm.id)
+            or exists (select 1 from recipes r
+              where r.source_key = k.key and r.creator_id = cm.id)
+          )
+      ),
     'official', (
       select jsonb_build_object('slug', r.slug, 'title', r.title)
       from recipes r
@@ -357,6 +424,25 @@ as $$
       limit 1
     )
   );
+$$;
+
+-- Self-service deletion (RGPD): her claims go and her profiles become
+-- unclaimed; the posts she withdrew stay withdrawn, without her name.
+create or replace function public.forget_creator_claims()
+returns boolean
+language plpgsql security definer
+set search_path = public
+as $$
+begin
+  if auth.uid() is null then
+    return false;
+  end if;
+  update creators set claimed_by = null, claimed_at = null where claimed_by = auth.uid();
+  update creator_withdrawals set withdrawn_by = null where withdrawn_by = auth.uid();
+  update creator_claims set decided_by = null where decided_by = auth.uid();
+  delete from creator_claims where user_id = auth.uid();
+  return true;
+end;
 $$;
 
 -- ---------------------------------------------------------------------------
@@ -464,6 +550,50 @@ $$;
 alter table public.reports drop constraint reports_target_kind_check;
 alter table public.reports add constraint reports_target_kind_check
   check (target_kind in ('post', 'comment', 'recipe', 'creator'));
+
+-- The team's queue: each open request with the post and the creator it is
+-- about, even when the copy is private (only what is needed to act).
+create or replace function public.creator_removal_requests()
+returns table (
+  report_id uuid,
+  target_kind text,
+  reason text,
+  created_at timestamptz,
+  recipe_title text,
+  source_url text,
+  source_key text,
+  creator_id uuid,
+  creator_platform text,
+  creator_handle text,
+  post_withdrawn boolean
+)
+language sql stable security definer
+set search_path = public
+as $$
+  select
+    rp.id,
+    rp.target_kind,
+    rp.reason,
+    rp.created_at,
+    r.title,
+    r.source_url,
+    r.source_key,
+    c.id,
+    c.platform,
+    c.handle,
+    exists (select 1 from creator_withdrawals w where w.source_key = r.source_key)
+  from reports rp
+  left join recipes r on rp.target_kind = 'recipe' and r.id = rp.target_id
+  left join creators c on c.id = case
+    when rp.target_kind = 'creator' then rp.target_id
+    else r.creator_id
+  end
+  where public.is_admin()
+    and rp.status = 'open'
+    and rp.target_kind in ('recipe', 'creator')
+  order by rp.created_at
+  limit 100;
+$$;
 
 -- ---------------------------------------------------------------------------
 -- Existing imports are tied to their creator when the link or the credit

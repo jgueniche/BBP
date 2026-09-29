@@ -21,12 +21,13 @@ export type CreatorRow = {
   label: string;
   displayName: string | null;
   profileUrl: string;
-  claimedBy: string | null;
+  /** Claimed and checked by the team (who claimed it stays private). */
+  verified: boolean;
   importsBlocked: boolean;
 };
 
 const SELECT =
-  "id, platform, handle, display_name, profile_url, claimed_by, imports_blocked";
+  "id, platform, handle, display_name, profile_url, verified, imports_blocked";
 
 function toRow(row: {
   id: string;
@@ -34,7 +35,7 @@ function toRow(row: {
   handle: string;
   display_name: string | null;
   profile_url: string;
-  claimed_by: string | null;
+  verified: boolean;
   imports_blocked: boolean;
 }): CreatorRow | null {
   if (!isCreatorPlatform(row.platform)) return null;
@@ -45,7 +46,7 @@ function toRow(row: {
     label: creatorLabel(row.platform, row.handle),
     displayName: row.display_name,
     profileUrl: row.profile_url,
-    claimedBy: row.claimed_by,
+    verified: row.verified,
     importsBlocked: row.imports_blocked,
   };
 }
@@ -83,22 +84,54 @@ export async function loadCreatorByPath(
   return data ? toRow(data) : null;
 }
 
-/** Creator profiles claimed by these members (for the verified badge). */
+export type CreatorLinks = {
+  /** Creator id → the member who claimed it. */
+  memberOf: Map<string, string>;
+  /** Member id → the creator profiles she claimed. */
+  creatorsOf: Map<string, string[]>;
+};
+
+/**
+ * Verified profiles and the members behind them, only where the member's
+ * own profile is public (or for herself and the team).
+ */
+export async function loadCreatorLinks(
+  supabase: Supabase,
+  query: { creatorIds?: string[]; memberIds?: string[] },
+): Promise<CreatorLinks> {
+  const creatorIds = [...new Set(query.creatorIds ?? [])];
+  const memberIds = [...new Set(query.memberIds ?? [])];
+  const links: CreatorLinks = { memberOf: new Map(), creatorsOf: new Map() };
+  if (creatorIds.length === 0 && memberIds.length === 0) return links;
+  const { data } = await supabase.rpc("creator_links", {
+    p_creators: creatorIds,
+    p_members: memberIds,
+  });
+  for (const row of data ?? []) {
+    links.memberOf.set(row.creator_id, row.member_id);
+    links.creatorsOf.set(row.member_id, [
+      ...(links.creatorsOf.get(row.member_id) ?? []),
+      row.creator_id,
+    ]);
+  }
+  return links;
+}
+
+/** The verified creator profiles of these members, for the badge. */
 export async function loadClaimedCreators(
   supabase: Supabase,
   memberIds: string[],
 ): Promise<Map<string, CreatorRow[]>> {
-  const unique = [...new Set(memberIds)];
-  if (unique.length === 0) return new Map();
-  const { data } = await supabase
-    .from("creators")
-    .select(SELECT)
-    .in("claimed_by", unique);
+  const links = await loadCreatorLinks(supabase, { memberIds });
+  const creators = await loadCreatorsByIds(supabase, [
+    ...links.memberOf.keys(),
+  ]);
   const byMember = new Map<string, CreatorRow[]>();
-  for (const raw of data ?? []) {
-    const row = toRow(raw);
-    if (!row?.claimedBy) continue;
-    byMember.set(row.claimedBy, [...(byMember.get(row.claimedBy) ?? []), row]);
+  for (const [memberId, ids] of links.creatorsOf) {
+    const rows = ids
+      .map((id) => creators.get(id))
+      .filter((row): row is CreatorRow => row !== undefined);
+    if (rows.length > 0) byMember.set(memberId, rows);
   }
   return byMember;
 }
@@ -121,12 +154,15 @@ export type ImportCheck = {
   withdrawn: boolean;
   blocked: boolean;
   official: { slug: string; title: string } | null;
+  /** The verified creator importing her own post: always allowed. */
+  mine: boolean;
 };
 
 const NO_GATE: ImportCheck = {
   withdrawn: false,
   blocked: false,
   official: null,
+  mine: false,
 };
 
 const importStatusSchema = z
@@ -137,6 +173,7 @@ const importStatusSchema = z
       .object({ slug: z.string().min(1), title: z.string() })
       .nullable()
       .catch(null),
+    mine: z.boolean().catch(false),
   })
   .catch(NO_GATE);
 
