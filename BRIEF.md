@@ -65,9 +65,9 @@ Le réseau social de la cuisine ne naîtra pas d'un fil, mais d'un carnet : **l'
 | Module | État (fin session 19) | Cible |
 |---|---|---|
 | Import de recettes | Sites (JSON-LD), TikTok (oEmbed), texte, photo (vision), partage Android | Sites FR en priorité, YouTube, Pinterest, captures multiples, file de jobs et quotas, reformulation, doublons (S23) ; partage iPhone via la coque native (S24) |
-| Recettes | Fiche, éditeur, carnet, fork, notes, mode cuisine, variante végétarienne IA, cuisines du monde, verdict « Pour toi » et pastilles « toutes les tables » | « J'ai cuisiné » attaché à la recette, astuces votées, versions avec crédit en chaîne, étiquettes libres et catégories (S20) ; photos |
+| Recettes | Fiche, éditeur, carnet, fork, notes, mode cuisine, variante végétarienne IA, cuisines du monde, verdict « Pour toi », pastilles « toutes les tables », « J'ai cuisiné » avec photos, astuces votées, versions créditées en chaîne, étiquettes libres et catégories ; ~200 recettes de départ | Photos de couverture des recettes, import v2 (S23) |
 | Régimes | Préférences simples + verdict par recette (§5) | Foyer et invités (S26-S27) ; IA pour les ingrédients inconnus |
-| Réseau social | Fil sans algorithme, actus / « j'ai cuisiné » / recettes, réactions J'adore · Bravo · Miam, commentaires, abonnements, groupes, modération 2 étages | Profils publics, journal, liste « À cuisiner », fil des copines, notifications sobres (S21) ; créatrices (S22) ; clubs, défis, récap annuel (S28) |
+| Réseau social | Fil sans algorithme, actus / « j'ai cuisiné » / recettes, photos (sans géolocalisation), réactions J'adore · Bravo · Miam, commentaires, abonnements, groupes, modération 2 étages | Profils publics, journal, liste « À cuisiner », fil des copines, notifications sobres (S21) ; créatrices (S22) ; clubs, défis, récap annuel (S28) |
 | Carnets partagés | Membres éditeur/lecteur, invitation par lien | Activité, commentaires, temps réel |
 | Foyer | — | Planning et courses partagés en temps réel (S26) |
 | Tablée | — | Invitation par lien sans appli, règles de chaque invité, menu compatible, qui apporte quoi (S27) |
@@ -136,7 +136,7 @@ Gratuit au lancement. Ensuite : imports IA limités en gratuit et abonnement pou
 | 18 | ✅ Brief v2 & grand ménage | Suivi santé supprimé, Copine, renommage, typo élégante, vocabulaire social universel |
 | — | ✅ Charte Claude Design | Tokens, pastels, logo et icônes |
 | 19 | ✅ Brief v3 & régimes simples | Ce brief et `CLAUDE.md` ; module casher détaillé et calendrier juif retirés (fin de la contrainte GPL) ; préférences simples + verdict par recette ; migration vers des attributs neutres ; catalogue de départ diversifié |
-| 20 | La recette sociale | « J'ai cuisiné » attaché à la recette, astuces votées, versions avec crédit, étiquettes libres et catégories, photos dans les posts (sans géolocalisation) |
+| 20 | ✅ La recette sociale | « J'ai cuisiné » attaché à la recette, astuces votées, versions avec crédit, étiquettes libres et catégories, photos dans les posts (sans géolocalisation) |
 | 21 | Profils & journal | Profils publics, abonnements, journal, liste « À cuisiner », fil des copines, notifications sobres |
 | 22 | Créatrices | Profils revendicables, statistiques, badge, « d'après @X », retrait sur demande |
 | 23 | Import v2 | Sites FR en priorité, YouTube, Pinterest, captures ; prudence sur TikTok |

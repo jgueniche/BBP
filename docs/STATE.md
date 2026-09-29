@@ -1,6 +1,24 @@
 # STATE.md — État du projet Copine en cuisine (ex-BBP)
 
-Dernière mise à jour : 29/09/2026 · Sessions 1 à 19 + charte Claude Design (tokens)
+Dernière mise à jour : 29/09/2026 · Sessions 1 à 20 + charte Claude Design (tokens)
+
+## Fait — Session 20 (La recette sociale — ADR-033) + catalogue de ~200 recettes
+- **Plan validé par Jeremy** (29/09), tel quel.
+- **« J'ai cuisiné »** sur la fiche : un mot et jusqu'à 4 photos de sa version, publiés comme post `cooked` lié à la recette ; compteur « cuisinée N fois » (vue `recipe_cooked_stats`) et galerie des versions des membres.
+- **Photos dans les posts** (composer du fil et « J'ai cuisiné ») : redimensionnées à 1 600 px et **ré-encodées dans le navigateur (EXIF et géolocalisation retirés)**, bucket `post-photos` par dossier personnel, chemins vérifiés côté serveur ; suppression du post ou du compte = suppression des photos. Un post peut être une photo sans texte.
+- **Astuces** : les commentaires de recette deviennent des astuces **modérées** (filtre + IA, comme le fil), votées « utile » (une voix, jamais sur la sienne, RLS), triées par votes.
+- **Versions** : crédit en chaîne (« d'après « … » de Léa, d'après @créatrice ») et liste des versions partagées par les membres sur l'original.
+- **Étiquettes libres** : normalisées à l'enregistrement, filtrées par la modération, enregistrées pour relecture, synonymes remplacés par leur étiquette de référence ; l'éditeur ne suggère que les étiquettes de référence ; page `/recettes/etiquette/[slug]` (synonymes redirigés, sous-catégories, verdicts) ; file `/admin/etiquettes` (synonyme de, catégorie, valider, supprimer ; admins seulement). Les 48 étiquettes des recettes existantes deviennent des références.
+- **Catalogue** : **140 recettes de plus (201 au total)**, rédigées par thèmes (20 sauces et condiments, soupes et entrées, plats végétariens et vegan, viandes et volailles, poissons et fruits de mer, desserts, brunch, pains, apéros et boissons), cuisines de tous les continents ; `scripts/seed-more-recipes.py` vérifie valeurs, slugs, ton (pas de culture du régime ni de référence religieuse) avant de générer ; catégorie « Sauce » ajoutée ; le moteur de régimes est d'accord avec toutes les étiquettes « vegan » (48 vegan, 63 végétariennes, 96 sans gluten).
+- Tests : 110 (+8 : étiquettes, synonymes, catégories, photos, crédit en chaîne, tri des astuces) ; RLS des étiquettes et des votes vérifiée sur Postgres local ; lint, typecheck, build verts. Export RGPD : votes d'astuces ajoutés.
+- **Migrations à appliquer (écrites, testées localement, NON appliquées)** :
+  - `202609291200_simple_cooking_rules.sql` (additive, compatible avec le code actuellement en prod : anciennes clés de couleur des carnets acceptées) ;
+  - `202609291220_world_starter_recipes.sql` et `202609291230_more_starter_recipes.sql` (données, idempotentes) ;
+  - `202609291300_social_recipe.sql` (additive : bucket photos, astuces, votes, étiquettes) ;
+  - `202609291210_drop_kosher_and_calendar.sql` (**destructive**, termine le renommage des couleurs) **après** déploiement du code des sessions 19-20.
+  - Tentative d'application en prod via le token Supabase de l'environnement **bloquée par les permissions de la session** (action de production) : à autoriser par Jeremy ou à coller dans le SQL Editor.
+- **Non livré / limites** : notifications à l'autrice (S21) ; pages connectées non vérifiées visuellement (pas de session Supabase de test) ; photos affichées en `<img>` (pas d'optimisation `next/image` du domaine Supabase) ; pas de signalement dédié aux étiquettes ni aux astuces (le signalement reste sur les posts).
+- **Prochaine session : 21 — Profils & journal.**
 
 ## Fait — Session 19 (Brief v3 & régimes simples — ADR-031, ADR-032)
 - **Plan validé par Jeremy** (29/09) ; choix du catalogue : **les 35 recettes de départ restent telles quelles** (textes, étiquettes chabbat/Hanouka et « versions Protéine » compris), on ajoute seulement.
@@ -18,7 +36,6 @@ Dernière mise à jour : 29/09/2026 · Sessions 1 à 19 + charte Claude Design (
 - Graines Ciqual et 35 recettes (et leurs générateurs) réalignées sur le nouveau schéma, contenu identique.
 - Lint, typecheck, **102 tests** (121 avant : tests casher et calendrier retirés, moteur de régimes et planning réécrits), build verts ; rendu des pastilles vérifié par captures (clair + sombre).
 - **Non livré / limites** : rendu des pages connectées non vérifié (pas de projet Supabase dans cette session) ; évals Copine non relancées (clé Gemini) ; ingrédients inconnus du dictionnaire considérés sans contrainte.
-- **Prochaine session : 20 — La recette sociale** (« j'ai cuisiné », astuces votées, versions avec crédit, étiquettes libres et catégories).
 
 ## Fait — Veille « plateforme sociale de la cuisine » (29/09/2026, ADR-031)
 - **Demande de Jeremy** : devenir LA plateforme sociale de la cuisine (il n'en existe pas de vraie) ; régimes pour tous mais **plus rien de communautaire** ni de détail religieux ; étiquettes et sous-catégories créées par les membres et les créatrices.
@@ -217,7 +234,7 @@ Limites : la base Supabase de BBP n'est pas exposée au connecteur MCP de cette 
 ## Reste à faire (actions côté Jeremy)
 - **Migrations bloquées (29/09)** : le compte Supabase connecté aux sessions Claude ne contient pas le projet de l'app (seulement « Alpha Report » et « ShiftX »). Les appliquer depuis le SQL Editor du projet, ou connecter le bon compte Supabase.
 - **Au déploiement** : appliquer dans l'ordre `202609291000_drop_sport_module.sql`, `202609291100_drop_health_tracking.sql`, `202609291110_universal_social_kinds.sql` (destructives : historique sport et santé supprimés). Sans elles, les pages sociales lisent encore les anciens noms de réactions (`post_stats`) : **appliquer la 1110 en même temps que le déploiement**.
-- **Session 19, au déploiement** : appliquer `202609291200_simple_cooking_rules.sql` **en même temps** que le code (sans elle, « Mes règles de cuisine » et les filtres échouent), puis `202609291220_world_starter_recipes.sql` ; `202609291210_drop_kosher_and_calendar.sql` (**destructive**) une fois le code déployé. Les réglages casher existants ne sont pas repris : les réactiver dans Moi (2 gestes, avec consentement).
+- **Sessions 19-20, au déploiement** : voir l'ordre dans la section Session 20. Détail session 19 : appliquer `202609291200_simple_cooking_rules.sql` **en même temps** que le code (sans elle, « Mes règles de cuisine » et les filtres échouent), puis `202609291220_world_starter_recipes.sql` ; `202609291210_drop_kosher_and_calendar.sql` (**destructive**) une fois le code déployé. Les réglages casher existants ne sont pas repris : les réactiver dans Moi (2 gestes, avec consentement).
 - **Session Claude Design** : brief prêt dans `docs/CLAUDE-DESIGN-BRIEF.md` (en précisant : typographie classe, épurée, élégante ; Cormorant Garamond en place provisoirement).
 - **Relancer `pnpm eval:coach`** avec la clé Gemini pour valider la voix de Copine, prompt 2.1.0 (DoD : persona ≥ 95 %, garde-fous 100 %).
 - (Facultatif) domaine et `NEXT_PUBLIC_SITE_URL` au nom de Copine en cuisine ; renommer le projet Vercel.
