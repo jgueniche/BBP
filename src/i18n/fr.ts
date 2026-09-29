@@ -511,10 +511,61 @@ export const fr = {
     },
   },
   notifications: {
+    title: "Notifications",
+    intro: "Ce qui s'est passé autour de tes recettes et de tes publications.",
+    empty:
+      "Rien de neuf pour l'instant. Quand on cuisine tes recettes ou qu'on te suit, tu le verras ici.",
+    unread: "Nouveau",
+    earlier: "Plus tôt",
+    unreadCountOne: "1 notification non lue",
+    unreadCount: "{n} notifications non lues",
+    settings: "Réglages des notifications",
+    who: {
+      someone: "Quelqu'un",
+      pair: "{a} et {b}",
+      pairAnonymous: "{a} et une autre personne",
+      others: "{a} et {n} autres",
+      people: "{n} personnes",
+    },
+    recipe: {
+      yours: "ta recette « {title} »",
+      yoursUnknown: "une de tes recettes",
+      on: "« {title} »",
+      onUnknown: "une de tes recettes",
+    },
+    kinds: {
+      follow: { one: "{who} te suit.", many: "{who} te suivent." },
+      reaction: {
+        one: "{who} a réagi à ta publication.",
+        many: "{who} ont réagi à ta publication.",
+      },
+      comment: {
+        one: "{who} a commenté ta publication.",
+        many: "{who} ont commenté ta publication.",
+      },
+      cooked: {
+        one: "{who} a cuisiné {recipe}.",
+        many: "{who} ont cuisiné {recipe}.",
+      },
+      tip: {
+        one: "{who} a laissé une astuce sur {recipe}.",
+        many: "{who} ont laissé une astuce sur {recipe}.",
+      },
+    },
     card: {
       title: "Notifications",
       intro:
-        "Pour être prévenue des réactions et des invitations. Jamais plus de deux par jour.",
+        "Sur ton téléphone quand on cuisine tes recettes, qu'on te laisse une astuce ou qu'on te suit. Jamais plus de deux par jour, jamais la nuit (21 h 30 – 8 h 30).",
+      prefsTitle: "M'avertir quand",
+      prefs: {
+        cooked: "on cuisine une de mes recettes",
+        tip: "on laisse une astuce sur mes recettes",
+        follow: "quelqu'un me suit",
+        comment: "on commente mes publications",
+      },
+      prefsSaved: "C'est noté.",
+      reactionsNote:
+        "Les réactions restent dans l'app : elles ne sonnent jamais.",
       enable: "Activer sur cet appareil",
       disable: "Désactiver",
       enabled: "Notifications activées sur cet appareil.",
