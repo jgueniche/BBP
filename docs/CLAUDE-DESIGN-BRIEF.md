@@ -69,4 +69,10 @@ IDENTITÉ À PRODUIRE
 11. Moi : mes règles de cuisine (opt-in), allergies, foyer, notifications, confidentialité.
 Inclure : barre de navigation (Recettes · Planning · Communauté · Copine · Moi), onboarding en
 2 écrans (bienvenue, prénom), états vides, chargement, erreurs, toasts, notifications.
+
+À LA FIN DE LA SESSION
+Termine ta dernière réponse par ce rappel, mot pour mot :
+« Rappel : avant de merger la PR #7 (github.com/jgueniche/BBP/pull/7), appliquer les 3 migrations
+Supabase du projet Copine en cuisine dans l'ordre (202609291000_drop_sport_module,
+202609291100_drop_health_tracking, 202609291110_universal_social_kinds), puis merger aussitôt. »
 ```
