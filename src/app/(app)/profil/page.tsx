@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { InstallCard } from "@/components/pwa/install-prompt";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { fr } from "@/i18n/fr";
 import { KNOWN_CITIES } from "@/lib/jewish-calendar/locations";
@@ -18,16 +17,8 @@ const t = fr.profil;
 export default async function ProfilPage() {
   let email: string | null = null;
   let displayName: string | null = null;
-  let mode: string | null = null;
-  let goal: {
-    type: string;
-    tdee_estimate: number | null;
-    calorie_target: number | null;
-    protein_target_g: number | null;
-  } | null = null;
-  let meatWait: number | null = null;
-  let kashrutEnabled = true;
-  let jewishCalendarEnabled = true;
+  let kashrutEnabled = false;
+  let jewishCalendarEnabled = false;
   let publicProfile = false;
   let calendarPrefs = {
     city: "",
@@ -46,7 +37,7 @@ export default async function ProfilPage() {
     email = user?.email ?? null;
 
     if (user) {
-      const [profileRes, settingsRes, goalRes] = await Promise.all([
+      const [profileRes, settingsRes] = await Promise.all([
         supabase
           .from("profiles")
           .select("display_name, visibility, city")
@@ -55,21 +46,15 @@ export default async function ProfilPage() {
         supabase
           .from("user_settings")
           .select(
-            "mode, meat_to_dairy_wait_hours, kashrut_enabled, jewish_calendar_enabled, israel_calendar, minor_fasts, kitniyot, no_fish_with_meat, candle_offset_min",
+            "kashrut_enabled, jewish_calendar_enabled, israel_calendar, minor_fasts, kitniyot, no_fish_with_meat, candle_offset_min",
           )
-          .maybeSingle(),
-        supabase
-          .from("goals")
-          .select("type, tdee_estimate, calorie_target, protein_target_g")
-          .eq("status", "active")
           .maybeSingle(),
       ]);
       displayName = profileRes.data?.display_name ?? null;
       publicProfile = profileRes.data?.visibility === "public";
-      mode = settingsRes.data?.mode ?? null;
-      meatWait = settingsRes.data?.meat_to_dairy_wait_hours ?? null;
-      kashrutEnabled = settingsRes.data?.kashrut_enabled ?? true;
-      jewishCalendarEnabled = settingsRes.data?.jewish_calendar_enabled ?? true;
+      kashrutEnabled = settingsRes.data?.kashrut_enabled ?? false;
+      jewishCalendarEnabled =
+        settingsRes.data?.jewish_calendar_enabled ?? false;
       calendarPrefs = {
         city: profileRes.data?.city ?? "",
         israelCalendar: settingsRes.data?.israel_calendar ?? false,
@@ -78,13 +63,12 @@ export default async function ProfilPage() {
         noFishWithMeat: settingsRes.data?.no_fish_with_meat ?? false,
         candleOffsetMin: settingsRes.data?.candle_offset_min ?? 18,
       };
-      goal = goalRes.data ?? null;
     }
   }
 
   return (
     <section className="flex flex-col gap-5">
-      <h1 className="font-display text-3xl font-extrabold tracking-tight">
+      <h1 className="font-display text-3xl font-medium tracking-tight">
         {displayName ?? t.title}
       </h1>
 
@@ -96,65 +80,6 @@ export default async function ProfilPage() {
           </p>
 
           <div className="grid items-start gap-4 md:grid-cols-2">
-            <div className="rounded-lg border bg-card p-4 shadow-soft">
-              <dl className="flex flex-col gap-2 text-sm">
-                {mode && (
-                  <div className="flex items-center justify-between">
-                    <dt className="text-ink-70">{t.mode}</dt>
-                    <dd>
-                      <Badge>
-                        {mode === "proteine"
-                          ? fr.onboarding.modeProteine
-                          : fr.onboarding.modeBoutargue}
-                      </Badge>
-                    </dd>
-                  </div>
-                )}
-                {goal && (
-                  <div className="flex justify-between">
-                    <dt className="text-ink-70">{t.goal}</dt>
-                    <dd className="font-semibold">
-                      {
-                        fr.onboarding.goalTypes[
-                          goal.type as keyof typeof fr.onboarding.goalTypes
-                        ]
-                      }
-                    </dd>
-                  </div>
-                )}
-                {goal?.tdee_estimate && (
-                  <div className="flex justify-between">
-                    <dt className="text-ink-70">{t.tdee}</dt>
-                    <dd className="font-mono font-semibold">
-                      ~{goal.tdee_estimate} kcal
-                    </dd>
-                  </div>
-                )}
-                {goal?.calorie_target && (
-                  <div className="flex justify-between">
-                    <dt className="text-ink-70">{t.calorieTarget}</dt>
-                    <dd className="font-mono font-semibold">
-                      {goal.calorie_target} kcal/j
-                    </dd>
-                  </div>
-                )}
-                {goal?.protein_target_g && (
-                  <div className="flex justify-between">
-                    <dt className="text-ink-70">{t.proteinTarget}</dt>
-                    <dd className="font-mono font-semibold">
-                      {goal.protein_target_g} g/j
-                    </dd>
-                  </div>
-                )}
-                {meatWait !== null && (
-                  <div className="flex justify-between">
-                    <dt className="text-ink-70">{t.meatWait}</dt>
-                    <dd className="font-mono font-semibold">{meatWait} h</dd>
-                  </div>
-                )}
-              </dl>
-            </div>
-
             <PracticeToggles
               initialKashrut={kashrutEnabled}
               initialCalendar={jewishCalendarEnabled}
@@ -171,16 +96,7 @@ export default async function ProfilPage() {
 
             <div className="flex flex-wrap gap-2 md:col-span-2">
               <Button asChild variant="secondary" size="sm">
-                <Link href="/poids">{fr.poids.linkFromJournal}</Link>
-              </Button>
-              <Button asChild variant="secondary" size="sm">
-                <Link href="/sport">{fr.sport.title}</Link>
-              </Button>
-              <Button asChild variant="secondary" size="sm">
                 <Link href="/communaute">{fr.communaute.title}</Link>
-              </Button>
-              <Button asChild variant="secondary" size="sm">
-                <Link href="/progres">{fr.progres.title}</Link>
               </Button>
               <Button asChild variant="secondary" size="sm">
                 <Link href="/onboarding?edit=1">{t.redoOnboarding}</Link>

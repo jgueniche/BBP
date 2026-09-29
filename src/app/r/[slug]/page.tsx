@@ -180,14 +180,14 @@ export default async function PublicRecipePage({
       <article className="flex flex-col gap-4">
         <header className="rounded-lg border bg-card p-6 shadow-soft">
           <p className="text-xs font-semibold tracking-wide text-ink-50 uppercase">
-            {fr.app.name} · {fr.app.fullName}
+            {fr.app.name}
           </p>
           {recipe.icon && (
             <p className="mt-3 text-5xl leading-none" aria-hidden>
               {recipe.icon}
             </p>
           )}
-          <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight lg:text-4xl">
+          <h1 className="mt-3 font-display text-3xl font-semibold tracking-tight lg:text-4xl">
             {recipe.title}
           </h1>
           {recipe.description && (
@@ -247,7 +247,7 @@ export default async function PublicRecipePage({
           >
             <h2
               id="nutrition-title"
-              className="font-display text-lg font-extrabold"
+              className="font-display text-lg font-semibold"
             >
               {t.nutrition}
             </h2>
@@ -273,7 +273,7 @@ export default async function PublicRecipePage({
           >
             <h2
               id="ingredients-title"
-              className="font-display text-lg font-extrabold"
+              className="font-display text-lg font-semibold"
             >
               {t.ingredients}
             </h2>
@@ -306,7 +306,7 @@ export default async function PublicRecipePage({
           >
             <h2
               id="steps-title"
-              className="flex items-center gap-2 font-display text-lg font-extrabold"
+              className="flex items-center gap-2 font-display text-lg font-semibold"
             >
               <ChefHat size={18} strokeWidth={2} aria-hidden />
               {t.steps}
@@ -349,12 +349,12 @@ export default async function PublicRecipePage({
 
       <Link
         href={`/recettes/${recipe.slug}`}
-        className="rounded-[10px] border bg-boutargue px-5 py-3 text-center font-display text-sm font-extrabold text-primary-foreground shadow-soft hover:bg-boutargue-deep hover:text-paper"
+        className="rounded-[10px] border bg-boutargue px-5 py-3 text-center font-display text-sm font-semibold text-primary-foreground shadow-soft hover:bg-boutargue-deep hover:text-paper"
       >
         {t.openInApp}
       </Link>
       <p className="text-center text-xs text-ink-50">
-        {fr.app.fullName} · {fr.app.tagline}
+        {fr.app.name} · {fr.app.tagline}
       </p>
     </main>
   );

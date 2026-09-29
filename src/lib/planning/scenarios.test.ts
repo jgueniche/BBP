@@ -202,11 +202,11 @@ describe("scenario Kippour 2027 (DoD)", () => {
     expect(isQuietTime(new Date("2027-10-12T08:00:00Z"))).toBe(false);
   });
 
-  it("tells Kémia it is a fast day with no calorie talk", () => {
+  it("tells the assistant it is a fast day with no daytime meal ideas", () => {
     const context = buildCalendarContext(new Date("2027-10-11T10:00:00Z"), {});
     expect(context.isFastToday).toBe(true);
     expect(context.text).toContain("JEÛNE AUJOURD'HUI");
-    expect(context.text).toContain("tsom kal");
+    expect(context.text).toContain("aucune suggestion de repas en journée");
   });
 });
 

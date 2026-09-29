@@ -21,7 +21,7 @@ export function EmptyState({
       )}
     >
       {illustration && <div className="text-ink">{illustration}</div>}
-      <p className="font-display text-lg font-bold">{title}</p>
+      <p className="font-display text-lg font-semibold">{title}</p>
       {hint && <p className="max-w-xs text-sm text-ink-50">{hint}</p>}
       {action && <div className="mt-2">{action}</div>}
     </div>

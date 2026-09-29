@@ -116,7 +116,7 @@ export function ImportClient({
   }
 
   // A shared link is analysed right away; shared text is only prefilled so
-  // the person can trim it before Kémia reads it.
+  // the person can trim it before the importer reads it.
   useEffect(() => {
     if (!shared || shared.mode !== "url" || sharedHandled.current) return;
     sharedHandled.current = true;

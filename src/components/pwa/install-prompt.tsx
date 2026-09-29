@@ -4,7 +4,7 @@ import { Download, Smartphone } from "lucide-react";
 import { useEffect, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 
-import { KemiaAvatar } from "@/components/illustrations/kemia-avatar";
+import { CopineAvatar } from "@/components/illustrations/copine-avatar";
 import { Button } from "@/components/ui/button";
 import { fr } from "@/i18n/fr";
 import {
@@ -51,9 +51,9 @@ export function InstallBanner() {
       className="fixed inset-x-3 bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-20 mx-auto max-w-md rounded-lg border bg-card p-3 shadow-pop lg:inset-x-auto lg:right-6 lg:bottom-6"
     >
       <div className="flex items-start gap-3">
-        <KemiaAvatar expression="clin" size={40} />
+        <CopineAvatar size={40} />
         <div className="min-w-0 flex-1">
-          <p className="font-display font-bold">{t.title}</p>
+          <p className="font-display font-semibold">{t.title}</p>
           <p className="text-xs text-ink-70">{t.body}</p>
         </div>
       </div>
@@ -76,7 +76,7 @@ export function InstallCard() {
 
   return (
     <div className="rounded-lg border bg-card p-4 shadow-soft">
-      <p className="flex items-center gap-2 font-display text-lg font-extrabold">
+      <p className="flex items-center gap-2 font-display text-lg font-semibold">
         <Smartphone size={18} strokeWidth={2} aria-hidden />
         {t.title}
       </p>

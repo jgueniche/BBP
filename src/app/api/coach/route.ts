@@ -16,6 +16,7 @@ import { buildCoachContext } from "@/lib/coach/context";
 import { DAILY_MESSAGE_QUOTA } from "@/lib/coach/quota";
 import { loadCalendarSettings } from "@/lib/jewish-calendar/cache";
 import { buildCalendarContext } from "@/lib/jewish-calendar/context";
+import { COACH_NAME } from "@/lib/brand";
 import { createClient } from "@/lib/supabase/server";
 
 export const maxDuration = 60;
@@ -112,7 +113,6 @@ export async function POST(request: Request) {
   const conversationId = conversation.id;
   const conversationHasTitle = (conversation.title ?? "").trim().length > 0;
 
-  const safetyFlags = context.safeMode ? ["safe_mode"] : [];
   const { data: userMessageRow } = await supabase
     .from("coach_messages")
     .insert({
@@ -120,27 +120,22 @@ export async function POST(request: Request) {
       user_id: user.id,
       role: "user",
       content: lastUserText,
-      safety_flags: safetyFlags,
     })
     .select("id")
     .single();
 
   const system = buildCoachSystem({
+    coachName: COACH_NAME,
     userContext: context.userContext,
     memories: context.memories,
     calendarContext: calendar.text,
-    safeMode: context.safeMode,
   });
 
   const result = streamText({
     model: picked.model,
     system,
     messages: await convertToModelMessages(messages),
-    tools: buildCoachTools({
-      supabase,
-      userId: user.id,
-      safeMode: context.safeMode,
-    }),
+    tools: buildCoachTools({ supabase, userId: user.id }),
     stopWhen: stepCountIs(5),
     abortSignal: AbortSignal.timeout(55_000),
     onFinish: async ({ text, usage, steps }) => {
@@ -159,7 +154,6 @@ export async function POST(request: Request) {
         tokens_in: usage.inputTokens ?? null,
         tokens_out: usage.outputTokens ?? null,
         model: picked.modelId,
-        safety_flags: safetyFlags,
       });
       // Title = first user message; afterwards only bump updated_at so the
       // conversation list stays ordered by recency (trigger sets the value).
@@ -174,7 +168,6 @@ export async function POST(request: Request) {
 
       // memory_extractor (brief §8): max 3 durable facts, deduplicated.
       try {
-        if (context.safeMode) return;
         const facts = await extractMemories({
           userMessage: lastUserText,
           assistantMessage: text,

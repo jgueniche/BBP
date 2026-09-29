@@ -144,7 +144,7 @@ export function CookClient({
           <X size={16} strokeWidth={2} />
         </Link>
         <div className="min-w-0 flex-1">
-          <p className="truncate font-display text-sm font-extrabold">
+          <p className="truncate font-display text-sm font-semibold">
             {icon ? `${icon} ` : ""}
             {title}
           </p>
@@ -184,9 +184,7 @@ export function CookClient({
             <span className="text-6xl" aria-hidden>
               {icon ?? "🎉"}
             </span>
-            <p className="font-display text-2xl font-extrabold">
-              {t.cook.done}
-            </p>
+            <p className="font-display text-2xl font-semibold">{t.cook.done}</p>
             <Button asChild>
               <Link href={`/recettes/${slug}`}>{t.cook.exit}</Link>
             </Button>
@@ -198,7 +196,7 @@ export function CookClient({
                 {step.section}
               </p>
             )}
-            <p className="font-display text-2xl font-bold leading-snug">
+            <p className="font-display text-2xl font-semibold leading-snug">
               {step.text}
             </p>
 

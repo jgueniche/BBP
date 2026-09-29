@@ -6,7 +6,7 @@ import { GroupDialog } from "@/components/social/group-dialog";
 import { PostCard } from "@/components/social/post-card";
 import { PostComposer } from "@/components/social/post-composer";
 import { EmptyState } from "@/components/ui/empty-state";
-import { IlluCouscoussier } from "@/components/illustrations";
+import { IlluCasserole } from "@/components/illustrations";
 import { fr } from "@/i18n/fr";
 import { loadFeedPosts } from "@/lib/social/feed";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -29,7 +29,7 @@ export default async function CommunautePage({
   if (!isSupabaseConfigured) {
     return (
       <section>
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
+        <h1 className="font-display text-3xl font-semibold tracking-tight">
           {t.title}
         </h1>
         <p className="mt-4 text-ink-70">{fr.auth.notConfigured}</p>
@@ -45,7 +45,7 @@ export default async function CommunautePage({
 
   return (
     <section className="flex w-full max-w-2xl flex-col gap-4">
-      <h1 className="font-display text-3xl font-extrabold tracking-tight">
+      <h1 className="font-display text-3xl font-semibold tracking-tight">
         {t.title}
       </h1>
 
@@ -98,7 +98,7 @@ async function FeedTab({
       {!onlyFollowed && <PostComposer />}
       {posts.length === 0 ? (
         <EmptyState
-          illustration={<IlluCouscoussier size={64} />}
+          illustration={<IlluCasserole size={64} />}
           title={onlyFollowed ? t.emptyFollowing : t.empty}
         />
       ) : (
@@ -139,7 +139,7 @@ async function GroupsTab({ userId }: { userId: string }) {
       <GroupDialog />
       {(groups ?? []).length === 0 ? (
         <EmptyState
-          illustration={<IlluCouscoussier size={64} />}
+          illustration={<IlluCasserole size={64} />}
           title={t.groups.empty}
         />
       ) : (
@@ -156,7 +156,7 @@ async function GroupsTab({ userId }: { userId: string }) {
                     {group.icon}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate font-display text-base font-bold">
+                    <span className="block truncate font-display text-base font-semibold">
                       {group.name}
                     </span>
                     {group.description && (

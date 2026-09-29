@@ -33,7 +33,7 @@ export default async function PlanningPage({
   if (!isSupabaseConfigured) {
     return (
       <section>
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
+        <h1 className="font-display text-3xl font-semibold tracking-tight">
           {t.title}
         </h1>
         <p className="mt-4 text-ink-70">{fr.auth.notConfigured}</p>
@@ -52,28 +52,19 @@ export default async function PlanningPage({
   } = await supabase.auth.getUser();
   if (!user) return null;
 
-  const [{ data: plan }, { data: settings }, { data: goal }] =
-    await Promise.all([
-      supabase
-        .from("meal_plans")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("week_start", weekStart)
-        .maybeSingle(),
-      supabase
-        .from("user_settings")
-        .select(
-          "shomer_shabbat, israel_calendar, mode, jewish_calendar_enabled",
-        )
-        .eq("user_id", user.id)
-        .maybeSingle(),
-      supabase
-        .from("goals")
-        .select("calorie_target")
-        .eq("user_id", user.id)
-        .eq("status", "active")
-        .maybeSingle(),
-    ]);
+  const [{ data: plan }, { data: settings }] = await Promise.all([
+    supabase
+      .from("meal_plans")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("week_start", weekStart)
+      .maybeSingle(),
+    supabase
+      .from("user_settings")
+      .select("shomer_shabbat, israel_calendar, jewish_calendar_enabled")
+      .eq("user_id", user.id)
+      .maybeSingle(),
+  ]);
 
   const { data: slotRows } = plan
     ? await supabase
@@ -110,7 +101,7 @@ export default async function PlanningPage({
     slug: row.recipe_id ? (slugById.get(row.recipe_id) ?? null) : null,
   }));
 
-  const calendarEnabled = settings?.jewish_calendar_enabled ?? true;
+  const calendarEnabled = settings?.jewish_calendar_enabled ?? false;
   const calendar = await getCalendarDays(
     supabase,
     user.id,
@@ -121,16 +112,11 @@ export default async function PlanningPage({
     date: day.date,
     label: dayLabel(day.date),
     hebrewDate: calendarEnabled ? day.hebrewDate : "",
-    badges: calendarEnabled
-      ? [...day.labels, ...(day.isFeast ? [t.budgetKiff] : [])]
-      : [],
+    badges: calendarEnabled ? day.labels : [],
     candleTime: calendarEnabled ? day.candleTime : null,
     isFast: calendarEnabled && day.isFast,
     isChabbat: calendarEnabled && (index === 4 || index === 5),
   }));
-
-  const calorieTarget =
-    settings?.mode === "boutargue" ? null : (goal?.calorie_target ?? null);
 
   const weekLabel = new Intl.DateTimeFormat("fr-FR", {
     day: "numeric",
@@ -141,7 +127,7 @@ export default async function PlanningPage({
   return (
     <section className="flex flex-col gap-4">
       <header className="flex flex-wrap items-center gap-3">
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
+        <h1 className="font-display text-3xl font-semibold tracking-tight">
           {t.title}
         </h1>
         <div className="ml-auto flex flex-wrap items-center gap-2">
@@ -153,7 +139,7 @@ export default async function PlanningPage({
             >
               <ChevronLeft size={16} strokeWidth={2} />
             </Link>
-            <p className="font-display text-base font-extrabold">
+            <p className="font-display text-base font-semibold">
               {t.weekOf} {weekLabel}
             </p>
             <Link
@@ -177,8 +163,7 @@ export default async function PlanningPage({
         weekStart={weekStart}
         days={days}
         slots={slots}
-        calorieTarget={calorieTarget}
-        shomerShabbat={calendarEnabled && (settings?.shomer_shabbat ?? true)}
+        shomerShabbat={calendarEnabled && (settings?.shomer_shabbat ?? false)}
       />
     </section>
   );

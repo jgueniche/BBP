@@ -31,9 +31,12 @@ const proteinVersionSchema = z.object({
 
 export type ProteinVersion = z.infer<typeof proteinVersionSchema>;
 
-const SYSTEM = `Tu es Kémia, coach nutrition de BBP. Tu crées la « version Protéine » d'une recette du patrimoine judéo-oriental : allégée et riche en protéines, mais toujours généreuse et fidèle au goût d'origine.
-Techniques : viandes maigres (dinde, veau), cuisson au four plutôt que friture, moins d'huile, plus de légumes, semoule/pain complets, portions de féculents mesurées. Jamais d'ingrédient non casher, respecte la classe de la recette d'origine (viande/lait/parvé).
-Chaque substitution est expliquée en une phrase simple. Quantités en grammes pour le nombre de portions indiqué.`;
+// Pivot (ADR-029): the former « version Protéine » (a lighter, diet-oriented
+// rewrite) now produces a vegetarian variant — useful to host every table,
+// with no diet talk. Generalized to every regime in a later session.
+const SYSTEM = `Tu crées la variante végétarienne d'une recette, pour l'application Copine en cuisine : ni viande, ni poisson, ni fruits de mer, ni gélatine animale, ni bouillon ou sauce d'origine animale, en restant généreuse et fidèle au goût et à l'esprit du plat d'origine.
+Techniques : légumineuses, tofu, tempeh, champignons, œufs ou fromage quand ils conviennent, épices et umami (sauce soja, miso, tomate séchée) pour garder la profondeur. Aucun conseil de régime ni de calories.
+Chaque substitution est expliquée en une phrase simple. Quantités en grammes pour le nombre de portions indiqué. Tout en français.`;
 
 export async function generateProteinVersion(input: {
   title: string;

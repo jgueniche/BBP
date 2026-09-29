@@ -22,7 +22,7 @@ export default async function JoinCollectionPage({
 
   return (
     <section className="flex flex-col gap-3">
-      <h1 className="font-display text-3xl font-extrabold tracking-tight">
+      <h1 className="font-display text-3xl font-semibold tracking-tight">
         {fr.recettes.collections.title}
       </h1>
       <JoinCollectionClient token={token} />

@@ -1,6 +1,30 @@
-# STATE.md — État du projet BBP
+# STATE.md — État du projet Copine en cuisine (ex-BBP)
 
-Dernière mise à jour : 03/09/2026 · Sessions 1 à 16
+Dernière mise à jour : 29/09/2026 · Sessions 1 à 18
+
+## Fait — Session 18 (Brief v2 & grand ménage : BBP devient Copine en cuisine — ADR-029)
+- **Nouvelles demandes de Jeremy** : l'app s'appelle **Copine en cuisine** ; Kémia devient **Copine**, au ton neutre (aucune orientation culturelle) ; typographie **classe, épurée, élégante** ; un **vrai réseau social** (actus, likes…).
+- **Brief v2** : `BRIEF.md` (source de vérité), ancien brief archivé dans `docs/archive/BRIEF-BBP-v1.md` ; `CLAUDE.md` et `README.md` réécrits ; nom du paquet `copine-en-cuisine`.
+- **Suivi santé supprimé** : journal (texte/voix/photo/code-barres, favoris, file hors ligne), poids, mesures, photos de progression, TDEE adaptatif, progrès, accueil calorique, gamification (XP, séries, badges, défis), nudges et crons (`vercel.json` sans cron), onboarding santé, agents `food_logger`/`nudger`, outils santé de l'assistante ; le planning n'a plus de cible calorique ni d'envoi au journal (kcal retirées de la grille).
+- **Copine** : prompt **v2.0.0** neutre (pas d'expressions communautaires, pas de surnoms, pas de minceur, garde-fous cuisine/allergies/certification), outils `search_recipes`/`get_plan`/`propose_meal_plan`, contexte réduit au prénom + règles choisies, calendrier factuel sans vœux, mémoire sans santé ni religion ; avatar monogramme « C » ; évals promptfoo réécrites (12 persona + 10 garde-fous, contrôle mécanique des termes culturels et surnoms) — **à relancer avec la clé Gemini**.
+- **Identité provisoire** : `src/lib/brand.ts` (`APP_NAME`, `COACH_NAME`), mot-symbole en **Cormorant Garamond** (titres en graisse 500-600, plus d'extra-gras), illustrations culturelles retirées (cocotte neutre), textes neutralisés partout (plus de bsahtek/mabrouk…), OG image, manifeste (`start_url` `/recettes`, raccourci Importer), métadonnées. Couleurs inchangées en attendant Claude Design.
+- **Navigation** : Recettes · Planning · Communauté · Copine · Moi (mobile) ; sidebar Cuisine / Ensemble ; `/` → `/recettes`.
+- **Onboarding express** : prénom + « j'ai 16 ans ou plus », rien d'autre.
+- **Réseau social** : réactions universelles **J'adore ❤️ · Bravo 👏 · Miam 😋** (validées Zod), posts **Actu / J'ai cuisiné / Recette**, charte réécrite (toutes les cuisines et convictions bienvenues). Les fonctions sociales avancées sont planifiées en session 22.
+- **Règles de cuisine opt-in** : casher et calendrier juif désactivés par défaut pour tout nouveau compte (code + migration), carte « Mes règles de cuisine » dans Moi.
+- **« Version Protéine » → variante végétarienne** (même mécanique de recette liée, prompt sans régime).
+- **RGPD** : export JSON étendu (recettes, carnets, notes, commentaires, posts, conversations, mémoires, plannings) ; suppression étendue au contenu créé.
+- **Migrations écrites, NON appliquées** : `202609291100_drop_health_tracking.sql` (tables santé/gamification, bucket photos, colonnes profil, défauts opt-in) et `202609291110_universal_social_kinds.sql` (réactions et types de posts renommés, vue `post_stats` recréée). Types alignés.
+- 117 tests verts (−88 : moteurs santé/gamification/file hors ligne supprimés), lint/typecheck/build OK ; rendu vérifié (`/login`, `/design`).
+
+## Fait — Session 17 (Pivot : audit, veille, vision ; suppression du sport — ADR-027)
+- **Pivot demandé par Jeremy** : sa femme reprend BBP pour en faire une app de cuisine **collaborative**, « girly », ouverte à **toutes les communautés et tous les régimes** (casher, halal, vegan, végétarien, pescétarien, végétarien indien…), l'**import depuis les réseaux sociaux** restant central ; charte à refaire en session dédiée Claude Design.
+- **Audit complet + benchmark + vision + feuille de route + questions de cadrage** : `docs/PIVOT-2026.md` (verdict module par module : garder / généraliser / transformer / supprimer ; dette à traiter ; brief prêt à coller dans Claude Design). Version lisible et partageable (privée, à partager depuis son menu) : https://claude.ai/artifact/4ShBW5owYGYhAEYb9UmNbA
+- **Veille (4 recherches web)** : aucun concurrent ne gère un repas pour des convives aux régimes mixtes ni de filtre casher/halal ; sur iPhone, une PWA ne peut pas recevoir de partage (coque native requise) ; l'oEmbed Instagram ne renvoie plus ni légende ni autrice depuis le 03/11/2025 (notre chemin à jeton Meta est obsolète) ; `@hebcal/core` (GPL-2.0) vérifié côté serveur uniquement.
+- **Sport supprimé** : pages `/sport` (programme, séance guidée, log rapide), moteur `lib/workout` + agent `workout_planner` + seed des 188 exercices, outil Kémia `create_workout_program` (prompt coach **v1.2.0**), carte sport de l'accueil, liens journal/profil, série « sport », badges `yalla`/`marcheur-belleville`, défis `paris-tel-aviv`/`hanouka-8-8`, posts « séance », illustrations haltère/chaussure, récap hebdo sans séances. Les niveaux d'activité de l'onboarding restent (ils nourrissent le TDEE).
+- **Migration `202609291000_drop_sport_module.sql` écrite mais NON appliquée** : supprime `workout_sessions`, `workout_programs`, `exercises`, convertit les posts « séance » en messages, retire série/badges/défis sport et resserre les contraintes. Types `src/db/types.ts` alignés sur le schéma post-migration.
+- **Cadrage validé par Jeremy (ADR-028)** : suivi santé supprimé ; V1 collaborative = foyer + Tablée + carnets partagés + communauté publique ; Kémia devient une copine en cuisine multiculturelle ; app iPhone/Android rapidement (coque native + extension de partage). Réponses par défaut des questions 5 à 12 retenues sauf objection.
+- 205 tests verts (−10 : moteur sport et badges sport), lint/typecheck/build OK.
 
 ## Fait — Session 16 (PWA, performance, accessibilité, SEO — brief §10.14, ADR-025/026)
 - **PWA Serwist (`@serwist/turbopack`)** : service worker compilé par esbuild et servi par la route `/serwist/sw.js` (scope `/` via `Service-Worker-Allowed`), précache de l'app shell (`/_next/static`, marque, page `/~offline`), stratégies par défaut Next + **cache dédié des recettes consultées** (`/recettes/[slug]`, mode cuisine, `/r/[slug]` — 60 entrées, 14 jours) ; **fallback `/~offline`** pour toute page non mise en cache. **Web Push intégré** dans le même worker (handlers `push`/`notificationclick` portés de `public/sw.js`, supprimé) : même scope, l'enregistrement est mis à jour en place — **les abonnements existants sont conservés**.
@@ -155,39 +179,25 @@ Limites : la base Supabase de BBP n'est pas exposée au connecteur MCP de cette 
 - Rien.
 
 ## Reste à faire (actions côté Jeremy)
-- (Facultatif) `NEXT_PUBLIC_SITE_URL=https://bbp-mu.vercel.app` sur Vercel si un domaine custom arrive ; sans elle, le domaine de production Vercel est utilisé pour sitemap/JSON-LD/OG.
-0. **Notifications push** : générer les clés (`npx web-push generate-vapid-keys`) puis poser `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (mailto:ton@email) + `SUPABASE_SERVICE_ROLE_KEY` + `CRON_SECRET` sur Vercel. Sans elles, la carte Notifications l'explique et le cron répond 501 (aucun crash).
-1. **`GOOGLE_GENERATIVE_AI_API_KEY` sur Vercel** (+ `.env.local`) → active toute l'IA sur Gemini 3.7 Flash (ADR-010) : parsing texte/photo du journal, chat Kémia, vérificateur casher des recettes, génération « version Protéine ». Clé gratuite sur https://aistudio.google.com/apikey. Sans elle, mode dégradé opérationnel partout.
-2. Dashboard Supabase (2 min) : Authentication → Sign In / Providers → Email → décocher « Confirm email » ; URL Configuration → Site URL = `https://bbp-mu.vercel.app`.
-3. Tester le parcours complet en prod : inscription → onboarding → journal (log texte, favori, comme hier).
-4. Créer les projets **Sentry** et **PostHog EU**, renseigner les clés.
-5. Valider a posteriori les plans des sessions 1-4 (sessions autonomes, cf. ADR-002).
+- **Migrations bloquées (29/09)** : le compte Supabase connecté aux sessions Claude ne contient pas le projet de l'app (seulement « Alpha Report » et « ShiftX »). Les appliquer depuis le SQL Editor du projet, ou connecter le bon compte Supabase.
+- **Au déploiement** : appliquer dans l'ordre `202609291000_drop_sport_module.sql`, `202609291100_drop_health_tracking.sql`, `202609291110_universal_social_kinds.sql` (destructives : historique sport et santé supprimés). Sans elles, les pages sociales lisent encore les anciens noms de réactions (`post_stats`) : **appliquer la 1110 en même temps que le déploiement**.
+- **Session Claude Design** : brief prêt dans `docs/CLAUDE-DESIGN-BRIEF.md` (en précisant : typographie classe, épurée, élégante ; Cormorant Garamond en place provisoirement).
+- **Relancer `pnpm eval:coach`** avec la clé Gemini pour valider la voix de Copine (DoD : persona ≥ 95 %, garde-fous 100 %).
+- Icônes d'app et favicon : encore ceux de BBP (`public/brand/`), à refaire avec l'identité Claude Design.
+- (Facultatif) domaine et `NEXT_PUBLIC_SITE_URL` au nom de Copine en cuisine ; renommer le projet Vercel.
+- `GOOGLE_GENERATIVE_AI_API_KEY` sur Vercel pour l'IA (import, Copine, variantes, planning) ; sans elle, mode dégradé.
+- Dashboard Supabase : « Confirm email » et Site URL (cf. ADR-006) ; clés Sentry/PostHog le moment venu.
 
 ## Backlog
-- PWA : le Web Share Target passe par le garde-fou de session — non connecté, la redirection vers `/login` perd `url/text` (ajouter un `next=`) ; file hors ligne limitée au texte/voix + favoris (photo/scan/« comme hier » restent réseau) ; Background Sync API non utilisée (rejeu au retour de l'app, suffisant en v1) ; précache complet des chunks (3,5 Mo au premier install) à affiner si la 4G se plaint ; e2e Playwright hors CI (navigateur requis).
-- SEO : `/r/[slug]` ne montre pas encore la version Protéine liée ni les photos (colonnes prêtes) ; audit Lighthouse des pages connectées à joindre après connexion en prod.
-- Branches distantes non mergées repérées (03/09) : `feat/coach-conversations` = implémentation concurrente des conversations multiples (session parallèle), **remplacée** par la PR #4 → à supprimer après accord ; `claude/kemia-agent-ui-ux-moo7wp` = même patch que `3e9c110` déjà sur master (patch-id identique) → suppression sans risque.
-- Kémia : renommer une conversation à la main (v1 = titre auto du premier message) ; recherche dans l'historique si les fils se multiplient.
-- Refonte : fiche recette et import encore mono-colonne sur desktop (2 col. à envisager) ; message Kémia de `/accueil` déterministe (brancher l'IA légère comme les nudges) ; onglet mobile Cuisine → accès Communauté à fluidifier (lien croisé dans l'en-tête des deux pages).
-- ~~DoD session 6~~ **faite (30/08)** : `pnpm eval:coach` **40/40** (persona 20/20, garde-fous 20/20) avec la clé Gemini posée — 6 itérations : harnais adapté à Gemini 3.7 Flash (thinkingLevel, budget de sortie, mode sans outils, faux positif « rendez-vous ») + prompt Kémia **v1.1.0** (bornes citées lors d'un refus, orientation pro sur demande extrême, « indication seulement » pour le casher, gestion des plateaux). Température 0,7 : petite variance possible d'un run à l'autre, relançable à volonté.
-- Calendrier : ville libre hors liste (~45 villes) → horaires de Paris (géocodage complet à envisager) ; Yom HaAtsmaout optionnel non affiché ; vue mois du planning toujours en backlog.
-- Notifications : le créneau du soir (`?slot=soir`, bilan du jour + jeudi courses) existe dans le code mais n'est pas planifié — le plan Vercel Hobby autorise 2 crons max (pris par adaptive-tdee et nudges du matin). Passer Pro ou ajouter un ping externe pour l'activer. Badge « Nouveau ! » : notification push à l'attribution d'un badge à brancher (kind `badge` prêt en base).
-- Gamification : les 16 badges ont désormais tous leurs vraies stats (session 13).
-- Cron global adaptive-tdee : poser `SUPABASE_SERVICE_ROLE_KEY` + `CRON_SECRET` sur Vercel (sinon seule la génération à la visite fonctionne — suffisant en v1).
-- Graphiques des mesures corporelles (Recharts) : v1 affiche les dernières valeurs, courbes à ajouter.
-- DoD session 4 partielle : évals « 20 phrases ≥ 90 % / photo ≥ 80 % » à passer avec promptfoo dès que la clé Gemini est posée (prévu session 6).
-- Tests RLS par rôle (SQL) — exigés brief §9, à faire au plus tard session 15.
-- Refaire l'onboarding ne préremplit pas encore les valeurs existantes.
-- Suppression de compte : purge les données ; la suppression de l'utilisateur auth (service role) arrive session 15.
-- Journal : le réglage « pas de poisson avec la viande » est appliqué structurellement par le planner (un plat par créneau) et signalé à Kémia ; pas encore de contrôle dans le journal libre.
-- Auth : OTP email et OAuth Google/Apple repoussés (ADR-006).
-- Sentry + PostHog : instrumentation code (clés requises d'abord).
-- Photos de recettes : colonnes prêtes (`photo_paths`, `photo_path` par étape), upload UI à venir (session 11).
-- Profil : ajouter un interrupteur « profil visible par la communauté » (aujourd'hui `visibility` reste `private` → les recettes affichent « Membre BBP » au lieu du prénom).
-- Import Instagram sans collage : poser `INSTAGRAM_OEMBED_TOKEN` (app Meta, facultatif).
-- Social : feed Realtime (v1 = rafraîchissement), mentions @, groupes privés sur invitation, réactions sur commentaires, pagination du feed (v1 = 30 derniers), Communauté dans la bottom bar à arbitrer ; notifications sociales (bsahtek/commentaire reçus) non branchées — l'infra push de la session 12 est prête à les porter.
-- Sport : graphique de volume par groupe musculaire ; page détail d'un exercice (erreurs fréquentes affichées en séance) ; sons discrets réels (v1 = vibration) ; bouton Sport dans la bottom bar à arbitrer (5 places prises) ; éval promptfoo du workout_planner avec clé IA.
-- Planning : vue mois avec dates hébraïques ; verrouillage de créneaux dans l'UI (le moteur le gère déjà) ; drag & drop tactile (v1 = souris/HTML5 + boutons swap) ; quota fin « 2 plannings/semaine free » à calibrer (garde-fou à 20 aujourd'hui) ; éval promptfoo du meal_planner dès la clé IA posée.
+- **Régimes (S19)** : moteur multi-régimes, profils alimentaires, allergies et dégoûts avec consentement (les anciennes allergies du profil santé ont disparu avec lui) ; filtres Recettes « Origine » encore maghrébins et « Casher » seul ; catégories à élargir.
+- **Import (S20)** : chemin Instagram par jeton Meta obsolète (l'oEmbed ne renvoie plus de légende) → capture/légende copiée ; YouTube ne lit que le titre ; pas de quota ni de file de jobs ; pas d'upload de photos de recettes.
+- **Réseau social (S22)** : photos dans les posts, notifications (réactions, commentaires, abonnés — infra push `lib/push/send.ts` conservée, sans usage aujourd'hui), temps réel, mentions, pagination du fil (30 derniers), réactions sur commentaires, profils de créatrices.
+- **Copine** : outils « adapter une recette » et « composer une Tablée » ; renommer une conversation ; recherche dans l'historique.
+- **Variantes (S25)** : la variante végétarienne est la seule ; `version_kind` garde ses clés historiques (`boutargue`/`proteine`, libellés Originale/Variante).
+- **Planning** : rattachement au foyer (S23) ; vue mois ; verrouillage de créneaux ; drag & drop tactile ; le validateur garde sa logique de cible calorique inactive (toujours `null`).
+- **PWA** : Web Share Target perd `url/text` si non connecté (ajouter `next=`) ; précache à affiner ; e2e hors CI.
+- **Production (S27)** : CGU, confidentialité, CSP, rate limiting, tests RLS par rôle, suppression du compte auth (service role), Sentry/PostHog sans PII, OAuth Apple/Google.
+- Branches distantes obsolètes (`feat/coach-conversations`, `claude/kemia-agent-ui-ux-moo7wp`) à supprimer après accord.
 
 ## Bugs connus
 - Aucun.

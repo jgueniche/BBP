@@ -48,7 +48,7 @@ test.describe("PWA shell", () => {
     await context.setOffline(true);
     // A page never visited: the document request fails and the worker
     // answers with the precached /~offline fallback.
-    await page.goto("/journal", { waitUntil: "domcontentloaded" });
+    await page.goto("/planning", { waitUntil: "domcontentloaded" });
     await expect(
       page.getByRole("heading", { name: fr.pwa.offline.title }),
     ).toBeVisible();

@@ -56,7 +56,7 @@ export function CommentsSection({
 
   return (
     <section className="flex flex-col gap-2">
-      <h2 className="font-display text-lg font-extrabold">
+      <h2 className="font-display text-lg font-semibold">
         {t.comments}
         {comments.length > 0 && (
           <span className="ml-1.5 font-mono text-sm text-ink-50">

@@ -5,174 +5,18 @@ import { tool } from "ai";
 import { z } from "zod";
 
 import type { Database } from "@/db/types";
-import { classifyMeal, type KashrutClass } from "@/lib/kashrut/meal";
-import { computeTotals, type FoodLogItem } from "@/lib/nutrition/items";
-import { computeTrend, weeklyTrendChange } from "@/lib/nutrition/ewma";
 import { generateAndStoreWeek } from "@/lib/planning/generate";
 import { toDateString, weekStartOf } from "@/lib/planning/week";
-import { generateAndStoreProgram } from "@/lib/workout/generate";
 
-const NOT_AVAILABLE = (session: string) => ({
-  available: false,
-  message: `Fonctionnalité pas encore disponible (arrive avec la session ${session} de BBP).`,
-});
-
+// Cooking-only tools (pivot, ADR-028): recipes and the meal plan. The health
+// tools (journal, weight, wellbeing flag) left with the health tracking.
 export function buildCoachTools(params: {
   supabase: SupabaseClient<Database>;
   userId: string;
-  safeMode: boolean;
 }) {
-  const { supabase, userId, safeMode } = params;
+  const { supabase, userId } = params;
 
   return {
-    get_journal: tool({
-      description:
-        "Lit le journal alimentaire des N derniers jours (totaux par jour et repas).",
-      inputSchema: z.object({
-        days: z.number().int().min(1).max(14).default(7),
-      }),
-      execute: async ({ days }) => {
-        const since = new Date(Date.now() - days * 86_400_000)
-          .toISOString()
-          .slice(0, 10);
-        const { data } = await supabase
-          .from("food_logs")
-          .select("date, meal, totals, kashrut_class")
-          .eq("user_id", userId)
-          .gte("date", since)
-          .order("date");
-        return {
-          days: data ?? [],
-          note: safeMode ? "Mode sécurité : ne cite aucun chiffre." : undefined,
-        };
-      },
-    }),
-
-    get_weight: tool({
-      description:
-        "Lit l'historique de poids et la tendance lissée des N derniers jours.",
-      inputSchema: z.object({
-        days: z.number().int().min(7).max(365).default(30),
-      }),
-      execute: async ({ days }) => {
-        const since = new Date(Date.now() - days * 86_400_000)
-          .toISOString()
-          .slice(0, 10);
-        const { data } = await supabase
-          .from("weight_logs")
-          .select("date, weight_kg")
-          .eq("user_id", userId)
-          .gte("date", since)
-          .order("date");
-        const trend = computeTrend(data ?? []);
-        return {
-          lastTrendKg: trend.at(-1)?.trend_kg ?? null,
-          weeklyChangeKg: weeklyTrendChange(trend),
-          points: trend.slice(-14),
-          note: safeMode ? "Mode sécurité : ne cite aucun chiffre." : undefined,
-        };
-      },
-    }),
-
-    log_weight: tool({
-      description: "Enregistre le poids du jour en kilogrammes.",
-      inputSchema: z.object({
-        kg: z.number().min(20).max(500),
-      }),
-      execute: async ({ kg }) => {
-        const today = new Intl.DateTimeFormat("en-CA", {
-          timeZone: "Europe/Paris",
-        }).format(new Date());
-        const { error } = await supabase
-          .from("weight_logs")
-          .upsert(
-            { user_id: userId, date: today, weight_kg: kg, source: "manual" },
-            { onConflict: "user_id,date" },
-          );
-        if (error) return { ok: false, error: error.message };
-        return { ok: true, date: today };
-      },
-    }),
-
-    log_food: tool({
-      description:
-        "Enregistre un repas simple dans le journal (aliments avec grammes). Cherche chaque aliment dans la base pour la nutrition.",
-      inputSchema: z.object({
-        meal: z.enum(["petit_dej", "dej", "diner", "collation"]),
-        items: z
-          .array(
-            z.object({
-              name: z.string().min(2).max(80),
-              grams: z.number().min(1).max(3000),
-            }),
-          )
-          .min(1)
-          .max(10),
-      }),
-      execute: async ({ meal, items }) => {
-        const today = new Intl.DateTimeFormat("en-CA", {
-          timeZone: "Europe/Paris",
-        }).format(new Date());
-
-        const resolved: FoodLogItem[] = [];
-        for (const item of items) {
-          const { data: candidates } = await supabase.rpc("search_foods", {
-            q: item.name,
-            max_results: 1,
-          });
-          const best = candidates?.[0];
-          resolved.push({
-            food_id: best?.id ?? null,
-            name: best?.name_fr ?? item.name,
-            qty: item.grams,
-            unit: "g",
-            grams: item.grams,
-            per_100g: (best?.per_100g ?? {}) as Record<string, number>,
-            kashrut_class: (best?.kashrut_class ?? null) as KashrutClass | null,
-            is_fish: best?.is_fish ?? false,
-            kosher_hint: best?.kosher_hint ?? null,
-            confidence: best ? 0.8 : 0.3,
-          });
-        }
-
-        const totals = computeTotals(resolved);
-        const { kashrutClass, conflict } = classifyMeal(
-          resolved.map((i) => i.kashrut_class),
-        );
-        const { error } = await supabase.from("food_logs").insert({
-          user_id: userId,
-          date: today,
-          meal,
-          items: resolved,
-          totals,
-          kashrut_class: kashrutClass,
-          source: "text",
-          raw_input: "via Kémia",
-        });
-        if (error) return { ok: false, error: error.message };
-        return { ok: true, totals, kashrutClass, conflict };
-      },
-    }),
-
-    flag_wellbeing: tool({
-      description:
-        "À appeler dès que tu perçois des signes de trouble alimentaire, de détresse, une grossesse, un allaitement ou un mineur. Active le mode accompagnement doux de l'app.",
-      inputSchema: z.object({
-        reason: z.string().min(3).max(200),
-      }),
-      execute: async ({ reason }) => {
-        await supabase
-          .from("health_profile")
-          .upsert({ user_id: userId, wellbeing_flag: true });
-        console.warn("wellbeing flag set", { userId, reason });
-        return {
-          ok: true,
-          instruction:
-            "Flag posé. À partir de maintenant : ton chaleureux et posé, aucun chiffre, aucun humour, oriente vers un médecin ou un diététicien.",
-        };
-      },
-    }),
-
     get_plan: tool({
       description:
         "Lit le planning de repas d'une semaine (par défaut la semaine en cours).",
@@ -193,31 +37,20 @@ export function buildCoachTools(params: {
         if (!plan) return { weekStart, meals: [], url: "/planning" };
         const { data: slots } = await supabase
           .from("meal_plan_slots")
-          .select(
-            "date, meal, title, kcal, servings, kashrut_class, is_leftover",
-          )
+          .select("date, meal, title, servings, is_leftover")
           .eq("plan_id", plan.id)
           .order("date");
         return {
           weekStart,
-          meals: (slots ?? []).map((slot) => ({
-            date: slot.date,
-            meal: slot.meal,
-            title: slot.title,
-            kcal:
-              slot.kcal === null ? null : Math.round(slot.kcal * slot.servings),
-            kashrut_class: slot.kashrut_class,
-            is_leftover: slot.is_leftover,
-          })),
+          meals: slots ?? [],
           url: `/planning?semaine=${weekStart}`,
-          note: safeMode ? "Mode sécurité : ne cite aucun chiffre." : undefined,
         };
       },
     }),
 
     search_recipes: tool({
       description:
-        "Cherche des recettes BBP par mot-clé (titre). Retourne classe casher, origine, temps et version (boutargue/proteine).",
+        "Cherche des recettes par mot-clé dans le titre. Retourne catégorie, temps, portions et lien.",
       inputSchema: z.object({
         query: z.string().min(2).max(80),
       }),
@@ -225,7 +58,7 @@ export function buildCoachTools(params: {
         const { data } = await supabase
           .from("recipes")
           .select(
-            "title, slug, origin, category, kashrut_class, is_fish, prep_min, cook_min, version_kind, tags, nutrition_per_serving",
+            "title, slug, category, prep_min, cook_min, servings, tags, source_author",
           )
           .eq("status", "published")
           .ilike("title", `%${query}%`)
@@ -241,7 +74,7 @@ export function buildCoachTools(params: {
 
     propose_meal_plan: tool({
       description:
-        "Génère (ou régénère) le planning de repas d'une semaine sous contraintes casher, et l'enregistre. À utiliser quand la personne demande un planning ou un menu de la semaine.",
+        "Génère (ou régénère) le planning de repas d'une semaine en respectant les règles de cuisine du profil, et l'enregistre. À utiliser quand la personne demande un menu de la semaine.",
       inputSchema: z.object({
         week: z
           .string()
@@ -271,52 +104,9 @@ export function buildCoachTools(params: {
           weekStart,
           mealsPlanned: result.mealsPlanned,
           url: `/planning?semaine=${weekStart}`,
-          note: "Planning validé par les règles casher. Invite la personne à le voir sur la page Planning.",
+          note: "Invite la personne à voir son menu sur la page Planning.",
         };
       },
-    }),
-
-    create_workout_program: tool({
-      description:
-        "Crée un programme sportif de 4 semaines et l'enregistre. À utiliser quand la personne demande un programme d'entraînement.",
-      inputSchema: z.object({
-        goal: z.enum(["force", "muscle", "perte", "forme"]).default("forme"),
-        daysPerWeek: z.number().int().min(1).max(6).default(3),
-        equipment: z
-          .enum(["rien", "elastiques", "halteres", "salle"])
-          .default("rien"),
-        level: z
-          .enum(["debutant", "intermediaire", "avance"])
-          .default("debutant"),
-        durationMin: z.number().int().min(15).max(120).default(45),
-      }),
-      execute: async ({ goal, daysPerWeek, equipment, level, durationMin }) => {
-        const result = await generateAndStoreProgram(supabase, userId, {
-          goal,
-          daysPerWeek,
-          equipment,
-          level,
-          durationMin,
-        });
-        if (!result.ok) {
-          return { ok: false, reason: "Génération impossible pour l'instant." };
-        }
-        return {
-          ok: true,
-          daysPerWeek: result.daysPerWeek,
-          url: "/sport",
-          note: "Programme de 4 semaines validé (ids et volume). Invite la personne à le voir sur la page Sport.",
-        };
-      },
-    }),
-
-    set_reminder: tool({
-      description: "Programme un rappel pour l'utilisateur.",
-      inputSchema: z.object({
-        when: z.string().max(60),
-        text: z.string().max(200),
-      }),
-      execute: async () => NOT_AVAILABLE("12 (notifications)"),
     }),
   };
 }

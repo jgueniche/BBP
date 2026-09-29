@@ -165,7 +165,7 @@ export default async function RecipePage({
             </span>
           )}
           <div className="min-w-0">
-            <h1 className="font-display text-3xl font-extrabold tracking-tight">
+            <h1 className="font-display text-3xl font-semibold tracking-tight">
               {recipe.title}
             </h1>
             {authorName && (
@@ -296,7 +296,7 @@ export default async function RecipePage({
 
       {substitutions && substitutions.length > 0 && (
         <section className="rounded-lg border bg-boutargue-tint p-4">
-          <h2 className="font-display text-base font-extrabold text-[#0b0b0b]">
+          <h2 className="font-display text-base font-semibold text-[#0b0b0b]">
             {t.substitutionsTitle}
           </h2>
           <ul className="mt-2 flex flex-col gap-1 text-sm text-[#3d3d3d]">
@@ -312,7 +312,7 @@ export default async function RecipePage({
       )}
 
       <section>
-        <h2 className="font-display text-lg font-extrabold">{t.ingredients}</h2>
+        <h2 className="font-display text-lg font-semibold">{t.ingredients}</h2>
         <ul className="mt-2 flex flex-col gap-1.5 text-sm">
           {(ingredients ?? []).map((ingredient, index) => {
             const previous = (ingredients ?? [])[index - 1];
@@ -343,7 +343,7 @@ export default async function RecipePage({
       </section>
 
       <section>
-        <h2 className="font-display text-lg font-extrabold">{t.steps}</h2>
+        <h2 className="font-display text-lg font-semibold">{t.steps}</h2>
         <div className="mt-2 flex flex-col gap-4">
           {phases.map((phase, phaseIndex) => (
             <div key={phaseIndex}>
@@ -380,7 +380,7 @@ export default async function RecipePage({
 
       {typeof nutrition.kcal === "number" && (
         <section>
-          <h2 className="font-display text-lg font-extrabold">{t.nutrition}</h2>
+          <h2 className="font-display text-lg font-semibold">{t.nutrition}</h2>
           <p className="mt-1 text-xs text-ink-50">{t.perServing}</p>
           <div className="mt-2 grid grid-cols-4 gap-2 text-center">
             {(

@@ -6,7 +6,7 @@ import {
   RecipeCard,
   type RecipeCardData,
 } from "@/components/recipes/recipe-card";
-import { IlluCouscoussier } from "@/components/illustrations";
+import { IlluCasserole } from "@/components/illustrations";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
@@ -67,7 +67,7 @@ export default async function RecettesPage({
   if (!isSupabaseConfigured) {
     return (
       <section>
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
+        <h1 className="font-display text-3xl font-semibold tracking-tight">
           {t.title}
         </h1>
         <p className="mt-4 text-ink-70">{fr.auth.notConfigured}</p>
@@ -83,7 +83,7 @@ export default async function RecettesPage({
   return (
     <section className="flex flex-col gap-4">
       <header className="flex flex-wrap items-center gap-3">
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
+        <h1 className="font-display text-3xl font-semibold tracking-tight">
           {t.title}
         </h1>
         <div className="ml-auto flex gap-2">
@@ -299,7 +299,7 @@ async function DiscoverTab({ filters }: { filters: Filters }) {
 
       {recipes.length === 0 ? (
         <EmptyState
-          illustration={<IlluCouscoussier size={64} />}
+          illustration={<IlluCasserole size={64} />}
           title={t.empty}
         />
       ) : (
@@ -352,7 +352,7 @@ async function BookTab({ userId }: { userId: string | null }) {
   if ((mine ?? []).length === 0 && orderedSaved.length === 0) {
     return (
       <EmptyState
-        illustration={<IlluCouscoussier size={64} />}
+        illustration={<IlluCasserole size={64} />}
         title={t.bookEmpty}
       />
     );
@@ -362,7 +362,7 @@ async function BookTab({ userId }: { userId: string | null }) {
     <div className="flex flex-col gap-5">
       {(mine ?? []).length > 0 && (
         <div className="flex flex-col gap-2">
-          <h2 className="font-display text-lg font-extrabold">{t.myRecipes}</h2>
+          <h2 className="font-display text-lg font-semibold">{t.myRecipes}</h2>
           <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {(mine ?? []).map((recipe) => (
               <li key={recipe.id}>
@@ -374,7 +374,7 @@ async function BookTab({ userId }: { userId: string | null }) {
       )}
       {orderedSaved.length > 0 && (
         <div className="flex flex-col gap-2">
-          <h2 className="font-display text-lg font-extrabold">
+          <h2 className="font-display text-lg font-semibold">
             {t.savedRecipes}
           </h2>
           <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -423,7 +423,7 @@ async function CollectionsTab({ userId }: { userId: string | null }) {
       />
       {(collections ?? []).length === 0 ? (
         <EmptyState
-          illustration={<IlluCouscoussier size={64} />}
+          illustration={<IlluCasserole size={64} />}
           title={t.collections.empty}
         />
       ) : (
@@ -444,7 +444,7 @@ async function CollectionsTab({ userId }: { userId: string | null }) {
                   <span className="text-3xl leading-none" aria-hidden>
                     {collection.icon}
                   </span>
-                  <span className="font-display text-base font-extrabold leading-tight">
+                  <span className="font-display text-base font-semibold leading-tight">
                     {collection.name}
                   </span>
                   <span className="mt-auto flex items-center gap-2 text-xs text-ink-70">

@@ -18,7 +18,7 @@ async function requireUser() {
 
 const postSchema = z.object({
   text: z.string().min(2).max(1000),
-  kind: z.enum(["text", "recipe", "progress", "shabbat_plate", "workout"]),
+  kind: z.enum(["text", "recipe", "cooked"]),
   recipeId: z.uuid().nullable(),
   groupId: z.uuid().nullable(),
 });
@@ -135,11 +135,13 @@ export async function deletePostComment(commentId: string) {
 
 export async function setReaction(
   postId: string,
-  kind: "bsahtek" | "mabrouk" | "yaouili" | null,
+  kind: "love" | "bravo" | "miam" | null,
 ) {
   const id = z.uuid().parse(postId);
+  const reaction =
+    kind === null ? null : z.enum(["love", "bravo", "miam"]).parse(kind);
   const { supabase, user } = await requireUser();
-  if (kind === null) {
+  if (reaction === null) {
     await supabase
       .from("post_reactions")
       .delete()
@@ -150,7 +152,7 @@ export async function setReaction(
   const { error } = await supabase
     .from("post_reactions")
     .upsert(
-      { post_id: id, user_id: user.id, kind },
+      { post_id: id, user_id: user.id, kind: reaction },
       { onConflict: "post_id,user_id" },
     );
   return { ok: !error };

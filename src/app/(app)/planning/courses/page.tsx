@@ -66,7 +66,7 @@ export default async function CoursesPage({
           <ArrowLeft size={13} strokeWidth={2} aria-hidden />
           {t.backToPlanning}
         </Link>
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
+        <h1 className="font-display text-3xl font-semibold tracking-tight">
           {t.title}
         </h1>
       </header>

@@ -20,7 +20,7 @@ export default async function CoachPage({
   if (!isSupabaseConfigured) {
     return (
       <section className="mx-auto w-full max-w-3xl">
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
+        <h1 className="font-display text-3xl font-semibold tracking-tight">
           {t.title}
         </h1>
         <p className="mt-4 text-ink-70">{fr.auth.notConfigured}</p>

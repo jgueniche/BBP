@@ -15,7 +15,6 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { CoachBubble } from "@/components/coach/coach-bubble";
-import type { KemiaExpression } from "@/components/illustrations/kemia-avatar";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -73,11 +72,6 @@ function messageText(message: UIMessage): string {
     )
     .map((part) => part.text)
     .join("");
-}
-
-function expressionFor(index: number): KemiaExpression {
-  const cycle: KemiaExpression[] = ["sourire", "clin", "douce", "fiere"];
-  return cycle[index % cycle.length]!;
 }
 
 function ConversationsSheet({
@@ -296,12 +290,10 @@ export function CoachChat({
     void sendMessage({ text });
   }
 
-  let assistantIndex = -1;
-
   return (
     <section className="flex h-[calc(100dvh-8.5rem)] flex-col gap-3 lg:h-[calc(100dvh-5rem)]">
       <header className="flex items-center justify-between gap-2">
-        <h1 className="font-display text-3xl font-extrabold tracking-tight">
+        <h1 className="font-display text-3xl font-semibold tracking-tight">
           {t.title}
         </h1>
         <div className="flex items-center gap-2">
@@ -331,15 +323,7 @@ export function CoachChat({
             const text = messageText(message);
             if (!text) return null;
             if (message.role === "assistant") {
-              assistantIndex += 1;
-              return (
-                <CoachBubble
-                  key={message.id}
-                  expression={expressionFor(assistantIndex)}
-                >
-                  {text}
-                </CoachBubble>
-              );
+              return <CoachBubble key={message.id}>{text}</CoachBubble>;
             }
             return (
               <div key={message.id} className="flex justify-end">
@@ -351,11 +335,11 @@ export function CoachChat({
           })}
 
           {awaitingReply && (
-            <CoachBubble expression="douce">
+            <CoachBubble>
               <TypingIndicator />
             </CoachBubble>
           )}
-          {error && <CoachBubble expression="douce">{t.fallback}</CoachBubble>}
+          {error && <CoachBubble>{t.fallback}</CoachBubble>}
           {quotaReached && (
             <p className="rounded-lg bg-boutargue-tint p-3 text-sm text-[#3d3d3d]">
               {t.quotaReached}

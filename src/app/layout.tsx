@@ -1,6 +1,6 @@
 import { SerwistProvider } from "@serwist/turbopack/react";
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Inter, JetBrains_Mono } from "next/font/google";
+import { Cormorant_Garamond, Inter, JetBrains_Mono } from "next/font/google";
 
 import { Toaster } from "@/components/ui/sonner";
 import { fr } from "@/i18n/fr";
@@ -9,9 +9,12 @@ import { siteUrl } from "@/lib/site";
 
 import "./globals.css";
 
-const bricolage = Bricolage_Grotesque({
-  variable: "--font-bricolage",
+// Display: a refined serif for titles (pivot, ADR-029); Inter stays for text.
+const cormorant = Cormorant_Garamond({
+  variable: "--font-cormorant",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -27,8 +30,8 @@ const jetbrains = JetBrains_Mono({
   display: "swap",
 });
 
-const defaultTitle = `${fr.app.name} — ${fr.app.fullName}`;
-const description = `${fr.app.tagline} Coach nutrition, sport et communauté, casher-natif.`;
+const defaultTitle = `${fr.app.name} — ${fr.app.tagline}`;
+const description = fr.pwa.manifestDescription;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
@@ -64,7 +67,7 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body
-        className={`${bricolage.variable} ${inter.variable} ${jetbrains.variable} font-sans antialiased`}
+        className={`${cormorant.variable} ${inter.variable} ${jetbrains.variable} font-sans antialiased`}
       >
         {/* Keyboard users jump straight to the page content (AA). */}
         <a

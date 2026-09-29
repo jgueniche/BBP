@@ -4,22 +4,28 @@ import { describe, expect, it, vi } from "vitest";
 import { BottomNav } from "./bottom-nav";
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/journal",
+  usePathname: () => "/planning",
 }));
 
 describe("BottomNav", () => {
   it("renders the five main tabs and marks the active one", () => {
     render(<BottomNav />);
 
-    for (const label of ["Accueil", "Journal", "Progrès", "Cuisine", "Kémia"]) {
+    for (const label of [
+      "Recettes",
+      "Planning",
+      "Communauté",
+      "Copine",
+      "Moi",
+    ]) {
       expect(screen.getByRole("link", { name: label })).toBeInTheDocument();
     }
 
-    expect(screen.getByRole("link", { name: "Journal" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Planning" })).toHaveAttribute(
       "aria-current",
       "page",
     );
-    expect(screen.getByRole("link", { name: "Cuisine" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Recettes" })).toHaveAttribute(
       "href",
       "/recettes",
     );

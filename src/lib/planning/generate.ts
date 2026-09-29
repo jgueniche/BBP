@@ -149,30 +149,18 @@ export async function buildPlanningData(
   userId: string,
   weekStart: string,
 ): Promise<PlanningData> {
-  const [{ data: settings }, { data: goal }, { data: health }, pool] =
-    await Promise.all([
-      supabase
-        .from("user_settings")
-        .select(
-          "shomer_shabbat, meat_to_dairy_wait_hours, dairy_to_meat_wait_hours, kitniyot, israel_calendar, mode, kashrut_enabled, jewish_calendar_enabled",
-        )
-        .eq("user_id", userId)
-        .maybeSingle(),
-      supabase
-        .from("goals")
-        .select("calorie_target")
-        .eq("user_id", userId)
-        .eq("status", "active")
-        .maybeSingle(),
-      supabase
-        .from("health_profile")
-        .select("allergies, dislikes")
-        .eq("user_id", userId)
-        .maybeSingle(),
-      loadPool(supabase, userId),
-    ]);
+  const [{ data: settings }, pool] = await Promise.all([
+    supabase
+      .from("user_settings")
+      .select(
+        "shomer_shabbat, meat_to_dairy_wait_hours, dairy_to_meat_wait_hours, kitniyot, israel_calendar, kashrut_enabled, jewish_calendar_enabled",
+      )
+      .eq("user_id", userId)
+      .maybeSingle(),
+    loadPool(supabase, userId),
+  ]);
 
-  const calendarEnabled = settings?.jewish_calendar_enabled ?? true;
+  const calendarEnabled = settings?.jewish_calendar_enabled ?? false;
   const weekEnd = new Date(
     Date.parse(`${weekStart}T00:00:00Z`) + 6 * 86_400_000,
   )
@@ -185,10 +173,10 @@ export async function buildPlanningData(
   // source: empty date sets and no mandatory chabbat meals.
   const ctx: PlanContext = {
     weekStart,
-    calorieTarget:
-      settings?.mode === "boutargue" ? null : (goal?.calorie_target ?? null),
-    kashrutEnabled: settings?.kashrut_enabled ?? true,
-    shomerShabbat: calendarEnabled && (settings?.shomer_shabbat ?? true),
+    // No calorie targets any more (pivot, ADR-028): portions stay at 1.
+    calorieTarget: null,
+    kashrutEnabled: settings?.kashrut_enabled ?? false,
+    shomerShabbat: calendarEnabled && (settings?.shomer_shabbat ?? false),
     meatToDairyWaitHours: settings?.meat_to_dairy_wait_hours ?? 6,
     dairyToMeatWaitHours: settings?.dairy_to_meat_wait_hours ?? 1,
     eatsKitniyot: settings?.kitniyot ?? true,
@@ -207,12 +195,6 @@ export async function buildPlanningData(
   };
 
   const profileBits: string[] = [];
-  if (health?.allergies && health.allergies.length > 0) {
-    profileBits.push(`Allergies (à exclure) : ${health.allergies.join(", ")}.`);
-  }
-  if (health?.dislikes && health.dislikes.length > 0) {
-    profileBits.push(`N'aime pas : ${health.dislikes.join(", ")}.`);
-  }
 
   return {
     ctx,
@@ -339,7 +321,7 @@ export type StoredGeneration =
     }
   | { ok: false; code: "quota" | "empty_pool" };
 
-/** Full generate-validate-persist cycle, shared by the page action and Kémia. */
+/** Full generate-validate-persist cycle, shared by the page action and the assistant. */
 export async function generateAndStoreWeek(
   supabase: Supabase,
   userId: string,

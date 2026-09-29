@@ -1,5 +1,25 @@
 # DECISIONS.md — ADR courts (≤ 5 lignes chacun)
 
+## ADR-029 — Copine en cuisine : nom, assistante neutre, typo élégante, règles opt-in (29/09/2026)
+Demandes de Jeremy : l'app s'appelle **Copine en cuisine** et Kémia devient **Copine** (`src/lib/brand.ts`), au ton
+neutre sans aucune couleur culturelle ni religieuse (prompt v2.0.0, calendrier factuel sans vœux, réactions J'adore /
+Bravo / Miam) ; titres en Cormorant Garamond (graisses fines) en attendant Claude Design ; casher et calendrier juif
+**opt-in** pour tous. Le suivi santé est retiré du code ; `BRIEF.md` v2 remplace le brief BBP (archivé).
+
+## ADR-028 — Cadrage du pivot validé (29/09/2026)
+Réponses de Jeremy aux 4 questions bloquantes de `docs/PIVOT-2026.md` : **suivi santé supprimé** (journal, poids,
+calories, TDEE, progrès, coach minceur ; seules les kcal par portion restent, discrètes) ; V1 collaborative =
+**foyer, Tablée, carnets partagés et communauté publique** ; **Kémia garde son nom et devient une copine en cuisine
+multiculturelle**, sans minceur ; **app iPhone/Android rapidement** via une coque native (extension de partage).
+Les réponses par défaut des questions 5 à 12 s'appliquent tant qu'elles ne sont pas contestées.
+
+## ADR-027 — Pivot vers la cuisine collaborative ; le sport est supprimé (29/09/2026)
+Demande de Jeremy : sa femme reprend l'app pour en faire une app de cuisine collaborative, « girly », ouverte
+à toutes les communautés et à tous les régimes (casher, halal, vegan, végétarien indien…), l'import social
+restant central. Le sport sort du code (pages, moteur, agent, seed, outil Kémia, badges/défis/série) ; la
+migration `202609291000` supprime ses tables et convertit les posts « séance » — à appliquer après déploiement.
+Le reste du pivot attend les réponses aux questions de cadrage de `docs/PIVOT-2026.md`.
+
 ## ADR-026 — SEO : `/r/[slug]` statique + ISR, JSON-LD Recipe, app privée `noindex` (03/09/2026)
 La page publique de recette est prérendue (SSG des 200 dernières recettes communautaires, `dynamicParams`
 pour le reste) et revalidée toutes les heures ; elle porte ingrédients, étapes, nutrition et un JSON-LD

@@ -56,7 +56,7 @@ export default async function GroupPage({
           {group.icon}
         </span>
         <div className="min-w-0 flex-1">
-          <h1 className="font-display text-3xl font-extrabold tracking-tight">
+          <h1 className="font-display text-3xl font-semibold tracking-tight">
             {group.name}
           </h1>
           <p className="flex items-center gap-1 text-xs text-ink-50">

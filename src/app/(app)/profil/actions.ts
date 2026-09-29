@@ -36,7 +36,6 @@ export async function updatePracticeSettings(input: {
   if (error) throw new Error(error.message);
   revalidatePath("/profil");
   revalidatePath("/planning");
-  revalidatePath("/journal");
   return { ok: true as const };
 }
 
@@ -81,7 +80,6 @@ export async function updateCalendarSettings(input: {
   if (profileRes.error) throw new Error(profileRes.error.message);
   revalidatePath("/profil");
   revalidatePath("/planning");
-  revalidatePath("/journal");
   return { ok: true as const };
 }
 
@@ -111,14 +109,32 @@ export async function deleteAccountData() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  // RLS restricts every delete to the current user's rows.
-  await supabase.from("food_logs").delete().eq("user_id", user.id);
-  await supabase.from("food_favorites").delete().eq("user_id", user.id);
-  await supabase.from("weight_logs").delete().eq("user_id", user.id);
-  await supabase.from("goals").delete().eq("user_id", user.id);
-  await supabase.from("health_profile").delete().eq("user_id", user.id);
-  await supabase.from("user_settings").delete().eq("user_id", user.id);
-  await supabase.from("foods").delete().eq("user_id", user.id);
+  // RLS restricts every delete to the current user's rows. Children go first;
+  // recipes, collections, plans and conversations cascade to their rows.
+  const byUser = [
+    "recipe_likes",
+    "recipe_saves",
+    "recipe_notes",
+    "recipe_comments",
+    "post_reactions",
+    "collection_members",
+    "group_members",
+    "coach_memories",
+    "coach_conversations",
+    "meal_plans",
+    "push_subscriptions",
+    "jewish_calendar_cache",
+    "user_settings",
+    "foods",
+  ] as const;
+  for (const table of byUser) {
+    await supabase.from(table).delete().eq("user_id", user.id);
+  }
+  await supabase.from("post_comments").delete().eq("author_id", user.id);
+  await supabase.from("posts").delete().eq("author_id", user.id);
+  await supabase.from("follows").delete().eq("follower_id", user.id);
+  await supabase.from("recipes").delete().eq("author_id", user.id);
+  await supabase.from("collections").delete().eq("owner_id", user.id);
   await supabase.from("profiles").delete().eq("id", user.id);
 
   await supabase.auth.signOut();

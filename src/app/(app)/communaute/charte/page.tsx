@@ -5,7 +5,7 @@ const t = fr.communaute.charte;
 export default function ChartePage() {
   return (
     <section className="flex w-full max-w-3xl flex-col gap-4">
-      <h1 className="font-display text-3xl font-extrabold tracking-tight">
+      <h1 className="font-display text-3xl font-semibold tracking-tight">
         {t.title}
       </h1>
       <p className="text-sm text-ink-70">{t.intro}</p>

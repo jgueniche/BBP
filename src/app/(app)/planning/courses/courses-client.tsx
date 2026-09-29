@@ -105,7 +105,7 @@ export function CoursesClient({
       ) : (
         [...byAisle.entries()].map(([aisle, aisleItems]) => (
           <section key={aisle}>
-            <h2 className="font-display text-base font-extrabold">{aisle}</h2>
+            <h2 className="font-display text-base font-semibold">{aisle}</h2>
             <ul className="mt-1.5 flex flex-col gap-1">
               {aisleItems.map((item) => (
                 <li key={item.id}>

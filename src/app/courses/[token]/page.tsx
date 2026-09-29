@@ -39,9 +39,7 @@ export default async function SharedCoursesPage({
   if (!list) {
     return (
       <main className="mx-auto max-w-md px-4 py-10">
-        <h1 className="font-display text-2xl font-extrabold">
-          {t.publicTitle}
-        </h1>
+        <h1 className="font-display text-2xl font-semibold">{t.publicTitle}</h1>
         <p className="mt-3 text-sm text-ink-70">{t.publicEmpty}</p>
       </main>
     );
@@ -63,8 +61,8 @@ export default async function SharedCoursesPage({
   return (
     <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-8">
       <header>
-        <h1 className="font-display text-2xl font-extrabold tracking-tight">
-          {t.publicTitle} — BBP
+        <h1 className="font-display text-2xl font-semibold tracking-tight">
+          {t.publicTitle} — Copine en cuisine
         </h1>
         <p className="text-xs text-ink-50">
           {fr.planning.weekOf} {weekLabel} · {list.items.length} {t.itemsLabel}
@@ -72,7 +70,7 @@ export default async function SharedCoursesPage({
       </header>
       {[...byAisle.entries()].map(([aisle, items]) => (
         <section key={aisle}>
-          <h2 className="font-display text-base font-extrabold">{aisle}</h2>
+          <h2 className="font-display text-base font-semibold">{aisle}</h2>
           <ul className="mt-1.5 flex flex-col gap-1">
             {items.map((item, index) => (
               <li

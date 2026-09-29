@@ -20,30 +20,6 @@ export type Database = {
         Update: { created_at?: string; user_id?: string };
         Relationships: [];
       };
-      badges: {
-        Row: {
-          created_at: string;
-          description: string;
-          icon: string;
-          name: string;
-          slug: string;
-        };
-        Insert: {
-          created_at?: string;
-          description: string;
-          icon: string;
-          name: string;
-          slug: string;
-        };
-        Update: {
-          created_at?: string;
-          description?: string;
-          icon?: string;
-          name?: string;
-          slug?: string;
-        };
-        Relationships: [];
-      };
       blocks: {
         Row: { blocked_id: string; blocker_id: string; created_at: string };
         Insert: { blocked_id: string; blocker_id: string; created_at?: string };
@@ -51,102 +27,6 @@ export type Database = {
           blocked_id?: string;
           blocker_id?: string;
           created_at?: string;
-        };
-        Relationships: [];
-      };
-      body_measurements: {
-        Row: {
-          arm_cm: number | null;
-          chest_cm: number | null;
-          created_at: string;
-          date: string;
-          hips_cm: number | null;
-          id: string;
-          thigh_cm: number | null;
-          updated_at: string;
-          user_id: string;
-          waist_cm: number | null;
-        };
-        Insert: {
-          arm_cm?: number | null;
-          chest_cm?: number | null;
-          created_at?: string;
-          date?: string;
-          hips_cm?: number | null;
-          id?: string;
-          thigh_cm?: number | null;
-          updated_at?: string;
-          user_id: string;
-          waist_cm?: number | null;
-        };
-        Update: {
-          arm_cm?: number | null;
-          chest_cm?: number | null;
-          created_at?: string;
-          date?: string;
-          hips_cm?: number | null;
-          id?: string;
-          thigh_cm?: number | null;
-          updated_at?: string;
-          user_id?: string;
-          waist_cm?: number | null;
-        };
-        Relationships: [];
-      };
-      challenge_participants: {
-        Row: {
-          challenge_slug: string;
-          joined_at: string;
-          progress: number;
-          updated_at: string;
-          user_id: string;
-        };
-        Insert: {
-          challenge_slug: string;
-          joined_at?: string;
-          progress?: number;
-          updated_at?: string;
-          user_id: string;
-        };
-        Update: {
-          challenge_slug?: string;
-          joined_at?: string;
-          progress?: number;
-          updated_at?: string;
-          user_id?: string;
-        };
-        Relationships: [];
-      };
-      challenges: {
-        Row: {
-          collective: boolean;
-          created_at: string;
-          description: string;
-          icon: string;
-          metric: string;
-          name: string;
-          slug: string;
-          target: number;
-        };
-        Insert: {
-          collective?: boolean;
-          created_at?: string;
-          description: string;
-          icon: string;
-          metric: string;
-          name: string;
-          slug: string;
-          target: number;
-        };
-        Update: {
-          collective?: boolean;
-          created_at?: string;
-          description?: string;
-          icon?: string;
-          metric?: string;
-          name?: string;
-          slug?: string;
-          target?: number;
         };
         Relationships: [];
       };
@@ -327,48 +207,6 @@ export type Database = {
         };
         Relationships: [];
       };
-      exercises: {
-        Row: {
-          created_at: string;
-          cues: string;
-          equipment: string[];
-          id: string;
-          kind: string;
-          level: string;
-          met: number;
-          mistakes: string;
-          muscle_groups: string[];
-          name_fr: string;
-          slug: string;
-        };
-        Insert: {
-          created_at?: string;
-          cues: string;
-          equipment?: string[];
-          id?: string;
-          kind?: string;
-          level?: string;
-          met: number;
-          mistakes: string;
-          muscle_groups?: string[];
-          name_fr: string;
-          slug: string;
-        };
-        Update: {
-          created_at?: string;
-          cues?: string;
-          equipment?: string[];
-          id?: string;
-          kind?: string;
-          level?: string;
-          met?: number;
-          mistakes?: string;
-          muscle_groups?: string[];
-          name_fr?: string;
-          slug?: string;
-        };
-        Relationships: [];
-      };
       follows: {
         Row: {
           created_at: string;
@@ -384,75 +222,6 @@ export type Database = {
           created_at?: string;
           followed_id?: string;
           follower_id?: string;
-        };
-        Relationships: [];
-      };
-      food_favorites: {
-        Row: {
-          created_at: string;
-          items: Json;
-          label: string;
-          user_id: string;
-        };
-        Insert: {
-          created_at?: string;
-          items?: Json;
-          label: string;
-          user_id: string;
-        };
-        Update: {
-          created_at?: string;
-          items?: Json;
-          label?: string;
-          user_id?: string;
-        };
-        Relationships: [];
-      };
-      food_logs: {
-        Row: {
-          created_at: string;
-          date: string;
-          id: string;
-          items: Json;
-          kashrut_class: string | null;
-          logged_at: string;
-          meal: string;
-          photo_path: string | null;
-          raw_input: string | null;
-          source: string;
-          totals: Json;
-          updated_at: string;
-          user_id: string;
-        };
-        Insert: {
-          created_at?: string;
-          date?: string;
-          id?: string;
-          items?: Json;
-          kashrut_class?: string | null;
-          logged_at?: string;
-          meal: string;
-          photo_path?: string | null;
-          raw_input?: string | null;
-          source?: string;
-          totals?: Json;
-          updated_at?: string;
-          user_id: string;
-        };
-        Update: {
-          created_at?: string;
-          date?: string;
-          id?: string;
-          items?: Json;
-          kashrut_class?: string | null;
-          logged_at?: string;
-          meal?: string;
-          photo_path?: string | null;
-          raw_input?: string | null;
-          source?: string;
-          totals?: Json;
-          updated_at?: string;
-          user_id?: string;
         };
         Relationships: [];
       };
@@ -513,54 +282,6 @@ export type Database = {
         };
         Relationships: [];
       };
-      goals: {
-        Row: {
-          activity_level: string;
-          calorie_target: number | null;
-          created_at: string;
-          id: string;
-          protein_target_g: number | null;
-          status: string;
-          target_date: string | null;
-          target_weight_kg: number | null;
-          tdee_estimate: number | null;
-          type: string;
-          updated_at: string;
-          user_id: string;
-          weekly_rate_pct: number | null;
-        };
-        Insert: {
-          activity_level: string;
-          calorie_target?: number | null;
-          created_at?: string;
-          id?: string;
-          protein_target_g?: number | null;
-          status?: string;
-          target_date?: string | null;
-          target_weight_kg?: number | null;
-          tdee_estimate?: number | null;
-          type: string;
-          updated_at?: string;
-          user_id: string;
-          weekly_rate_pct?: number | null;
-        };
-        Update: {
-          activity_level?: string;
-          calorie_target?: number | null;
-          created_at?: string;
-          id?: string;
-          protein_target_g?: number | null;
-          status?: string;
-          target_date?: string | null;
-          target_weight_kg?: number | null;
-          tdee_estimate?: number | null;
-          type?: string;
-          updated_at?: string;
-          user_id?: string;
-          weekly_rate_pct?: number | null;
-        };
-        Relationships: [];
-      };
       group_members: {
         Row: {
           created_at: string;
@@ -612,39 +333,6 @@ export type Database = {
           name?: string;
           slug?: string;
           visibility?: string;
-        };
-        Relationships: [];
-      };
-      health_profile: {
-        Row: {
-          allergies: string[];
-          consent_health_data_at: string | null;
-          created_at: string;
-          dislikes: string[];
-          medical_flags: Json;
-          updated_at: string;
-          user_id: string;
-          wellbeing_flag: boolean;
-        };
-        Insert: {
-          allergies?: string[];
-          consent_health_data_at?: string | null;
-          created_at?: string;
-          dislikes?: string[];
-          medical_flags?: Json;
-          updated_at?: string;
-          user_id: string;
-          wellbeing_flag?: boolean;
-        };
-        Update: {
-          allergies?: string[];
-          consent_health_data_at?: string | null;
-          created_at?: string;
-          dislikes?: string[];
-          medical_flags?: Json;
-          updated_at?: string;
-          user_id?: string;
-          wellbeing_flag?: boolean;
         };
         Relationships: [];
       };
@@ -768,39 +456,6 @@ export type Database = {
           updated_at?: string;
           user_id?: string;
           week_start?: string;
-        };
-        Relationships: [];
-      };
-      notifications: {
-        Row: {
-          body: string;
-          created_at: string;
-          id: string;
-          kind: string;
-          read: boolean;
-          title: string;
-          url: string | null;
-          user_id: string;
-        };
-        Insert: {
-          body: string;
-          created_at?: string;
-          id?: string;
-          kind: string;
-          read?: boolean;
-          title: string;
-          url?: string | null;
-          user_id: string;
-        };
-        Update: {
-          body?: string;
-          created_at?: string;
-          id?: string;
-          kind?: string;
-          read?: boolean;
-          title?: string;
-          url?: string | null;
-          user_id?: string;
         };
         Relationships: [];
       };
@@ -931,62 +586,47 @@ export type Database = {
         Row: {
           avatar_url: string | null;
           bio: string | null;
-          birth_year: number | null;
           city: string | null;
           created_at: string;
           display_name: string | null;
-          gender: string | null;
-          height_cm: number | null;
           id: string;
           lat: number | null;
-          level: number;
           lng: number | null;
           onboarding_completed_at: string | null;
           timezone: string;
           updated_at: string;
           username: string | null;
           visibility: string;
-          xp: number;
         };
         Insert: {
           avatar_url?: string | null;
           bio?: string | null;
-          birth_year?: number | null;
           city?: string | null;
           created_at?: string;
           display_name?: string | null;
-          gender?: string | null;
-          height_cm?: number | null;
           id: string;
           lat?: number | null;
-          level?: number;
           lng?: number | null;
           onboarding_completed_at?: string | null;
           timezone?: string;
           updated_at?: string;
           username?: string | null;
           visibility?: string;
-          xp?: number;
         };
         Update: {
           avatar_url?: string | null;
           bio?: string | null;
-          birth_year?: number | null;
           city?: string | null;
           created_at?: string;
           display_name?: string | null;
-          gender?: string | null;
-          height_cm?: number | null;
           id?: string;
           lat?: number | null;
-          level?: number;
           lng?: number | null;
           onboarding_completed_at?: string | null;
           timezone?: string;
           updated_at?: string;
           username?: string | null;
           visibility?: string;
-          xp?: number;
         };
         Relationships: [];
       };
@@ -1308,81 +948,6 @@ export type Database = {
         };
         Relationships: [];
       };
-      streaks: {
-        Row: {
-          best: number;
-          current: number;
-          kind: string;
-          last_date: string | null;
-          updated_at: string;
-          user_id: string;
-        };
-        Insert: {
-          best?: number;
-          current?: number;
-          kind: string;
-          last_date?: string | null;
-          updated_at?: string;
-          user_id: string;
-        };
-        Update: {
-          best?: number;
-          current?: number;
-          kind?: string;
-          last_date?: string | null;
-          updated_at?: string;
-          user_id?: string;
-        };
-        Relationships: [];
-      };
-      tdee_proposals: {
-        Row: {
-          avg_intake_kcal: number;
-          created_at: string;
-          days_with_logs: number;
-          id: string;
-          new_calorie_target: number | null;
-          new_tdee: number;
-          old_calorie_target: number | null;
-          old_tdee: number;
-          status: string;
-          trend_change_kg: number;
-          updated_at: string;
-          user_id: string;
-          week_start: string;
-        };
-        Insert: {
-          avg_intake_kcal: number;
-          created_at?: string;
-          days_with_logs: number;
-          id?: string;
-          new_calorie_target?: number | null;
-          new_tdee: number;
-          old_calorie_target?: number | null;
-          old_tdee: number;
-          status?: string;
-          trend_change_kg: number;
-          updated_at?: string;
-          user_id: string;
-          week_start: string;
-        };
-        Update: {
-          avg_intake_kcal?: number;
-          created_at?: string;
-          days_with_logs?: number;
-          id?: string;
-          new_calorie_target?: number | null;
-          new_tdee?: number;
-          old_calorie_target?: number | null;
-          old_tdee?: number;
-          status?: string;
-          trend_change_kg?: number;
-          updated_at?: string;
-          user_id?: string;
-          week_start?: string;
-        };
-        Relationships: [];
-      };
       user_settings: {
         Row: {
           candle_offset_min: number;
@@ -1394,7 +959,6 @@ export type Database = {
           kitniyot: boolean;
           meat_to_dairy_wait_hours: number;
           minor_fasts: boolean;
-          mode: string;
           no_fish_with_meat: boolean;
           notif_prefs: Json;
           quiet_hours: Json | null;
@@ -1412,7 +976,6 @@ export type Database = {
           kitniyot?: boolean;
           meat_to_dairy_wait_hours?: number;
           minor_fasts?: boolean;
-          mode?: string;
           no_fish_with_meat?: boolean;
           notif_prefs?: Json;
           quiet_hours?: Json | null;
@@ -1430,7 +993,6 @@ export type Database = {
           kitniyot?: boolean;
           meat_to_dairy_wait_hours?: number;
           minor_fasts?: boolean;
-          mode?: string;
           no_fish_with_meat?: boolean;
           notif_prefs?: Json;
           quiet_hours?: Json | null;
@@ -1440,171 +1002,15 @@ export type Database = {
         };
         Relationships: [];
       };
-      workout_programs: {
-        Row: {
-          created_at: string;
-          days_per_week: number;
-          duration_min: number;
-          equipment: string;
-          generated_by: string;
-          goal: string;
-          id: string;
-          level: string;
-          status: string;
-          updated_at: string;
-          user_id: string;
-          weeks: Json;
-        };
-        Insert: {
-          created_at?: string;
-          days_per_week: number;
-          duration_min?: number;
-          equipment: string;
-          generated_by?: string;
-          goal: string;
-          id?: string;
-          level: string;
-          status?: string;
-          updated_at?: string;
-          user_id: string;
-          weeks?: Json;
-        };
-        Update: {
-          created_at?: string;
-          days_per_week?: number;
-          duration_min?: number;
-          equipment?: string;
-          generated_by?: string;
-          goal?: string;
-          id?: string;
-          level?: string;
-          status?: string;
-          updated_at?: string;
-          user_id?: string;
-          weeks?: Json;
-        };
-        Relationships: [];
-      };
-      workout_sessions: {
-        Row: {
-          created_at: string;
-          date: string;
-          day_number: number | null;
-          duration_min: number | null;
-          id: string;
-          kcal_est: number | null;
-          kind: string;
-          label: string | null;
-          notes: string | null;
-          performed: Json | null;
-          planned: Json | null;
-          program_id: string | null;
-          rpe: number | null;
-          status: string;
-          updated_at: string;
-          user_id: string;
-          week_number: number | null;
-        };
-        Insert: {
-          created_at?: string;
-          date?: string;
-          day_number?: number | null;
-          duration_min?: number | null;
-          id?: string;
-          kcal_est?: number | null;
-          kind?: string;
-          label?: string | null;
-          notes?: string | null;
-          performed?: Json | null;
-          planned?: Json | null;
-          program_id?: string | null;
-          rpe?: number | null;
-          status?: string;
-          updated_at?: string;
-          user_id: string;
-          week_number?: number | null;
-        };
-        Update: {
-          created_at?: string;
-          date?: string;
-          day_number?: number | null;
-          duration_min?: number | null;
-          id?: string;
-          kcal_est?: number | null;
-          kind?: string;
-          label?: string | null;
-          notes?: string | null;
-          performed?: Json | null;
-          planned?: Json | null;
-          program_id?: string | null;
-          rpe?: number | null;
-          status?: string;
-          updated_at?: string;
-          user_id?: string;
-          week_number?: number | null;
-        };
-        Relationships: [];
-      };
-      user_badges: {
-        Row: {
-          awarded_at: string;
-          badge_slug: string;
-          user_id: string;
-        };
-        Insert: {
-          awarded_at?: string;
-          badge_slug: string;
-          user_id: string;
-        };
-        Update: {
-          awarded_at?: string;
-          badge_slug?: string;
-          user_id?: string;
-        };
-        Relationships: [];
-      };
-      weight_logs: {
-        Row: {
-          created_at: string;
-          date: string;
-          id: string;
-          source: string;
-          trend_kg: number | null;
-          updated_at: string;
-          user_id: string;
-          weight_kg: number;
-        };
-        Insert: {
-          created_at?: string;
-          date?: string;
-          id?: string;
-          source?: string;
-          trend_kg?: number | null;
-          updated_at?: string;
-          user_id: string;
-          weight_kg: number;
-        };
-        Update: {
-          created_at?: string;
-          date?: string;
-          id?: string;
-          source?: string;
-          trend_kg?: number | null;
-          updated_at?: string;
-          user_id?: string;
-          weight_kg?: number;
-        };
-        Relationships: [];
-      };
     };
     Views: {
       post_stats: {
         Row: {
-          bsahtek: number;
+          bravo: number;
           comments: number;
-          mabrouk: number;
+          love: number;
+          miam: number;
           post_id: string;
-          yaouili: number;
         };
         Relationships: [];
       };
@@ -1634,10 +1040,6 @@ export type Database = {
       is_group_member: {
         Args: { gid: string };
         Returns: boolean;
-      };
-      challenge_totals: {
-        Args: { challenge: string };
-        Returns: Json;
       };
       can_view_via_collection: {
         Args: { rid: string };
