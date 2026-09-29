@@ -3,6 +3,8 @@ import Link from "next/link";
 import { InstallCard } from "@/components/pwa/install-prompt";
 import { Button } from "@/components/ui/button";
 import { fr } from "@/i18n/fr";
+import { creatorPath } from "@/lib/creators/identity";
+import { loadClaimedCreators, loadCreatorsByIds } from "@/lib/creators/server";
 import { loadStoredFoodRules } from "@/lib/diets/preferences";
 import type { Allergen, Diet } from "@/lib/diets/types";
 import { readPushPrefs, type PushPrefs } from "@/lib/notifications/push-rules";
@@ -11,6 +13,7 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
 import { signOut } from "./actions";
+import { CreatorCard, type MyCreatorProfile } from "./creator-card";
 import { DeleteAccountButton } from "./delete-button";
 import { NotificationsCard } from "./notifications-card";
 import { FoodRulesCard } from "./food-rules-card";
@@ -36,6 +39,7 @@ export default async function ProfilPage() {
     dislikes: [],
   };
   let consented = false;
+  let creatorProfiles: MyCreatorProfile[] = [];
 
   if (isSupabaseConfigured) {
     const supabase = await createClient();
@@ -46,19 +50,44 @@ export default async function ProfilPage() {
 
     if (user) {
       userId = user.id;
-      const [profileRes, stored, settingsRes] = await Promise.all([
-        supabase
-          .from("profiles")
-          .select("display_name, username, bio, avatar_url, visibility")
-          .eq("id", user.id)
-          .maybeSingle(),
-        loadStoredFoodRules(supabase, user.id),
-        supabase
-          .from("user_settings")
-          .select("notif_prefs")
-          .eq("user_id", user.id)
-          .maybeSingle(),
-      ]);
+      const [profileRes, stored, settingsRes, claimed, pendingClaims] =
+        await Promise.all([
+          supabase
+            .from("profiles")
+            .select("display_name, username, bio, avatar_url, visibility")
+            .eq("id", user.id)
+            .maybeSingle(),
+          loadStoredFoodRules(supabase, user.id),
+          supabase
+            .from("user_settings")
+            .select("notif_prefs")
+            .eq("user_id", user.id)
+            .maybeSingle(),
+          loadClaimedCreators(supabase, [user.id]),
+          supabase
+            .from("creator_claims")
+            .select("creator_id")
+            .eq("user_id", user.id)
+            .eq("status", "pending"),
+        ]);
+      const pendingCreators = await loadCreatorsByIds(
+        supabase,
+        (pendingClaims.data ?? []).map((claim) => claim.creator_id),
+      );
+      creatorProfiles = [
+        ...(claimed.get(user.id) ?? []).map((creator) => ({
+          creator,
+          verified: true,
+        })),
+        ...[...pendingCreators.values()].map((creator) => ({
+          creator,
+          verified: false,
+        })),
+      ].map(({ creator, verified }) => ({
+        label: creator.label,
+        path: creatorPath(creator.platform, creator.handle),
+        verified,
+      }));
       displayName = profileRes.data?.display_name ?? null;
       profile = {
         displayName: profileRes.data?.display_name ?? "",
@@ -95,6 +124,8 @@ export default async function ProfilPage() {
 
             <div className="flex flex-col gap-4">
               <ProfileCard userId={userId} initial={profile} />
+
+              <CreatorCard profiles={creatorProfiles} />
 
               <NotificationsCard
                 vapidPublicKey={process.env.VAPID_PUBLIC_KEY ?? null}

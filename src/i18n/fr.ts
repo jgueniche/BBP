@@ -653,11 +653,11 @@ export const fr = {
       viewAccount: "Voir son compte {platform}",
       viewSite: "Voir son site",
       onCopine: "Son profil sur Copine",
-      savedOne: "enregistrée 1 fois",
+      savedOne: "enregistrée {n} fois",
       saved: "enregistrée {n} fois",
-      cookedOne: "cuisinée 1 fois",
+      cookedOne: "cuisinée {n} fois",
       cooked: "cuisinée {n} fois",
-      postsOne: "1 publication importée",
+      postsOne: "{n} publication importée",
       posts: "{n} publications importées",
       recipes: "Ses recettes et les versions publiques",
       recipesEmpty:
@@ -671,6 +671,10 @@ export const fr = {
         "Explique ce qui doit être retiré (publication, recette, lien) et comment te joindre :",
       removalSent:
         "Demande envoyée : l'équipe la traite et te répond sous quelques jours.",
+      removalAbout: "À propos de « {title} »",
+      removalSend: "Envoyer la demande",
+      removalCancel: "Annuler",
+      officialTag: "Version officielle",
     },
     claim: {
       bioSteps:
@@ -706,6 +710,7 @@ export const fr = {
       submit: "Continuer",
       invalid: "Ce @ ou cette adresse n'est pas valide pour cette plateforme.",
       mine: "Tes profils de créatrice",
+      pending: "Vérification en cours",
     },
     space: {
       title: "Ton espace créatrice",
@@ -750,7 +755,14 @@ export const fr = {
       reportsTitle: "Demandes de retrait",
       reportsEmpty: "Aucune demande de retrait.",
       withdrawPost: "Retirer la publication",
+      blockImports: "Refuser ses imports",
+      resolved: "C'est traité",
       dismiss: "Ignorer",
+      code: "Code attendu",
+      profileRequest: "Tout le profil",
+      postWithdrawn: "Publication déjà retirée",
+      openSpace: "Ouvrir son espace",
+      back: "Modération",
     },
     import: {
       withdrawn:

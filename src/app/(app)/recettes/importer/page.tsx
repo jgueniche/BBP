@@ -6,13 +6,20 @@ import { ImportClient } from "./import-client";
 const t = fr.recettes.importPage;
 
 // Web Share Target (manifest): shared links or text land here with
-// ?url=&text=&title= and prefill the importer.
+// ?url=&text=&title= and prefill the importer. « Publier ma version » (her
+// creator space) adds &credit=@her.handle.
 export default async function ImportRecipePage({
   searchParams,
 }: {
-  searchParams: Promise<SharedPayload>;
+  searchParams: Promise<SharedPayload & { credit?: string | string[] }>;
 }) {
-  const shared = parseSharedImport(await searchParams);
+  const params = await searchParams;
+  const shared = parseSharedImport(params);
+  const credit = (
+    Array.isArray(params.credit) ? params.credit[0] : params.credit
+  )
+    ?.trim()
+    .slice(0, 60);
   return (
     <section className="flex flex-col gap-4">
       <header className="flex flex-col gap-1">
@@ -21,7 +28,7 @@ export default async function ImportRecipePage({
         </h1>
         <p className="text-sm text-ink-70">{t.intro}</p>
       </header>
-      <ImportClient shared={shared} />
+      <ImportClient shared={shared} initialCredit={credit ?? ""} />
     </section>
   );
 }

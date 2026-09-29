@@ -155,8 +155,11 @@ const ERROR_MESSAGES = {
 
 export function ImportClient({
   shared = null,
+  initialCredit = "",
 }: {
   shared?: SharedImport | null;
+  /** The creator's @, when she publishes her own version. */
+  initialCredit?: string;
 }) {
   const [mode, setMode] = useState<"url" | "text" | "photo">(
     shared?.mode ?? "url",
@@ -173,7 +176,7 @@ export function ImportClient({
   }>({ url: null, author: null, title: null });
   const [initial, setInitial] = useState<EditorInitial | null>(null);
   const [gate, setGate] = useState<Gate | null>(null);
-  const [creatorHandle, setCreatorHandle] = useState("");
+  const [creatorHandle, setCreatorHandle] = useState(initialCredit);
 
   async function runUrlImport(value: string) {
     setPending(true);
@@ -193,9 +196,8 @@ export function ImportClient({
           author: result.sourceAuthor ?? null,
           title: result.title ?? null,
         });
-        setCreatorHandle(
-          result.sourceAuthor?.startsWith("@") ? result.sourceAuthor : "",
-        );
+        const credit = result.sourceAuthor;
+        setCreatorHandle((typed) => (credit?.startsWith("@") ? credit : typed));
         setNeedCaption(true);
         setMode("text");
         return;
