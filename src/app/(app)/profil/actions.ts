@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { foodRulesInputSchema } from "@/lib/diets/preferences";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
@@ -14,10 +15,56 @@ export async function signOut() {
   redirect("/login");
 }
 
-export async function updatePracticeSettings(input: {
-  kashrutEnabled: boolean;
-  jewishCalendarEnabled: boolean;
+export async function saveFoodRules(raw: {
+  diets: string[];
+  allergens: string[];
+  dislikes: string[];
+  consent: boolean;
 }) {
+  if (!isSupabaseConfigured)
+    return { ok: false as const, code: "off" as const };
+  const input = foodRulesInputSchema.parse(raw);
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { data: current } = await supabase
+    .from("user_settings")
+    .select("food_rules_consent_at")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  const sensitive = input.diets.length + input.allergens.length > 0;
+  const consentedAt =
+    current?.food_rules_consent_at ??
+    (input.consent ? new Date().toISOString() : null);
+  // Explicit consent before any diet or allergy is stored (GDPR art. 9).
+  if (sensitive && !consentedAt) {
+    return { ok: false as const, code: "consent_required" as const };
+  }
+
+  const { error } = await supabase.from("user_settings").upsert(
+    {
+      user_id: user.id,
+      diets: [...new Set(input.diets)],
+      allergens: [...new Set(input.allergens)],
+      dislikes: [
+        ...new Map(
+          input.dislikes.map((word) => [word.toLowerCase(), word] as const),
+        ).values(),
+      ],
+      food_rules_consent_at: consentedAt,
+    },
+    { onConflict: "user_id" },
+  );
+  if (error) throw new Error(error.message);
+  revalidatePath("/", "layout");
+  return { ok: true as const };
+}
+
+/** Withdraws the consent: every cooking rule is erased. */
+export async function clearFoodRules() {
   if (!isSupabaseConfigured) return { ok: false as const };
   const supabase = await createClient();
   const {
@@ -28,58 +75,15 @@ export async function updatePracticeSettings(input: {
   const { error } = await supabase.from("user_settings").upsert(
     {
       user_id: user.id,
-      kashrut_enabled: input.kashrutEnabled === true,
-      jewish_calendar_enabled: input.jewishCalendarEnabled === true,
+      diets: [],
+      allergens: [],
+      dislikes: [],
+      food_rules_consent_at: null,
     },
     { onConflict: "user_id" },
   );
   if (error) throw new Error(error.message);
-  revalidatePath("/profil");
-  revalidatePath("/planning");
-  return { ok: true as const };
-}
-
-export async function updateCalendarSettings(input: {
-  city: string;
-  israelCalendar: boolean;
-  minorFasts: boolean;
-  kitniyot: boolean;
-  noFishWithMeat: boolean;
-  candleOffsetMin: number;
-}) {
-  if (!isSupabaseConfigured) return { ok: false as const };
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-
-  const city = input.city.trim().slice(0, 60);
-  const offset = [18, 20, 30, 40].includes(input.candleOffsetMin)
-    ? input.candleOffsetMin
-    : 18;
-
-  const [settingsRes, profileRes] = await Promise.all([
-    supabase.from("user_settings").upsert(
-      {
-        user_id: user.id,
-        israel_calendar: input.israelCalendar === true,
-        minor_fasts: input.minorFasts === true,
-        kitniyot: input.kitniyot === true,
-        no_fish_with_meat: input.noFishWithMeat === true,
-        candle_offset_min: offset,
-      },
-      { onConflict: "user_id" },
-    ),
-    supabase
-      .from("profiles")
-      .update({ city: city.length > 0 ? city : null })
-      .eq("id", user.id),
-  ]);
-  if (settingsRes.error) throw new Error(settingsRes.error.message);
-  if (profileRes.error) throw new Error(profileRes.error.message);
-  revalidatePath("/profil");
-  revalidatePath("/planning");
+  revalidatePath("/", "layout");
   return { ok: true as const };
 }
 
@@ -123,7 +127,6 @@ export async function deleteAccountData() {
     "coach_conversations",
     "meal_plans",
     "push_subscriptions",
-    "jewish_calendar_cache",
     "user_settings",
     "foods",
   ] as const;
