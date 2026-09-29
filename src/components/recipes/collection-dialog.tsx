@@ -146,7 +146,7 @@ export function CollectionDialog({
                   key={choice}
                   type="button"
                   onClick={() => setColor(choice)}
-                  aria-label={choice}
+                  aria-label={t.colorNames[choice]}
                   aria-pressed={color === choice}
                   className={cn(
                     "size-8 rounded-full border",

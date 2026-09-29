@@ -14,6 +14,12 @@ const badgeVariants = cva(
         secondary: "border-transparent bg-secondary text-secondary-foreground",
         ok: "border-transparent bg-ok-soft text-ok",
         warn: "border-transparent bg-warn-soft text-warn",
+        rose: "border-transparent bg-rose text-foreground",
+        lilas: "border-transparent bg-lilas text-foreground",
+        menthe: "border-transparent bg-menthe text-foreground",
+        beurre: "border-transparent bg-beurre text-foreground",
+        peche: "border-transparent bg-peche text-foreground",
+        ciel: "border-transparent bg-ciel text-foreground",
         outline:
           "border-border bg-card text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
       },

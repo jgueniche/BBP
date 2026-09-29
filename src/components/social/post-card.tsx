@@ -198,7 +198,7 @@ export function PostCard({
           <p className="flex flex-wrap items-center gap-1.5 text-[11px] text-ink-50">
             {timeAgo(post.createdAt)}
             {kindLabel && (
-              <span className="rounded-full bg-ink-10 px-1.5 py-0.5 font-semibold text-ink-70">
+              <span className="rounded-full bg-beurre px-1.5 py-0.5 font-semibold text-ink-70">
                 {kindLabel}
               </span>
             )}

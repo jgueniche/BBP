@@ -10,13 +10,14 @@ export const COLLECTION_COLORS = [
 
 export type CollectionColor = (typeof COLLECTION_COLORS)[number];
 
-/** Cover tint per color token — soft backgrounds, ink text stays readable. */
+/** Cover tint per stored color key (legacy BBP keys, kept to avoid a data
+ *  migration) — pastel panels from the Copine palette, ink text stays readable. */
 export const COLLECTION_COLOR_CLASSES: Record<CollectionColor, string> = {
-  boutargue: "bg-boutargue-soft",
-  halavi: "bg-halavi/15",
-  bassari: "bg-bassari/15",
-  ok: "bg-ok/15",
-  warn: "bg-warn/15",
-  parve: "bg-parve/15",
-  ink: "bg-ink-10",
+  boutargue: "bg-rose",
+  halavi: "bg-ciel",
+  bassari: "bg-peche",
+  ok: "bg-menthe",
+  warn: "bg-beurre",
+  parve: "bg-lilas",
+  ink: "bg-nacre",
 };

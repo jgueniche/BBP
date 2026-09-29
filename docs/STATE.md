@@ -1,6 +1,24 @@
 # STATE.md — État du projet Copine en cuisine (ex-BBP)
 
-Dernière mise à jour : 29/09/2026 · Sessions 1 à 18
+Dernière mise à jour : 29/09/2026 · Sessions 1 à 18 + charte Claude Design (tokens)
+
+## Fait — Veille « plateforme sociale de la cuisine » (29/09/2026, ADR-031)
+- **Demande de Jeremy** : devenir LA plateforme sociale de la cuisine (il n'en existe pas de vraie) ; régimes pour tous mais **plus rien de communautaire** ni de détail religieux ; étiquettes et sous-catégories créées par les membres et les créatrices.
+- **Veille** : 7 recherches parallèles (communautés de recettes, applis sociales récentes, grandes plateformes et marché, économie des créatrices, mécaniques sociales, régimes et étiquettes, risques DSA/droit d'auteur/AI Act) → `docs/BENCHMARK-SOCIAL-2026.md`. Limite : startups FR/UE non recherchées (quota de recherche épuisé).
+- **Proposition validée par Jeremy le 29/09/2026** : vision réécrite, régimes simples, fonctions priorisées, conformité, feuille de route 19 → 28 → `docs/PLAN-SOCIAL-2026.md`.
+- **Prochaine session : 19 — Brief v3 & régimes simples** (réécrire `BRIEF.md` et `CLAUDE.md`, retirer le module casher détaillé et le calendrier juif, préférences simples + verdict par recette). La feuille de route de `BRIEF.md` §9 sera remplacée à cette occasion.
+
+## Fait — Charte Claude Design : tokens appliqués (ADR-030)
+- **Canevas Claude Design** (privé, à partager depuis son menu) : https://claude.ai/artifact/FJCbHw9jW7rQzZGwxJ9EXD — logo, monogramme, avatar Copine, palette clair/sombre, typo, composants, pastilles, icônes d'app, OG, 11 écrans mobiles + onboarding, fiche recette et fil desktop, états.
+- **Palette validée par Jeremy** : fond **blanc**, texte encre prune `#2B2230`, accent unique **framboise** `#C0265E`, pastels de panneaux (rose, lilas, menthe, beurre, pêche, ciel), états ok/attention/neutre/à vérifier, régimes en un seul style neutre.
+- **`globals.css`** : nouveaux tokens (`encre`, `framboise`, `nacre`, pastels, `neutral`, `verify`, `diet`) + tokens shadcn remappés ; anciens noms BBP (`ink`, `paper`, `boutargue`…) gardés en **alias** pour que toute l'app bascule sans réécrire les composants. Mode sombre prune nuit.
+- `themeColor` (layout), manifeste, OG recette et vitrine `/design` alignés sur la palette.
+- **Pastels posés dans les écrans** (`src/lib/utils/pastel.ts`, testé) : carnets (couleurs existantes remappées sans migration, noms accessibles), vignettes de recettes et groupes (pastel stable par slug), charte (un pastel par règle), Copine (bulles lilas / rose, mémoires lilas), Moi (règles lilas, notifications ciel), composer beurre (l'état vide du fil est rose), type de post beurre, substitutions menthe, avertissements casher en attention, minuteur menthe, note perso beurre, onboarding lilas, aides import/éditeur ciel, états vides rose ; variantes pastel du `Badge`. Textes noirs en dur sur fond teinté remplacés (lisibles en sombre).
+- **Vitrine `/design` refaite** (palette, pastels et leurs usages, échelle typo, badges pastel, cartes recette/carnet réelles, bulles Copine, logo, signature, ton éditorial) ; textes BBP retirés (mode diète, calories, chabbat). **Logo** aligné sur le canevas (« Copine » droit + « en cuisine » italique framboise, médaillon à double filet) ; utilitaire **`vichy`** (liseré signature) ; token `framboise-soft`.
+- **Identité exportée** (`public/brand/`) : logos `logo-on-light` / `logo-on-dark` / `logo-on-framboise` + `lockup-on-light` (médaillon + mot-symbole), médaillon `mark`, icône d'app (`icon`, `icon-square`), `mark-maskable` (zone sûre 80 %), `favicon`, `badge` monochrome pour les notifications ; favicon.ico 16/32/48 et apple-icon régénérés ; manifeste (+ maskable 192) et badge du service worker mis à jour ; anciens logos BBP supprimés.
+- **Accessibilité** : interrupteurs de « Mes règles de cuisine » contrastés (contour et pastille `ink-50`, ≥ 3:1 sur pastel), mention du composer passée de `ink-30` à `ink-50`.
+- **Rendu vérifié par captures** (clair + sombre, mobile + desktop) avec un **compte démo temporaire** créé via l'API admin (données privées uniquement : carnets, notes, planning, courses, Copine ; aucune publication), **supprimé après les captures**.
+- Lint, typecheck, 121 tests, build verts.
 
 ## Fait — Session 18 (Brief v2 & grand ménage : BBP devient Copine en cuisine — ADR-029)
 - **Nouvelles demandes de Jeremy** : l'app s'appelle **Copine en cuisine** ; Kémia devient **Copine**, au ton neutre (aucune orientation culturelle) ; typographie **classe, épurée, élégante** ; un **vrai réseau social** (actus, likes…).
@@ -14,7 +32,7 @@ Dernière mise à jour : 29/09/2026 · Sessions 1 à 18
 - **Règles de cuisine opt-in** : casher et calendrier juif désactivés par défaut pour tout nouveau compte (code + migration), carte « Mes règles de cuisine » dans Moi.
 - **« Version Protéine » → variante végétarienne** (même mécanique de recette liée, prompt sans régime).
 - **RGPD** : export JSON étendu (recettes, carnets, notes, commentaires, posts, conversations, mémoires, plannings) ; suppression étendue au contenu créé.
-- **Migrations écrites, NON appliquées** : `202609291100_drop_health_tracking.sql` (tables santé/gamification, bucket photos, colonnes profil, défauts opt-in) et `202609291110_universal_social_kinds.sql` (réactions et types de posts renommés, vue `post_stats` recréée). Types alignés.
+- **Migrations appliquées en prod** (constaté le 29/09 via `list_migrations`) : `202609291100_drop_health_tracking.sql` (tables santé/gamification, bucket photos, colonnes profil, défauts opt-in) et `202609291110_universal_social_kinds.sql` (réactions et types de posts renommés, vue `post_stats` recréée). Types alignés.
 - 117 tests verts (−88 : moteurs santé/gamification/file hors ligne supprimés), lint/typecheck/build OK ; rendu vérifié (`/login`, `/design`).
 
 ## Fait — Session 17 (Pivot : audit, veille, vision ; suppression du sport — ADR-027)
@@ -161,7 +179,7 @@ Limites : la base Supabase de BBP n'est pas exposée au connecteur MCP de cette 
 - shadcn/ui installé et re-thémé « sticker » : Button, Card, Input, Sheet, Dialog, Tabs, Badge, Progress, Toast (sonner) — bordures ink 2 px, radius 20 px, ombres dures `shadow-sticker`.
 - Composants BBP : `KashrutPill`, `MacroRing`, `StickerCard`, `CoachBubble` (avec respiration Framer Motion + reduced-motion), `EmptyState`.
 - Avatar Kémia SVG ×5 expressions (sourire, clin, surprise, fière, douce) ; 12 illustrations SVG line-art ; logo BBP ×4 variantes + tranche de boutargue dans le B.
-- `public/brand/` : SVG sources + `scripts/export-brand.mjs` (sharp) → PNG 32/192/512/maskable + logos 1024 ; `src/app/icon.svg` (favicon).
+- `public/brand/` : SVG sources (texte vectorisé, Cormorant Garamond) + `node scripts/export-brand.mjs` (sharp) → PNG icônes 192/512, maskable 192/512, favicon 32, badge 96, logos 1024, `src/app/apple-icon.png` et `src/app/favicon.ico` ; `src/app/icon.svg` (favicon vectoriel).
 - Page `/design` complète (couleurs, typo, boutons, cartes, formulaires, pastilles, anneaux, Kémia, illustrations, logos, états, ton §2.6), protégée par le middleware auth.
 - Login et Profil migrés sur le kit. Tests : 5 verts (nav, format, kashrut-pill).
 
@@ -183,12 +201,13 @@ Limites : la base Supabase de BBP n'est pas exposée au connecteur MCP de cette 
 - **Au déploiement** : appliquer dans l'ordre `202609291000_drop_sport_module.sql`, `202609291100_drop_health_tracking.sql`, `202609291110_universal_social_kinds.sql` (destructives : historique sport et santé supprimés). Sans elles, les pages sociales lisent encore les anciens noms de réactions (`post_stats`) : **appliquer la 1110 en même temps que le déploiement**.
 - **Session Claude Design** : brief prêt dans `docs/CLAUDE-DESIGN-BRIEF.md` (en précisant : typographie classe, épurée, élégante ; Cormorant Garamond en place provisoirement).
 - **Relancer `pnpm eval:coach`** avec la clé Gemini pour valider la voix de Copine (DoD : persona ≥ 95 %, garde-fous 100 %).
-- Icônes d'app et favicon : encore ceux de BBP (`public/brand/`), à refaire avec l'identité Claude Design.
 - (Facultatif) domaine et `NEXT_PUBLIC_SITE_URL` au nom de Copine en cuisine ; renommer le projet Vercel.
 - `GOOGLE_GENERATIVE_AI_API_KEY` sur Vercel pour l'IA (import, Copine, variantes, planning) ; sans elle, mode dégradé.
 - Dashboard Supabase : « Confirm email » et Site URL (cf. ADR-006) ; clés Sentry/PostHog le moment venu.
 
 ## Backlog
+- **Opt-in casher à faire respecter** : la fiche recette affiche la pastille Bassari/Halavi et la mention « demande à ton rabbin » même quand les règles de cacherout sont désactivées (constaté sur le compte démo) → à traiter avec le moteur multi-régimes (S19).
+- **Charte (suite)** : migrer les composants des alias BBP (`ink`, `boutargue`…) vers les tokens Copine, pastels à poser sur les futurs écrans Tablée et compatibilité, image de partage Open Graph du site (attend de vraies photos), repenser les couleurs halavi/bassari dans le moteur multi-régimes.
 - **Régimes (S19)** : moteur multi-régimes, profils alimentaires, allergies et dégoûts avec consentement (les anciennes allergies du profil santé ont disparu avec lui) ; filtres Recettes « Origine » encore maghrébins et « Casher » seul ; catégories à élargir.
 - **Import (S20)** : chemin Instagram par jeton Meta obsolète (l'oEmbed ne renvoie plus de légende) → capture/légende copiée ; YouTube ne lit que le titre ; pas de quota ni de file de jobs ; pas d'upload de photos de recettes.
 - **Réseau social (S22)** : photos dans les posts, notifications (réactions, commentaires, abonnés — infra push `lib/push/send.ts` conservée, sans usage aujourd'hui), temps réel, mentions, pagination du fil (30 derniers), réactions sur commentaires, profils de créatrices.

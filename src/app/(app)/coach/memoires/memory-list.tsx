@@ -28,7 +28,7 @@ export function MemoryList({
       {memories.map((memory) => (
         <li
           key={memory.id}
-          className="flex items-center gap-2 rounded-lg border bg-card p-3 text-sm shadow-soft"
+          className="flex items-center gap-2 rounded-lg bg-lilas p-3 text-sm"
         >
           <span className="flex-1">{memory.content}</span>
           <button

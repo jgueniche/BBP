@@ -174,7 +174,7 @@ export function PlanningGrid({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2 rounded-lg border bg-card p-3 shadow-soft">
+      <div className="flex flex-col gap-2 rounded-lg bg-lilas p-3">
         <div className="flex gap-2">
           <Input
             value={constraints}

@@ -435,7 +435,7 @@ async function CollectionsTab({ userId }: { userId: string | null }) {
                 <Link
                   href={`/recettes/carnets/${collection.id}`}
                   className={cn(
-                    "flex h-full flex-col gap-2 rounded-lg border p-4 shadow-soft",
+                    "flex h-full flex-col gap-2 rounded-lg p-4 transition-shadow hover:shadow-soft",
                     COLLECTION_COLOR_CLASSES[
                       collection.color as CollectionColor
                     ] ?? "bg-card",

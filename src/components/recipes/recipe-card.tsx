@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { KashrutPill } from "@/components/ui/kashrut-pill";
 import { fr } from "@/i18n/fr";
 import type { KashrutClass } from "@/lib/kashrut/meal";
+import { cn } from "@/lib/utils/cn";
+import { PASTEL_BG, pastelFor } from "@/lib/utils/pastel";
 
 const t = fr.recettes;
 
@@ -35,7 +37,12 @@ export function RecipeCard({
       href={`/recettes/${recipe.slug}`}
       className="flex items-center gap-3 rounded-lg border bg-card p-3 shadow-soft transition-colors"
     >
-      <span className="flex size-14 shrink-0 items-center justify-center rounded-[10px] bg-ink-10 text-ink-70">
+      <span
+        className={cn(
+          "flex size-14 shrink-0 items-center justify-center rounded-[10px] text-ink-70",
+          PASTEL_BG[pastelFor(recipe.slug)],
+        )}
+      >
         {recipe.icon ? (
           <span className="text-3xl leading-none" aria-hidden>
             {recipe.icon}

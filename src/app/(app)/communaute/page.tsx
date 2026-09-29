@@ -12,6 +12,7 @@ import { loadFeedPosts } from "@/lib/social/feed";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils/cn";
+import { PASTEL_BG, pastelFor } from "@/lib/utils/pastel";
 
 const t = fr.communaute;
 
@@ -150,7 +151,10 @@ async function GroupsTab({ userId }: { userId: string }) {
               <li key={group.id}>
                 <Link
                   href={`/communaute/groupes/${group.slug}`}
-                  className="flex items-center gap-3 rounded-lg border bg-card p-3 shadow-soft"
+                  className={cn(
+                    "flex items-center gap-3 rounded-lg p-3",
+                    PASTEL_BG[pastelFor(group.slug)],
+                  )}
                 >
                   <span className="text-2xl leading-none" aria-hidden>
                     {group.icon}

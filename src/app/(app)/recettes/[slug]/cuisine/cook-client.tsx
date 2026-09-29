@@ -201,7 +201,7 @@ export function CookClient({
             </p>
 
             {step.durationSec !== null && (
-              <div className="flex items-center gap-3 rounded-lg border bg-card p-4 shadow-soft">
+              <div className="flex items-center gap-3 rounded-lg bg-menthe p-4">
                 <Timer size={22} strokeWidth={2} aria-hidden />
                 <p className="flex-1 font-mono text-3xl font-bold tabular-nums">
                   {formatTime(timer?.remaining ?? step.durationSec)}
