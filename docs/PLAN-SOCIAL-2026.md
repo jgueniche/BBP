@@ -9,6 +9,8 @@ Proposition du 29/09/2026, à valider par Jeremy. S'appuie sur la veille `docs/B
 4. **Ce qui retient les gens est attaché à la recette** : la photo « j'ai cuisiné » (Cookpad), les notes votées « utiles » (NYT Cooking), les collections reliées aux courses. Les relances « réseau social » purement suiveuses, les forums ouverts et les concours sans lot échouent.
 5. **Les créatrices perdent 30 à 80 % de leur trafic** (résumés IA de Google, Pinterest) et **aucune appli ne leur permet de revendiquer les recettes importées depuis leurs posts** : c'est notre levier pour les faire venir.
 
+**Conséquence** : le réseau social de la cuisine ne naîtra pas d'un fil, mais d'un carnet. Ordre de construction : **l'utilité d'abord, les petits cercles ensuite, le public en dernier** ; le fil découle des « j'ai cuisiné » et des Tablées. **Indicateur clé : la part des recettes importées qui deviennent un « j'ai cuisiné »** (première mesure française de l'écart entre enregistrer et cuisiner, preuve de valeur pour les créatrices, base d'un futur partage de revenus). **Modèle économique : monétiser la table, pas le fil** (pas de publicité dans le fil).
+
 ## 2. La vision, peaufinée
 > **Copine en cuisine, le réseau social de la cuisine.**
 > On y suit ses copines et ses créatrices préférées, on garde toutes les recettes vues sur Insta et TikTok, et on cuisine ensemble, quelle que soit la table.
@@ -35,7 +37,8 @@ Signature inchangée : *Tes recettes, à plusieurs mains.*
 - **Un verdict clair par recette**, pour moi, mon foyer ou mes invités : compatible · adaptable · à vérifier. Formulations prudentes : « ingrédients compatibles halal/casher, préparation non garantie », « sans ingrédient contenant du gluten ».
 - **Plus de sous-classes religieuses dans l'app** : on retire viande/lait/parvé, délais d'attente, Pessah et le calendrier juif, et on ne construit pas de calendriers religieux. Les ingrédients restent décrits de façon neutre (viande, poisson, lait, œuf, alcool, gluten…), ce qui suffit à tous les régimes.
 - **La finesse vient des membres** : étiquettes libres (#ramadan, #shabbat, #diwali, #batchcooking, #cuisinecréole…) et catégories créées par les membres et les créatrices, avec fusion des synonymes sous une étiquette de référence (modèle AO3). L'app héberge, elle n'impose rien.
-- **Données sensibles** (RGPD art. 9) : consentement explicite, jamais publiques, jamais dans l'analytics.
+- **La compatibilité s'affiche sur les recettes, jamais sur les personnes.** Une étiquette posée par une membre (« #halal ») ne remplace jamais le verdict calculé ; un désaccord est signalé. Les invitées d'une Tablée saisissent elles-mêmes leurs règles via le lien d'invitation.
+- **Données sensibles** (RGPD art. 9) : consentement explicite, jamais publiques, jamais dans l'analytics ni sur une carte partageable (pas de « ton année casher »).
 
 ## 4. Fonctions à ajouter, par priorité
 ### P0 — le cœur d'une plateforme sociale de cuisine
@@ -54,7 +57,8 @@ Signature inchangée : *Tes recettes, à plusieurs mains.*
 - **Clubs et défis mensuels** avec une vraie récompense ou un vrai livrable (chez Cookpad : 2 à 24 participations sans lot, 277 à 533 avec).
 - **Fil « Mes copines ont cuisiné »** et affinité de goûts entre amies (Beli).
 - **Import depuis les sites français** (Marmiton, 750g) au même niveau qu'Instagram et TikTok : 62 % des Français passent d'abord par les sites de recettes (Ipsos BVA, 03/2026).
-- **Pages publiques et cartes de partage** optimisées pour le référencement (Pinterest, Allrecipes).
+- **Lien « Enregistrer dans Copine en cuisine »** que les créatrices placent en bio ou en légende à la place du « commente RECETTE » (ManyChat devenu payant), avec inscription facultative à leur newsletter.
+- **Pages publiques et cartes de partage** optimisées pour le référencement, **uniquement pour les recettes originales des membres et les carnets publics** : indexer les recettes importées capterait le trafic des créatrices.
 
 ### P2 — revenus
 - Abonnements et collections payantes des créatrices, avec partage de revenus (Substack : 40 % des nouveaux abonnés via ses recommandations).
@@ -67,10 +71,11 @@ Signature inchangée : *Tes recettes, à plusieurs mains.*
 - **Supprimer la géolocalisation des photos** avant publication (incident Partiful, oct. 2025).
 - Modération active dès le lancement (commentaires islamophobes sous des recettes de ramadan chez Marmiton en 2015, bots au Food52 Hotline en 2025).
 - Pas de parrainage obligatoire ni de liste d'attente pour entrer (contraire à une marque inclusive).
+- La Tablée reste strictement non marchande (vendre des repas faits maison a coûté la vie à Josephine en 2018).
 
 ## 5. Conformité à prévoir avant l'ouverture publique
 - **DSA** : en petite entreprise, exemption de la plupart des obligations (art. 19), mais **signalement (art. 16), motivation de chaque décision de modération (art. 17), CGU (art. 14) et points de contact (art. 11-12)** restent obligatoires.
-- **AI Act art. 50** (en vigueur depuis le 02/08/2026) : dire clairement qu'on parle à une IA et marquer les contenus générés.
+- **AI Act art. 50** (en vigueur depuis le 02/08/2026) : mention permanente « Copine est une IA » dans l'en-tête du chat, et marquage lisible par machine des contenus générés.
 - **Droit d'auteur** : fiche reformulée, crédit « d'après @X », imports privés par défaut, embed officiel, pas d'aspiration massive des sites.
 - **Dépendance aux plateformes** : les CGU développeurs de TikTok interdisent de constituer des bases de contenus ; multiplier les sources d'import (sites, captures, YouTube, Pinterest).
 - **Responsabilité du fait des produits** : le logiciel devient un « produit » le 09/12/2026 (directive 2024/2853) ; prudence sur les allergènes.
