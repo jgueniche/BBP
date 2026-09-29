@@ -41,7 +41,7 @@ export default async function CoursesPage({
   const { data: items } = plan
     ? await supabase
         .from("shopping_items")
-        .select("id, label, grams, aisle, kosher_note, checked")
+        .select("id, label, grams, aisle, checked")
         .eq("plan_id", plan.id)
         .order("aisle")
         .order("position")
@@ -52,7 +52,6 @@ export default async function CoursesPage({
     label: item.label,
     grams: item.grams,
     aisle: item.aisle,
-    kosherNote: item.kosher_note,
     checked: item.checked,
   }));
 

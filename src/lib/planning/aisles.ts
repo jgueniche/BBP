@@ -1,5 +1,3 @@
-import type { KashrutClass } from "@/lib/kashrut/meal";
-
 /** Ciqual food group → supermarket aisle (French labels shown in the list). */
 const AISLE_BY_CATEGORY: Array<[RegExp, string]> = [
   [/fruits, légumes/i, "Fruits & légumes"],
@@ -22,16 +20,4 @@ export function aisleForCategory(category: string | null): string {
     if (pattern.test(category)) return aisle;
   }
   return DEFAULT_AISLE;
-}
-
-/**
- * Products that call for a kosher grocery / hekhsher check: meat, cheese,
- * wine and grape juice (brief §4.7 — indication, never a certification).
- */
-export function needsKosherNote(params: {
-  kashrutClass: KashrutClass | null;
-  label: string;
-}): boolean {
-  if (params.kashrutClass === "bassari") return true;
-  return /\b(fromage|vin|jus de raisin)\b/i.test(params.label);
 }

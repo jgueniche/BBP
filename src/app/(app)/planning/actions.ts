@@ -3,18 +3,19 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import type { Tables } from "@/db/types";
-import type { KashrutClass } from "@/lib/kashrut/meal";
-import {
-  DEFAULT_AISLE,
-  aisleForCategory,
-  needsKosherNote,
-} from "@/lib/planning/aisles";
+import { loadFoodRules } from "@/lib/diets/preferences";
+import { verdictStatuses } from "@/lib/diets/recipes";
+import type { VerdictStatus } from "@/lib/diets/verdict";
+import { DEFAULT_AISLE, aisleForCategory } from "@/lib/planning/aisles";
 import { pickReplacementSlot } from "@/lib/planning/fallback";
 import {
   buildPlanningData,
   generateAndStoreWeek,
   getOrCreatePlan,
+  rowToSlot,
+  slotToRow,
+  toPlannerRecipe,
+  unsuitableRecipes,
 } from "@/lib/planning/generate";
 import type { PlanMeal, PlanSlot } from "@/lib/planning/types";
 import { validatePlan } from "@/lib/planning/validate";
@@ -31,51 +32,6 @@ async function requireUser() {
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
   return { supabase, user };
-}
-
-type SlotRow = Tables<"meal_plan_slots">;
-
-function rowToSlot(row: SlotRow): PlanSlot {
-  return {
-    date: row.date,
-    meal: row.meal as PlanMeal,
-    recipeId: row.recipe_id,
-    title: row.title,
-    icon: row.icon,
-    kashrutClass: (row.kashrut_class ?? null) as KashrutClass | null,
-    isFish: row.is_fish,
-    kcal: row.kcal,
-    proteinG: row.protein_g,
-    timeMin: row.time_min,
-    hasHametz: row.has_hametz,
-    hasKitniyot: row.has_kitniyot,
-    tags: row.tags,
-    isLeftover: row.is_leftover,
-    locked: row.locked,
-    servings: row.servings,
-  };
-}
-
-function slotToInsert(slot: PlanSlot, planId: string) {
-  return {
-    plan_id: planId,
-    date: slot.date,
-    meal: slot.meal,
-    recipe_id: slot.recipeId,
-    title: slot.title,
-    icon: slot.icon,
-    kashrut_class: slot.kashrutClass,
-    is_fish: slot.isFish,
-    kcal: slot.kcal,
-    protein_g: slot.proteinG,
-    time_min: slot.timeMin,
-    has_hametz: slot.hasHametz,
-    has_kitniyot: slot.hasKitniyot,
-    tags: slot.tags,
-    is_leftover: slot.isLeftover,
-    locked: slot.locked,
-    servings: slot.servings,
-  };
 }
 
 /** New violations only — pre-existing ones must not block unrelated edits. */
@@ -112,48 +68,20 @@ async function recipeSnapshot(
   const { data: recipe } = await supabase
     .from("recipes")
     .select(
-      "id, title, icon, kashrut_class, is_fish, prep_min, cook_min, tags, nutrition_per_serving",
+      "id, title, icon, category, prep_min, cook_min, tags, nutrition_per_serving",
     )
     .eq("id", recipeId)
     .maybeSingle();
   if (!recipe) return null;
-
-  const { data: links } = await supabase
-    .from("recipe_ingredients")
-    .select("food_id")
-    .eq("recipe_id", recipeId)
-    .not("food_id", "is", null);
-  const foodIds = (links ?? [])
-    .map((l) => l.food_id)
-    .filter((id): id is string => id !== null);
-  const { data: foods } =
-    foodIds.length > 0
-      ? await supabase
-          .from("foods")
-          .select("hametz, kitniyot")
-          .in("id", foodIds)
-      : { data: [] };
-
-  const nutrition = (recipe.nutrition_per_serving ?? {}) as {
-    kcal?: number;
-    protein_g?: number;
-  };
+  const planner = toPlannerRecipe(recipe);
   return {
-    recipeId: recipe.id,
-    title: recipe.title,
-    icon: recipe.icon,
-    kashrutClass: (recipe.kashrut_class ?? null) as KashrutClass | null,
-    isFish: recipe.is_fish,
-    kcal: typeof nutrition.kcal === "number" ? nutrition.kcal : null,
-    proteinG:
-      typeof nutrition.protein_g === "number" ? nutrition.protein_g : null,
-    timeMin:
-      recipe.prep_min === null && recipe.cook_min === null
-        ? null
-        : (recipe.prep_min ?? 0) + (recipe.cook_min ?? 0),
-    hasHametz: (foods ?? []).some((f) => f.hametz),
-    hasKitniyot: (foods ?? []).some((f) => f.kitniyot),
-    tags: recipe.tags,
+    recipeId: planner.id,
+    title: planner.title,
+    icon: planner.icon,
+    kcal: planner.kcal,
+    proteinG: planner.proteinG,
+    timeMin: planner.timeMin,
+    tags: planner.tags,
   };
 }
 
@@ -189,14 +117,19 @@ export async function setSlotRecipe(params: {
     servings,
   };
 
-  const data = await buildPlanningData(supabase, user.id, weekStart);
-  const before = validatePlan(slots, data.ctx);
-  const after = validatePlan(
-    [...slots.filter((s) => !(s.date === date && s.meal === meal)), candidate],
-    data.ctx,
-  );
-  const blocking = newViolationMessages(before, after).filter(
-    (message) => !message.includes("±10 %"),
+  const ctx = {
+    weekStart,
+    unsuitable: await unsuitableRecipes(supabase, user.id, [recipeId]),
+  };
+  const blocking = newViolationMessages(
+    validatePlan(slots, ctx),
+    validatePlan(
+      [
+        ...slots.filter((s) => !(s.date === date && s.meal === meal)),
+        candidate,
+      ],
+      ctx,
+    ),
   );
   if (blocking.length > 0) {
     return { ok: false as const, violations: blocking };
@@ -210,7 +143,7 @@ export async function setSlotRecipe(params: {
     .eq("meal", meal);
   const { error } = await supabase
     .from("meal_plan_slots")
-    .insert(slotToInsert(candidate, plan.id));
+    .insert(slotToRow(candidate, plan.id));
   if (error) throw new Error(error.message);
 
   revalidatePath("/planning");
@@ -259,7 +192,7 @@ export async function regenerateSlot(slotId: string) {
     const { error } = await supabase
       .from("meal_plan_slots")
       .update({
-        ...slotToInsert(replacement, row.plan_id),
+        ...slotToRow(replacement, row.plan_id),
       })
       .eq("id", id);
     if (error) throw new Error(error.message);
@@ -277,7 +210,7 @@ export async function moveSlot(params: {
   const id = z.uuid().parse(params.slotId);
   const toDate = dateSchema.parse(params.toDate);
   const toMeal = mealSchema.parse(params.toMeal);
-  const { supabase, user } = await requireUser();
+  const { supabase } = await requireUser();
 
   const { data: row } = await supabase
     .from("meal_plan_slots")
@@ -288,14 +221,6 @@ export async function moveSlot(params: {
   if (row.date === toDate && row.meal === toMeal) {
     return { ok: true as const, violations: [] };
   }
-  const { data: planRow } = await supabase
-    .from("meal_plans")
-    .select("week_start")
-    .eq("id", row.plan_id)
-    .maybeSingle();
-  if (!planRow) return { ok: false as const, violations: [] };
-  const weekStart = planRow.week_start;
-
   const { data: allRows } = await supabase
     .from("meal_plan_slots")
     .select("*")
@@ -303,28 +228,9 @@ export async function moveSlot(params: {
   const target = (allRows ?? []).find(
     (r) => r.date === toDate && r.meal === toMeal,
   );
-
-  const untouched = (allRows ?? [])
-    .filter((r) => r.id !== id && r.id !== target?.id)
-    .map(rowToSlot);
   const movedA: PlanSlot = { ...rowToSlot(row), date: toDate, meal: toMeal };
-  const movedB: PlanSlot | null = target
-    ? { ...rowToSlot(target), date: row.date, meal: row.meal as PlanMeal }
-    : null;
 
-  const data = await buildPlanningData(supabase, user.id, weekStart);
-  const before = validatePlan((allRows ?? []).map(rowToSlot), data.ctx);
-  const after = validatePlan(
-    [...untouched, movedA, ...(movedB ? [movedB] : [])],
-    data.ctx,
-  );
-  const blocking = newViolationMessages(before, after).filter(
-    (message) => !message.includes("±10 %"),
-  );
-  if (blocking.length > 0) {
-    return { ok: false as const, violations: blocking };
-  }
-
+  // Cooking rules judge recipes, not days: moving a slot cannot break them.
   // Respect the (plan, date, meal) unique constraint: clear, then rewrite.
   await supabase.from("meal_plan_slots").delete().eq("id", id);
   if (target) {
@@ -335,7 +241,7 @@ export async function moveSlot(params: {
   }
   const { error } = await supabase
     .from("meal_plan_slots")
-    .insert(slotToInsert(movedA, row.plan_id));
+    .insert(slotToRow(movedA, row.plan_id));
   if (error) throw new Error(error.message);
 
   revalidatePath("/planning");
@@ -391,7 +297,7 @@ export async function generateShoppingList(rawWeekStart: string) {
     foodIds.length > 0
       ? await supabase
           .from("foods")
-          .select("id, name_fr, category, kashrut_class")
+          .select("id, name_fr, category")
           .in("id", foodIds)
       : { data: [] };
   const foodById = new Map((foods ?? []).map((f) => [f.id, f]));
@@ -400,7 +306,6 @@ export async function generateShoppingList(rawWeekStart: string) {
     label: string;
     grams: number | null;
     aisle: string;
-    kosherNote: boolean;
   };
   const byKey = new Map<string, Aggregate>();
   for (const ingredient of ingredients ?? []) {
@@ -409,7 +314,6 @@ export async function generateShoppingList(rawWeekStart: string) {
       : undefined;
     const label = food?.name_fr ?? ingredient.label_raw;
     const key = ingredient.food_id ?? label.toLowerCase();
-    const kashrutClass = (food?.kashrut_class ?? null) as KashrutClass | null;
     const current = byKey.get(key);
     if (current) {
       if (ingredient.grams !== null) {
@@ -420,7 +324,6 @@ export async function generateShoppingList(rawWeekStart: string) {
         label,
         grams: ingredient.grams,
         aisle: food ? aisleForCategory(food.category) : DEFAULT_AISLE,
-        kosherNote: needsKosherNote({ kashrutClass, label }),
       });
     }
   }
@@ -436,7 +339,6 @@ export async function generateShoppingList(rawWeekStart: string) {
         label: item.label,
         grams: item.grams === null ? null : Math.round(item.grams),
         aisle: item.aisle,
-        kosher_note: item.kosherNote,
         position,
       })),
     );
@@ -451,35 +353,35 @@ export type PlannerRecipeCandidate = {
   id: string;
   title: string;
   icon: string | null;
-  kashrutClass: KashrutClass | null;
-  kcal: number | null;
+  /** The person's verdict, when they set cooking rules. */
+  status: VerdictStatus | null;
 };
 
 /** Recipe search for the slot picker (RLS decides what is visible). */
 export async function searchPlannerRecipes(
   q: string,
 ): Promise<PlannerRecipeCandidate[]> {
-  const { supabase } = await requireUser();
+  const { supabase, user } = await requireUser();
   const query = q.trim();
   if (query.length < 2) return [];
   const { data } = await supabase
     .from("recipes")
-    .select("id, title, icon, kashrut_class, nutrition_per_serving")
+    .select("id, title, icon")
     .eq("status", "published")
     .ilike("title", `%${query}%`)
     .limit(8);
-  return (data ?? []).map((recipe) => {
-    const nutrition = (recipe.nutrition_per_serving ?? {}) as {
-      kcal?: number;
-    };
-    return {
-      id: recipe.id,
-      title: recipe.title,
-      icon: recipe.icon,
-      kashrutClass: (recipe.kashrut_class ?? null) as KashrutClass | null,
-      kcal: typeof nutrition.kcal === "number" ? nutrition.kcal : null,
-    };
-  });
+  const rules = await loadFoodRules(supabase, user.id);
+  const statuses = await verdictStatuses(
+    supabase,
+    rules,
+    (data ?? []).map((r) => r.id),
+  );
+  return (data ?? []).map((recipe) => ({
+    id: recipe.id,
+    title: recipe.title,
+    icon: recipe.icon,
+    status: statuses.get(recipe.id) ?? null,
+  }));
 }
 
 export async function toggleShoppingItem(itemId: string, checked: boolean) {

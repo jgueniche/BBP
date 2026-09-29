@@ -3,10 +3,15 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { fr } from "@/i18n/fr";
-import { getCalendarDays } from "@/lib/jewish-calendar/cache";
-import type { KashrutClass } from "@/lib/kashrut/meal";
+import { loadFoodRules } from "@/lib/diets/preferences";
+import { verdictStatuses } from "@/lib/diets/recipes";
 import type { PlanMeal } from "@/lib/planning/types";
-import { addDays, toDateString, weekStartOf } from "@/lib/planning/week";
+import {
+  addDays,
+  toDateString,
+  weekDates,
+  weekStartOf,
+} from "@/lib/planning/week";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
@@ -52,18 +57,14 @@ export default async function PlanningPage({
   } = await supabase.auth.getUser();
   if (!user) return null;
 
-  const [{ data: plan }, { data: settings }] = await Promise.all([
+  const [{ data: plan }, rules] = await Promise.all([
     supabase
       .from("meal_plans")
       .select("id")
       .eq("user_id", user.id)
       .eq("week_start", weekStart)
       .maybeSingle(),
-    supabase
-      .from("user_settings")
-      .select("shomer_shabbat, israel_calendar, jewish_calendar_enabled")
-      .eq("user_id", user.id)
-      .maybeSingle(),
+    loadFoodRules(supabase, user.id),
   ]);
 
   const { data: slotRows } = plan
@@ -86,6 +87,8 @@ export default async function PlanningPage({
       ? await supabase.from("recipes").select("id, slug").in("id", recipeIds)
       : { data: [] };
   const slugById = new Map((slugRows ?? []).map((r) => [r.id, r.slug]));
+  // Rules may have changed since planning: flag what no longer suits them.
+  const statuses = await verdictStatuses(supabase, rules, recipeIds);
 
   const slots: GridSlot[] = (slotRows ?? []).map((row) => ({
     id: row.id,
@@ -93,29 +96,16 @@ export default async function PlanningPage({
     meal: row.meal as PlanMeal,
     title: row.title,
     icon: row.icon,
-    kashrutClass: (row.kashrut_class ?? null) as KashrutClass | null,
-    isFish: row.is_fish,
+    status: row.recipe_id ? (statuses.get(row.recipe_id) ?? null) : null,
     kcal: row.kcal,
     servings: row.servings,
     isLeftover: row.is_leftover,
     slug: row.recipe_id ? (slugById.get(row.recipe_id) ?? null) : null,
   }));
 
-  const calendarEnabled = settings?.jewish_calendar_enabled ?? false;
-  const calendar = await getCalendarDays(
-    supabase,
-    user.id,
-    weekStart,
-    addDays(weekStart, 6),
-  );
-  const days: GridDay[] = calendar.map((day, index) => ({
-    date: day.date,
-    label: dayLabel(day.date),
-    hebrewDate: calendarEnabled ? day.hebrewDate : "",
-    badges: calendarEnabled ? day.labels : [],
-    candleTime: calendarEnabled ? day.candleTime : null,
-    isFast: calendarEnabled && day.isFast,
-    isChabbat: calendarEnabled && (index === 4 || index === 5),
+  const days: GridDay[] = weekDates(weekStart).map((date) => ({
+    date,
+    label: dayLabel(date),
   }));
 
   const weekLabel = new Intl.DateTimeFormat("fr-FR", {
@@ -159,12 +149,7 @@ export default async function PlanningPage({
         </div>
       </header>
 
-      <PlanningGrid
-        weekStart={weekStart}
-        days={days}
-        slots={slots}
-        shomerShabbat={calendarEnabled && (settings?.shomer_shabbat ?? false)}
-      />
+      <PlanningGrid weekStart={weekStart} days={days} slots={slots} />
     </section>
   );
 }
