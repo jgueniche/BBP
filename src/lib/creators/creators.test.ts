@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { claimMethod, generateClaimCode, pageHasClaimCode } from "./claim";
-import { creditPrefix } from "./credit";
+import { creditPrefix, creditView, safeOutboundUrl } from "./credit";
 import { embedFor } from "./embed";
 import {
   creatorFromSource,
@@ -115,7 +115,68 @@ describe("creator identity", () => {
     expect(creditPrefix("tiktok")).toBe("D'après une vidéo de");
     expect(creditPrefix("youtube")).toBe("D'après une vidéo de");
     expect(creditPrefix("instagram")).toBe("D'après une publication de");
-    expect(creditPrefix("web")).toBe("D'après");
+    expect(creditPrefix("web")).toBe("D'après le site");
+  });
+
+  it("links the credit to her page when the creator is known", () => {
+    expect(
+      creditView(
+        {
+          sourceUrl: "https://www.tiktok.com/@maya.cuisine/video/1",
+          sourceAuthor: "Maya",
+        },
+        { platform: "tiktok", handle: "maya.cuisine", verified: true },
+      ),
+    ).toEqual({
+      prefix: "D'après une vidéo de",
+      name: "@maya.cuisine",
+      href: "/createrices/tiktok/maya.cuisine",
+      verified: true,
+    });
+    // Unknown creator: the name given at import, never a link.
+    expect(
+      creditView(
+        {
+          sourceUrl: "https://www.instagram.com/p/C1AbC-d_2/",
+          sourceAuthor: "Chef Nour",
+        },
+        null,
+      ),
+    ).toEqual({
+      prefix: "D'après une publication de",
+      name: "Chef Nour",
+      href: null,
+      verified: false,
+    });
+    expect(
+      creditView(
+        {
+          sourceUrl: "https://www.marmiton.org/recettes/x.aspx",
+          sourceAuthor: "Chef Simon",
+        },
+        null,
+      ).name,
+    ).toBe("marmiton.org");
+    expect(
+      creditView(
+        { sourceUrl: "https://youtu.be/AbCdEf12345", sourceAuthor: null },
+        null,
+      ),
+    ).toEqual({
+      prefix: "D'après l'original",
+      name: null,
+      href: null,
+      verified: false,
+    });
+  });
+
+  it("only sends visitors to a public web address", () => {
+    expect(
+      safeOutboundUrl("https://www.tiktok.com/@maya.cuisine/video/1"),
+    ).toBe("https://www.tiktok.com/@maya.cuisine/video/1");
+    expect(safeOutboundUrl("javascript:alert(1)")).toBeNull();
+    expect(safeOutboundUrl("http://127.0.0.1/admin")).toBeNull();
+    expect(safeOutboundUrl(null)).toBeNull();
   });
 });
 

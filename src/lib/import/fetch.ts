@@ -49,6 +49,8 @@ export async function fetchHtml(url: string): Promise<string | null> {
 export type OembedInfo = {
   title: string | null;
   authorName: string | null;
+  /** The account page (« https://www.tiktok.com/@maya.cuisine »), when given. */
+  authorUrl: string | null;
 };
 
 /** Official oEmbed endpoints only (brief §9 — no authenticated scraping). */
@@ -75,11 +77,13 @@ export async function fetchOembed(
     const data = (await response.json()) as {
       title?: unknown;
       author_name?: unknown;
+      author_url?: unknown;
     };
     return {
       title: typeof data.title === "string" ? data.title : null,
       authorName:
         typeof data.author_name === "string" ? data.author_name : null,
+      authorUrl: typeof data.author_url === "string" ? data.author_url : null,
     };
   } catch {
     return null;

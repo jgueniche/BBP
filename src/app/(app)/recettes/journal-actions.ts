@@ -158,3 +158,32 @@ export async function toggleToCook(recipeId: string) {
   revalidatePath("/recettes");
   return { ok: !error, inList: !error };
 }
+
+/**
+ * The creator's official version instead of a copy: saved in my book and
+ * queued in « À cuisiner », like an import.
+ */
+export async function saveOfficialVersion(recipeSlug: string) {
+  const slug = z.string().min(1).max(80).parse(recipeSlug);
+  const { supabase, user } = await requireUser();
+  const { data: recipe } = await supabase
+    .from("recipes")
+    .select("id, slug")
+    .eq("slug", slug)
+    .maybeSingle();
+  if (!recipe) return { ok: false as const };
+  await supabase
+    .from("recipe_saves")
+    .upsert(
+      { recipe_id: recipe.id, user_id: user.id },
+      { onConflict: "recipe_id,user_id", ignoreDuplicates: true },
+    );
+  await supabase
+    .from("to_cook")
+    .upsert(
+      { user_id: user.id, recipe_id: recipe.id, source: "import" },
+      { onConflict: "user_id,recipe_id", ignoreDuplicates: true },
+    );
+  revalidatePath("/recettes");
+  return { ok: true as const, slug: recipe.slug };
+}

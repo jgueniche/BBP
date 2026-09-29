@@ -71,6 +71,8 @@ export type EditorInitial = {
   icon: string;
   sourceUrl: string | null;
   sourceAuthor: string;
+  /** Withdrawn at the creator's request: the copy stays private. */
+  withdrawn: boolean;
   ingredients: EditorIngredient[];
   steps: EditorStep[];
 };
@@ -91,6 +93,7 @@ export const emptyEditorInitial: EditorInitial = {
   icon: "",
   sourceUrl: null,
   sourceAuthor: "",
+  withdrawn: false,
   ingredients: [
     { label: "", grams: "", food_id: null, foodName: null, section: "" },
   ],
@@ -237,6 +240,14 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
           }),
       };
       const result = await saveRecipe(payload);
+      if (!result.ok) {
+        const refusal =
+          result.code === "withdrawn"
+            ? fr.creators.import.withdrawn
+            : fr.creators.import.blocked;
+        toast(refusal.replace("{creator}", result.creator ?? t.theCreator));
+        return;
+      }
       if (result.queued) toast(fr.recettes.toCook.queuedFromImport);
       router.push(`/recettes/${result.slug}`);
     } catch {
@@ -424,13 +435,15 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
         <label className="flex flex-col gap-1.5">
           {f.visibility}
           <select
-            value={state.visibility}
+            value={state.withdrawn ? "private" : state.visibility}
             onChange={(e) =>
               update(
                 "visibility",
                 e.target.value as EditorInitial["visibility"],
               )
             }
+            disabled={state.withdrawn}
+            aria-describedby={state.withdrawn ? "withdrawn-note" : undefined}
             className={selectClass}
           >
             {Object.entries(t.visibilities).map(([value, label]) => (
@@ -439,6 +452,19 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
               </option>
             ))}
           </select>
+          {state.withdrawn && (
+            <span
+              id="withdrawn-note"
+              className="text-[11px] font-normal text-ink-70"
+            >
+              {state.sourceAuthor
+                ? fr.creators.credit.withdrawn.replace(
+                    "{creator}",
+                    state.sourceAuthor,
+                  )
+                : fr.creators.credit.withdrawnAnonymous}
+            </span>
+          )}
         </label>
         <label className="flex flex-col gap-1.5">
           {f.version}

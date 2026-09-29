@@ -253,6 +253,7 @@ export const fr = {
     sortTop: "Populaires",
     authorBy: "par",
     authorHidden: "Membre",
+    theCreator: "La créatrice",
     myRecipes: "Mes recettes",
     savedRecipes: "Enregistrées",
     bookEmpty:
@@ -342,6 +343,7 @@ export const fr = {
       review:
         "Vérifie et ajuste avant d'enregistrer — surtout les quantités en grammes.",
       credit: "Crédit auteur",
+      again: "Importer autre chose",
     },
     cook: {
       start: "Mode cuisine",
@@ -631,7 +633,8 @@ export const fr = {
     credit: {
       video: "D'après une vidéo de",
       post: "D'après une publication de",
-      site: "D'après",
+      site: "D'après le site",
+      unnamed: "D'après l'original",
       viewOriginal: "Voir l'original",
       showVideo: "Voir la vidéo ici",
       showPost: "Voir la publication ici",
@@ -640,6 +643,8 @@ export const fr = {
       hidePlayer: "Masquer le lecteur",
       withdrawn:
         "Retirée à la demande de {creator} : ta copie reste dans ton carnet, en privé.",
+      withdrawnAnonymous:
+        "Retirée à la demande de sa créatrice : ta copie reste dans ton carnet, en privé.",
       official: "{creator} a publié sa version officielle de cette recette.",
       officialCta: "Voir la version officielle",
       requestRemoval: "Tu es {creator} ? Demander un retrait",
