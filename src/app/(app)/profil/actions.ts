@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { foodRulesInputSchema } from "@/lib/diets/preferences";
+import { POST_PHOTO_BUCKET } from "@/lib/social/photos";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
@@ -119,6 +120,7 @@ export async function deleteAccountData() {
     "recipe_likes",
     "recipe_saves",
     "recipe_notes",
+    "recipe_comment_votes",
     "recipe_comments",
     "post_reactions",
     "collection_members",
@@ -132,6 +134,15 @@ export async function deleteAccountData() {
   ] as const;
   for (const table of byUser) {
     await supabase.from(table).delete().eq("user_id", user.id);
+  }
+  // Post photos live in the person's own storage folder.
+  const { data: photos } = await supabase.storage
+    .from(POST_PHOTO_BUCKET)
+    .list(user.id, { limit: 1000 });
+  if (photos && photos.length > 0) {
+    await supabase.storage
+      .from(POST_PHOTO_BUCKET)
+      .remove(photos.map((photo) => `${user.id}/${photo.name}`));
   }
   await supabase.from("post_comments").delete().eq("author_id", user.id);
   await supabase.from("posts").delete().eq("author_id", user.id);

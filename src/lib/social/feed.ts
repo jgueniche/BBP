@@ -4,6 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { FeedPost, ReactionKind } from "@/components/social/post-card";
 import type { Database } from "@/db/types";
+import { publicPhotoUrl } from "@/lib/social/photos";
 
 type Supabase = SupabaseClient<Database>;
 
@@ -39,7 +40,7 @@ export async function loadFeedPosts(
   let query = supabase
     .from("posts")
     .select(
-      "id, author_id, kind, text, recipe_id, group_id, visibility, moderation, created_at",
+      "id, author_id, kind, text, recipe_id, group_id, visibility, moderation, created_at, photo_paths",
     )
     .order("created_at", { ascending: false })
     .limit(limit);
@@ -132,6 +133,7 @@ export async function loadFeedPosts(
       recipe: recipe
         ? { slug: recipe.slug, title: recipe.title, icon: recipe.icon }
         : null,
+      photos: post.photo_paths.map(publicPhotoUrl),
       stats: {
         love: stat?.love ?? 0,
         bravo: stat?.bravo ?? 0,

@@ -52,6 +52,8 @@ export type FeedPost = {
   groupName: string | null;
   groupSlug: string | null;
   recipe: { slug: string; title: string; icon: string | null } | null;
+  /** Public URLs of the post photos (geolocation removed at upload). */
+  photos: string[];
   stats: {
     love: number;
     bravo: number;
@@ -269,6 +271,26 @@ export function PostCard({
 
       {post.text && (
         <p className="mt-2 whitespace-pre-wrap text-sm">{post.text}</p>
+      )}
+
+      {post.photos.length > 0 && (
+        <div
+          className={cn(
+            "mt-2 grid gap-1.5",
+            post.photos.length > 1 ? "grid-cols-2" : "grid-cols-1",
+          )}
+        >
+          {post.photos.map((url) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={url}
+              src={url}
+              alt=""
+              loading="lazy"
+              className="aspect-[4/3] w-full rounded-[10px] object-cover"
+            />
+          ))}
+        </div>
       )}
 
       {post.recipe && (
