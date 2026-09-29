@@ -243,6 +243,111 @@ export type Database = {
         };
         Relationships: [];
       };
+      creator_claims: {
+        Row: {
+          code: string;
+          created_at: string;
+          creator_id: string;
+          decided_at: string | null;
+          decided_by: string | null;
+          id: string;
+          reason: string | null;
+          status: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          code: string;
+          created_at?: string;
+          creator_id: string;
+          decided_at?: string | null;
+          decided_by?: string | null;
+          id?: string;
+          reason?: string | null;
+          status?: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          code?: string;
+          created_at?: string;
+          creator_id?: string;
+          decided_at?: string | null;
+          decided_by?: string | null;
+          id?: string;
+          reason?: string | null;
+          status?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      creator_withdrawals: {
+        Row: {
+          created_at: string;
+          creator_id: string | null;
+          id: string;
+          source_key: string;
+          updated_at: string;
+          withdrawn_by: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          creator_id?: string | null;
+          id?: string;
+          source_key: string;
+          updated_at?: string;
+          withdrawn_by?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          creator_id?: string | null;
+          id?: string;
+          source_key?: string;
+          updated_at?: string;
+          withdrawn_by?: string | null;
+        };
+        Relationships: [];
+      };
+      creators: {
+        Row: {
+          claimed_at: string | null;
+          claimed_by: string | null;
+          created_at: string;
+          display_name: string | null;
+          handle: string;
+          id: string;
+          imports_blocked: boolean;
+          platform: string;
+          profile_url: string;
+          updated_at: string;
+        };
+        Insert: {
+          claimed_at?: string | null;
+          claimed_by?: string | null;
+          created_at?: string;
+          display_name?: string | null;
+          handle: string;
+          id?: string;
+          imports_blocked?: boolean;
+          platform: string;
+          profile_url: string;
+          updated_at?: string;
+        };
+        Update: {
+          claimed_at?: string | null;
+          claimed_by?: string | null;
+          created_at?: string;
+          display_name?: string | null;
+          handle?: string;
+          id?: string;
+          imports_blocked?: boolean;
+          platform?: string;
+          profile_url?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       follows: {
         Row: {
           created_at: string;
@@ -438,6 +543,33 @@ export type Database = {
           updated_at?: string;
           user_id?: string;
           week_start?: string;
+        };
+        Relationships: [];
+      };
+      outbound_clicks: {
+        Row: {
+          created_at: string;
+          creator_id: string | null;
+          id: string;
+          recipe_id: string | null;
+          source_key: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          creator_id?: string | null;
+          id?: string;
+          recipe_id?: string | null;
+          source_key?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          creator_id?: string | null;
+          id?: string;
+          recipe_id?: string | null;
+          source_key?: string | null;
+          updated_at?: string;
         };
         Relationships: [];
       };
@@ -789,6 +921,7 @@ export type Database = {
           category: string | null;
           cook_min: number | null;
           created_at: string;
+          creator_id: string | null;
           description: string | null;
           difficulty: string | null;
           icon: string | null;
@@ -802,6 +935,7 @@ export type Database = {
           servings: number;
           slug: string;
           source_author: string | null;
+          source_key: string | null;
           source_url: string | null;
           status: string;
           substitutions: Json | null;
@@ -810,12 +944,14 @@ export type Database = {
           updated_at: string;
           version_kind: string;
           visibility: string;
+          withdrawn_at: string | null;
         };
         Insert: {
           author_id?: string | null;
           category?: string | null;
           cook_min?: number | null;
           created_at?: string;
+          creator_id?: string | null;
           description?: string | null;
           difficulty?: string | null;
           icon?: string | null;
@@ -829,6 +965,7 @@ export type Database = {
           servings?: number;
           slug: string;
           source_author?: string | null;
+          source_key?: never;
           source_url?: string | null;
           status?: string;
           substitutions?: Json | null;
@@ -837,12 +974,14 @@ export type Database = {
           updated_at?: string;
           version_kind?: string;
           visibility?: string;
+          withdrawn_at?: string | null;
         };
         Update: {
           author_id?: string | null;
           category?: string | null;
           cook_min?: number | null;
           created_at?: string;
+          creator_id?: string | null;
           description?: string | null;
           difficulty?: string | null;
           icon?: string | null;
@@ -856,6 +995,7 @@ export type Database = {
           servings?: number;
           slug?: string;
           source_author?: string | null;
+          source_key?: never;
           source_url?: string | null;
           status?: string;
           substitutions?: Json | null;
@@ -864,6 +1004,7 @@ export type Database = {
           updated_at?: string;
           version_kind?: string;
           visibility?: string;
+          withdrawn_at?: string | null;
         };
         Relationships: [];
       };
@@ -1122,9 +1263,72 @@ export type Database = {
         Args: { gid: string };
         Returns: boolean;
       };
+      can_manage_creator: {
+        Args: { cid: string };
+        Returns: boolean;
+      };
       can_view_via_collection: {
         Args: { rid: string };
         Returns: boolean;
+      };
+      creator_post_stats: {
+        Args: { cid: string };
+        Returns: {
+          clicks: number;
+          cooks: number;
+          imports: number;
+          last_import: string;
+          saves: number;
+          source_key: string;
+          source_url: string;
+          title: string;
+          withdrawn: boolean;
+        }[];
+      };
+      creator_public_stats: {
+        Args: { cid: string };
+        Returns: Json;
+      };
+      decide_creator_claim: {
+        Args: { claim: string; approve: boolean; why: string | null };
+        Returns: boolean;
+      };
+      import_status: {
+        Args: { url: string; p_platform: string | null; p_handle: string | null };
+        Returns: Json;
+      };
+      log_outbound_click: {
+        Args: { rid: string };
+        Returns: string | null;
+      };
+      recipe_source_key: {
+        Args: { url: string };
+        Returns: string | null;
+      };
+      release_creator: {
+        Args: { cid: string };
+        Returns: boolean;
+      };
+      resolve_creator: {
+        Args: {
+          p_platform: string;
+          p_handle: string;
+          p_display_name: string | null;
+          p_profile_url: string;
+        };
+        Returns: string | null;
+      };
+      restore_creator_post: {
+        Args: { cid: string; key: string };
+        Returns: boolean;
+      };
+      set_creator_imports_blocked: {
+        Args: { cid: string; blocked: boolean };
+        Returns: boolean;
+      };
+      withdraw_creator_post: {
+        Args: { cid: string; key: string };
+        Returns: number;
       };
       compute_recipe_nutrition: {
         Args: { rid: string };
