@@ -1,4 +1,5 @@
 import { fr } from "@/i18n/fr";
+import { PASTEL_BG, pastelAt } from "@/lib/utils/pastel";
 
 const t = fr.communaute.charte;
 
@@ -13,9 +14,9 @@ export default function ChartePage() {
         {t.rules.map((rule, index) => (
           <li
             key={index}
-            className="flex gap-3 rounded-lg border bg-card p-4 shadow-soft"
+            className={`flex gap-3 rounded-lg p-4 ${PASTEL_BG[pastelAt(index)]}`}
           >
-            <span className="flex size-7 shrink-0 items-center justify-center rounded-full border font-mono text-sm font-bold">
+            <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-card font-mono text-sm font-bold">
               {index + 1}
             </span>
             <p className="text-sm">{rule}</p>

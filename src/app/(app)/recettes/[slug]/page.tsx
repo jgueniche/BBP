@@ -295,11 +295,11 @@ export default async function RecipePage({
       )}
 
       {substitutions && substitutions.length > 0 && (
-        <section className="rounded-lg border bg-boutargue-tint p-4">
-          <h2 className="font-display text-base font-semibold text-[#0b0b0b]">
+        <section className="rounded-lg bg-menthe p-4">
+          <h2 className="font-display text-base font-semibold text-ink">
             {t.substitutionsTitle}
           </h2>
-          <ul className="mt-2 flex flex-col gap-1 text-sm text-[#3d3d3d]">
+          <ul className="mt-2 flex flex-col gap-1 text-sm text-ink-70">
             {substitutions.map((s, i) => (
               <li key={i}>
                 <span className="font-semibold">{s.original}</span> →{" "}
@@ -404,7 +404,7 @@ export default async function RecipePage({
       )}
 
       {recipe.kosher_flags.length > 0 && (
-        <section className="rounded-lg border border-warn/40 bg-card p-3">
+        <section className="rounded-lg bg-warn-soft p-3">
           <h2 className="text-sm font-bold text-warn">{t.flagsTitle}</h2>
           <ul className="mt-1 text-xs text-ink-70">
             {recipe.kosher_flags.map((flag, i) => (

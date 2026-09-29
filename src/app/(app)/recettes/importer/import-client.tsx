@@ -178,7 +178,7 @@ export function ImportClient({
   if (initial) {
     return (
       <div className="flex flex-col gap-3">
-        <p className="flex items-start gap-2 rounded-lg border bg-boutargue-tint px-3 py-2 text-sm text-[#3d3d3d]">
+        <p className="flex items-start gap-2 rounded-lg bg-peche px-3 py-2 text-sm text-ink-70">
           <Sparkles
             size={16}
             strokeWidth={2}
@@ -236,7 +236,7 @@ export function ImportClient({
       {mode === "text" && (
         <form onSubmit={submitText} className="flex flex-col gap-2">
           {needCaption && (
-            <p className="rounded-lg border bg-ink-10/50 px-3 py-2 text-xs text-ink-70">
+            <p className="rounded-lg bg-ciel px-3 py-2 text-xs text-ink-70">
               {t.needCaption}
             </p>
           )}

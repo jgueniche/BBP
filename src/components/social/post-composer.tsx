@@ -75,7 +75,7 @@ export function PostComposer({ groupId }: { groupId?: string | null }) {
   return (
     <form
       onSubmit={submit}
-      className="flex flex-col gap-2 rounded-lg border bg-card p-3 shadow-soft"
+      className="flex flex-col gap-2 rounded-lg bg-rose p-3"
     >
       <textarea
         value={text}

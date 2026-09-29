@@ -125,7 +125,7 @@ export function CoursesClient({
                       {item.label}
                     </span>
                     {item.kosherNote && (
-                      <span className="rounded-full bg-boutargue-tint px-1.5 py-0.5 text-[10px] font-semibold text-[#3d3d3d]">
+                      <span className="rounded-full bg-rose px-1.5 py-0.5 text-[10px] font-semibold text-ink-70">
                         {t.kosherNote}
                       </span>
                     )}

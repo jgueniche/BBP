@@ -7,7 +7,8 @@ Dernière mise à jour : 29/09/2026 · Sessions 1 à 18 + charte Claude Design (
 - **Palette validée par Jeremy** : fond **blanc**, texte encre prune `#2B2230`, accent unique **framboise** `#C0265E`, pastels de panneaux (rose, lilas, menthe, beurre, pêche, ciel), états ok/attention/neutre/à vérifier, régimes en un seul style neutre.
 - **`globals.css`** : nouveaux tokens (`encre`, `framboise`, `nacre`, pastels, `neutral`, `verify`, `diet`) + tokens shadcn remappés ; anciens noms BBP (`ink`, `paper`, `boutargue`…) gardés en **alias** pour que toute l'app bascule sans réécrire les composants. Mode sombre prune nuit.
 - `themeColor` (layout), manifeste, OG recette et vitrine `/design` alignés sur la palette.
-- Lint, typecheck, 117 tests, build verts. Rendu non vérifié par captures dans cette session.
+- **Pastels posés dans les écrans** (`src/lib/utils/pastel.ts`, testé) : carnets (couleurs existantes remappées sans migration, noms accessibles), vignettes de recettes et groupes (pastel stable par slug), charte (un pastel par règle), Copine (bulles lilas / rose, mémoires lilas), Moi (règles lilas, notifications ciel), composer rose, type de post beurre, substitutions menthe, avertissements casher en attention, minuteur menthe, note perso beurre, onboarding lilas, aides import/éditeur ciel, états vides rose ; variantes pastel du `Badge`. Textes noirs en dur sur fond teinté remplacés (lisibles en sombre).
+- Lint, typecheck, 121 tests, build verts. Rendu non vérifié par captures dans cette session.
 
 ## Fait — Session 18 (Brief v2 & grand ménage : BBP devient Copine en cuisine — ADR-029)
 - **Nouvelles demandes de Jeremy** : l'app s'appelle **Copine en cuisine** ; Kémia devient **Copine**, au ton neutre (aucune orientation culturelle) ; typographie **classe, épurée, élégante** ; un **vrai réseau social** (actus, likes…).
@@ -196,7 +197,7 @@ Limites : la base Supabase de BBP n'est pas exposée au connecteur MCP de cette 
 - Dashboard Supabase : « Confirm email » et Site URL (cf. ADR-006) ; clés Sentry/PostHog le moment venu.
 
 ## Backlog
-- **Charte (suite)** : migrer les composants des alias BBP (`ink`, `boutargue`…) vers les tokens Copine, utiliser les pastels dans les panneaux (carnets, Tablée, compatibilité), exporter logo/icônes/favicon du canevas vers `public/brand/`, repenser les couleurs halavi/bassari dans le moteur multi-régimes.
+- **Charte (suite)** : migrer les composants des alias BBP (`ink`, `boutargue`…) vers les tokens Copine, pastels à poser sur les futurs écrans Tablée et compatibilité, exporter logo/icônes/favicon du canevas vers `public/brand/`, repenser les couleurs halavi/bassari dans le moteur multi-régimes.
 - **Régimes (S19)** : moteur multi-régimes, profils alimentaires, allergies et dégoûts avec consentement (les anciennes allergies du profil santé ont disparu avec lui) ; filtres Recettes « Origine » encore maghrébins et « Casher » seul ; catégories à élargir.
 - **Import (S20)** : chemin Instagram par jeton Meta obsolète (l'oEmbed ne renvoie plus de légende) → capture/légende copiée ; YouTube ne lit que le titre ; pas de quota ni de file de jobs ; pas d'upload de photos de recettes.
 - **Réseau social (S22)** : photos dans les posts, notifications (réactions, commentaires, abonnés — infra push `lib/push/send.ts` conservée, sans usage aujourd'hui), temps réel, mentions, pagination du fil (30 derniers), réactions sur commentaires, profils de créatrices.

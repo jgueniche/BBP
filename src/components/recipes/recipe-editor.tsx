@@ -222,7 +222,7 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
   return (
     <form onSubmit={submit} className="flex flex-col gap-4">
       {state.sourceUrl && (
-        <p className="flex flex-wrap items-center gap-1.5 rounded-[10px] border bg-ink-10/50 px-3 py-2 text-xs text-ink-70">
+        <p className="flex flex-wrap items-center gap-1.5 rounded-[10px] bg-ciel px-3 py-2 text-xs text-ink-70">
           <span className="font-semibold">{t.importPage.credit} :</span>
           {state.sourceAuthor || "—"}
           <a

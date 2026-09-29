@@ -43,7 +43,7 @@ export function OnboardingFlow() {
 
       <form
         onSubmit={submit}
-        className="flex flex-col gap-5 rounded-lg border bg-card p-5 shadow-soft"
+        className="flex flex-col gap-5 rounded-lg bg-lilas p-5"
       >
         <label className="flex flex-col gap-2 font-medium" htmlFor="name">
           {t.nameLabel}
