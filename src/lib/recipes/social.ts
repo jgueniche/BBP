@@ -3,6 +3,13 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/db/types";
+import { cookSummary } from "@/lib/journal/journal";
+import { loadCookCounts } from "@/lib/journal/server";
+import {
+  anonymousMember,
+  loadMembers,
+  type MemberSummary,
+} from "@/lib/social/members";
 import { publicPhotoUrl } from "@/lib/social/photos";
 
 import { MAX_CHAIN, type VersionLink } from "./versions";
@@ -31,39 +38,80 @@ export type CookedEntry = {
   createdAt: string;
 };
 
-/** « Cuisinée N fois » and the latest community versions with a photo. */
+export type CookedSummary = {
+  /** Every journal entry, anonymously (« Cuisinée N fois »). */
+  count: number;
+  /** Latest shared versions, photos first. */
+  entries: CookedEntry[];
+  /** People I follow who shared a « j'ai cuisiné » of it (never the journal). */
+  friends: MemberSummary[];
+  /** My own journal: how many times, and when last. */
+  mine: { times: number; last: string | null };
+};
+
 export async function loadCooked(
   supabase: Supabase,
   recipeId: string,
-): Promise<{ count: number; entries: CookedEntry[] }> {
-  const [{ data: stats }, { data: posts }] = await Promise.all([
-    supabase
-      .from("recipe_cooked_stats")
-      .select("cooked")
-      .eq("recipe_id", recipeId)
-      .maybeSingle(),
-    supabase
-      .from("posts")
-      .select("id, text, photo_paths, author_id, created_at")
-      .eq("kind", "cooked")
-      .eq("recipe_id", recipeId)
-      .neq("moderation", "blocked")
-      .order("created_at", { ascending: false })
-      .limit(12),
+  viewerId: string | null,
+): Promise<CookedSummary> {
+  const [counts, { data: posts }, { data: follows }, { data: myCooks }] =
+    await Promise.all([
+      loadCookCounts(supabase, [recipeId]),
+      supabase
+        .from("posts")
+        .select("id, text, photo_paths, author_id, created_at")
+        .eq("kind", "cooked")
+        .eq("recipe_id", recipeId)
+        .neq("moderation", "blocked")
+        .order("created_at", { ascending: false })
+        .limit(12),
+      viewerId
+        ? supabase
+            .from("follows")
+            .select("followed_id")
+            .eq("follower_id", viewerId)
+            .limit(1000)
+        : Promise.resolve({ data: [] }),
+      viewerId
+        ? supabase
+            .from("cook_logs")
+            .select("cooked_on")
+            .eq("user_id", viewerId)
+            .eq("recipe_id", recipeId)
+        : Promise.resolve({ data: [] }),
+    ]);
+  const followed = (follows ?? []).map((f) => f.followed_id);
+  const { data: friendPosts } =
+    followed.length > 0
+      ? await supabase
+          .from("posts")
+          .select("author_id")
+          .eq("kind", "cooked")
+          .eq("recipe_id", recipeId)
+          .eq("visibility", "community")
+          .neq("moderation", "blocked")
+          .in("author_id", followed)
+          .order("created_at", { ascending: false })
+          .limit(30)
+      : { data: [] };
+  const friendIds = [
+    ...new Set((friendPosts ?? []).map((p) => p.author_id)),
+  ].slice(0, 6);
+  const members = await loadMembers(supabase, [
+    ...(posts ?? []).map((p) => p.author_id),
+    ...friendIds,
   ]);
-  const byId = await names(
-    supabase,
-    (posts ?? []).map((p) => p.author_id),
-  );
   return {
-    count: stats?.cooked ?? 0,
+    count: counts.get(recipeId) ?? 0,
     entries: (posts ?? []).map((post) => ({
       id: post.id,
       text: post.text,
       photo: post.photo_paths[0] ? publicPhotoUrl(post.photo_paths[0]) : null,
-      authorName: byId.get(post.author_id) ?? null,
+      authorName: members.get(post.author_id)?.name ?? null,
       createdAt: post.created_at,
     })),
+    friends: friendIds.map((id) => members.get(id) ?? anonymousMember(id)),
+    mine: cookSummary((myCooks ?? []).map((c) => c.cooked_on)),
   };
 }
 

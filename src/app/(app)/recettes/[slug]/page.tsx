@@ -15,6 +15,7 @@ import { fr } from "@/i18n/fr";
 import { loadFoodRules } from "@/lib/diets/preferences";
 import { loadRecipeIngredients } from "@/lib/diets/recipes";
 import { evaluateRecipe, recipeDietFacts } from "@/lib/diets/verdict";
+import { formatCookedDay } from "@/lib/journal/journal";
 import {
   loadCommunityVersions,
   loadCooked,
@@ -119,10 +120,18 @@ export default async function RecipePage({
     loadRecipeIngredients(supabase, [recipe.id]),
     user ? loadFoodRules(supabase, user.id) : Promise.resolve(null),
   ]);
-  const [cooked, chain, communityVersions] = await Promise.all([
-    loadCooked(supabase, recipe.id),
+  const [cooked, chain, communityVersions, toCookRes] = await Promise.all([
+    loadCooked(supabase, recipe.id, user?.id ?? null),
     loadCreditChain(supabase, recipe.parent_recipe_id),
     loadCommunityVersions(supabase, recipe.id),
+    user
+      ? supabase
+          .from("to_cook")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("recipe_id", recipe.id)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
   ]);
   const credit = creditLine(chain);
   const forEngine = engineIngredients.get(recipe.id) ?? [];
@@ -251,6 +260,7 @@ export default async function RecipePage({
           initialLiked={likedRes.data !== null}
           initialSaved={savedRes.data !== null}
           initialLikes={stats?.likes ?? 0}
+          initialToCook={toCookRes.data !== null}
           publicSlug={
             recipe.visibility === "community" && recipe.status === "published"
               ? recipe.slug
@@ -281,6 +291,20 @@ export default async function RecipePage({
               → {v.title}
             </Link>
           ))}
+        </p>
+      )}
+
+      {user && cooked.mine.last && (
+        <p className="text-sm text-ink-70">
+          {(cooked.mine.times === 1 ? t.cooked.mineOne : t.cooked.mine)
+            .replace("{n}", String(cooked.mine.times))
+            .replace("{date}", formatCookedDay(cooked.mine.last))}{" "}
+          <Link
+            href="/recettes/journal"
+            className="font-semibold text-boutargue-deep underline-offset-2 hover:underline"
+          >
+            {t.journal.title}
+          </Link>
         </p>
       )}
 
@@ -415,7 +439,11 @@ export default async function RecipePage({
         </section>
       )}
 
-      <CookedGallery count={cooked.count} entries={cooked.entries} />
+      <CookedGallery
+        count={cooked.count}
+        entries={cooked.entries}
+        friends={cooked.friends}
+      />
 
       {communityVersions.length > 0 && (
         <section className="flex flex-col gap-2">

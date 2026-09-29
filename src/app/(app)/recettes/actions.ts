@@ -6,6 +6,7 @@ import { z } from "zod";
 import { generateProteinVersion as generateProteinVersionAi } from "@/ai/agents/protein-version";
 import { computeRecipeNutrition } from "@/lib/nutrition/recipe";
 import { ALL_CUISINES, CATEGORIES } from "@/lib/recipes/cuisines";
+import { isReservedRecipeSlug } from "@/lib/recipes/slugs";
 import { resolveRecipeTags } from "@/lib/recipes/tags";
 import { createClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/utils/slug";
@@ -114,7 +115,8 @@ async function uniqueSlug(
   currentId: string | null,
 ): Promise<string> {
   const base = slugify(title) || "recette";
-  for (let i = 0; i < 20; i += 1) {
+  // A reserved slug would be hidden behind a page of /recettes.
+  for (let i = isReservedRecipeSlug(base) ? 1 : 0; i < 20; i += 1) {
     const candidate = i === 0 ? base : `${base}-${i + 1}`;
     const { data } = await supabase
       .from("recipes")
@@ -139,6 +141,7 @@ export async function saveRecipe(raw: RecipeInput) {
 
   let recipeId = input.id;
   let slug: string;
+  let queued = false;
 
   if (recipeId) {
     const { data: existing } = await supabase
@@ -203,6 +206,13 @@ export async function saveRecipe(raw: RecipeInput) {
       .single();
     if (error) throw new Error(error.message);
     recipeId = created.id;
+    // An import lands in « À cuisiner » until it is cooked.
+    if (input.sourceUrl) {
+      const { error: queueError } = await supabase
+        .from("to_cook")
+        .insert({ user_id: user.id, recipe_id: created.id, source: "import" });
+      queued = !queueError;
+    }
   }
 
   const { error: ingError } = await supabase.from("recipe_ingredients").insert(
@@ -232,7 +242,7 @@ export async function saveRecipe(raw: RecipeInput) {
 
   revalidatePath("/recettes");
   revalidatePath(`/recettes/${slug}`);
-  return { ok: true as const, slug };
+  return { ok: true as const, slug, queued };
 }
 
 export async function deleteRecipe(id: string) {

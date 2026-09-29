@@ -44,8 +44,18 @@ export const fr = {
       dialogTitle: "Tu as cuisiné cette recette",
       placeholder:
         "Un mot sur ta version : ce que tu as changé, comment c'était…",
+      dateLabel: "Quand ?",
+      keep: "Garder pour moi",
+      kept: "C'est noté dans ton journal.",
       publish: "Partager",
       published: "Bravo ! Ta version est partagée avec la communauté.",
+      shareHint:
+        "« Garder pour moi » l'inscrit dans ton journal, rien que pour toi. « Partager » la montre aussi à la communauté, avec tes photos.",
+      photosNeedShare: "Les photos accompagnent un partage.",
+      invalidDate: "Choisis une date passée.",
+      mine: "Tu l'as cuisinée {n} fois, la dernière le {date}.",
+      mineOne: "Tu l'as cuisinée le {date}.",
+      friends: "Tes copines l'ont cuisinée",
       count: "Cuisinée {n} fois",
       countOne: "Cuisinée 1 fois",
       gallery: "Leurs versions",
@@ -61,6 +71,39 @@ export const fr = {
       helpfulAria: "Cette astuce m'a été utile",
       ownTip: "Ton astuce",
       blocked: "Cette astuce enfreint la charte, elle n'a pas été publiée.",
+    },
+    toCook: {
+      title: "À cuisiner",
+      add: "À cuisiner",
+      addAria: "Ajouter à ma liste À cuisiner",
+      added: "Ajoutée à ta liste À cuisiner.",
+      removed: "Retirée de ta liste.",
+      queuedFromImport: "Importée ! Elle t'attend dans ta liste À cuisiner.",
+      intro:
+        "Les recettes que tu veux cuisiner. Tes imports arrivent ici tout seuls et partent dans ton journal quand tu les cuisines.",
+      empty: "Ta liste est vide.",
+      emptyHint:
+        "Importe une recette vue sur Insta ou TikTok, ou appuie sur « À cuisiner » sur une fiche.",
+      fromImport: "Importée",
+      remove: "Retirer de la liste",
+      journalLink: "Mon journal",
+      recent: "Récemment cuisinées",
+    },
+    journal: {
+      title: "Mon journal",
+      intro: "Tout ce que tu as cuisiné, rien que pour toi.",
+      empty: "Ton journal est vide.",
+      emptyHint:
+        "Quand tu cuisines une recette, appuie sur « J'ai cuisiné » : elle s'inscrit ici.",
+      shared: "Partagée",
+      gone: "Recette retirée",
+      delete: "Retirer du journal",
+      deleteConfirm:
+        "Retirer cette entrée de ton journal ? Si tu l'as partagée, la publication reste en ligne.",
+      deleted: "Entrée retirée.",
+      countOne: "1 recette",
+      count: "{n} recettes",
+      toCookLink: "Ma liste À cuisiner",
     },
     versionsTab: {
       title: "Versions de la communauté",
@@ -200,6 +243,7 @@ export const fr = {
     saveError: "La recette n'a pas pu être enregistrée, vérifie les champs.",
     tabs: {
       discover: "Découvrir",
+      toCook: "À cuisiner",
       book: "Mon carnet",
       collections: "Carnets",
     },
