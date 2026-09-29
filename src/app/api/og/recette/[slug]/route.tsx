@@ -6,12 +6,6 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 export const runtime = "nodejs";
 
-const KASHRUT_COLORS: Record<string, string> = {
-  bassari: "#A63D2F",
-  halavi: "#5B7DB1",
-  parve: "#7A7A7A",
-};
-
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ slug: string }> },
@@ -20,9 +14,7 @@ export async function GET(
   const { data: recipe } = isSupabaseConfigured
     ? await createAnonClient()
         .from("recipes")
-        .select(
-          "title, icon, kashrut_class, is_fish, origin, prep_min, cook_min",
-        )
+        .select("title, icon, origin, prep_min, cook_min")
         .eq("slug", slug)
         .eq("visibility", "community")
         .eq("status", "published")
@@ -31,12 +23,8 @@ export async function GET(
 
   const title = recipe?.title ?? "Copine en cuisine";
   const icon = recipe?.icon ?? "🥘";
-  const kashrut = recipe?.kashrut_class ?? null;
-  const kashrutLabel = kashrut
-    ? kashrut === "parve" && recipe?.is_fish
-      ? fr.kashrut.parveFish
-      : fr.kashrut[kashrut as "bassari" | "halavi" | "parve"]
-    : null;
+  const origins: Readonly<Record<string, string>> = fr.recettes.origins;
+  const cuisine = recipe?.origin ? (origins[recipe.origin] ?? null) : null;
   const time =
     recipe && (recipe.prep_min !== null || recipe.cook_min !== null)
       ? `${(recipe.prep_min ?? 0) + (recipe.cook_min ?? 0)} min`
@@ -90,28 +78,17 @@ export async function GET(
             color: "#4A3F4E",
           }}
         >
-          {kashrutLabel && (
+          {cuisine && (
             <div
               style={{
                 display: "flex",
-                alignItems: "center",
-                gap: 12,
                 border: "2px solid #EEE6EA",
                 borderRadius: 999,
                 padding: "8px 24px",
                 fontWeight: 700,
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  width: 22,
-                  height: 22,
-                  borderRadius: 999,
-                  backgroundColor: KASHRUT_COLORS[kashrut ?? "parve"],
-                }}
-              />
-              {kashrutLabel}
+              {cuisine}
             </div>
           )}
           {time && <div style={{ display: "flex" }}>{time}</div>}

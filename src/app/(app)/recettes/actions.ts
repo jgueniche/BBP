@@ -3,15 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { checkKashrut } from "@/ai/agents/kashrut-checker";
 import { generateProteinVersion as generateProteinVersionAi } from "@/ai/agents/protein-version";
-import type { Tables } from "@/db/types";
-import {
-  classifyRecipe,
-  type IngredientForClassification,
-} from "@/lib/kashrut/classify";
-import type { KashrutClass } from "@/lib/kashrut/meal";
 import { computeRecipeNutrition } from "@/lib/nutrition/recipe";
+import { ALL_CUISINES, CATEGORIES } from "@/lib/recipes/cuisines";
 import { createClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/utils/slug";
 
@@ -28,9 +22,6 @@ export type RecipeFoodCandidate = {
   food_id: string;
   name: string;
   per_100g: Record<string, number>;
-  kashrut_class: KashrutClass | null;
-  is_fish: boolean;
-  kosher_hint: string | null;
 };
 
 export async function searchFoodsForRecipe(
@@ -46,9 +37,6 @@ export async function searchFoodsForRecipe(
     food_id: row.id,
     name: row.name_fr,
     per_100g: (row.per_100g ?? {}) as Record<string, number>,
-    kashrut_class: (row.kashrut_class ?? null) as KashrutClass | null,
-    is_fish: row.is_fish,
-    kosher_hint: row.kosher_hint,
   }));
 }
 
@@ -71,12 +59,8 @@ const recipeSchema = z.object({
   id: z.uuid().nullable(),
   title: z.string().min(3).max(120),
   description: z.string().max(500).nullable(),
-  origin: z
-    .enum(["tunisie", "algerie", "maroc", "israel", "ashkenaze", "autre"])
-    .nullable(),
-  category: z
-    .enum(["kemia", "entree", "plat", "dessert", "pain", "boisson"])
-    .nullable(),
+  origin: z.enum(ALL_CUISINES).nullable(),
+  category: z.enum(CATEGORIES).nullable(),
   difficulty: z.enum(["facile", "moyen", "difficile"]).nullable(),
   prepMin: z.number().int().min(0).max(600).nullable(),
   cookMin: z.number().int().min(0).max(1440).nullable(),
@@ -93,7 +77,7 @@ const recipeSchema = z.object({
 
 export type RecipeInput = z.infer<typeof recipeSchema>;
 
-async function classifyAndNutrition(
+async function recipeNutrition(
   supabase: Awaited<ReturnType<typeof createClient>>,
   ingredients: RecipeInput["ingredients"],
   servings: number,
@@ -101,54 +85,26 @@ async function classifyAndNutrition(
   const foodIds = ingredients
     .map((i) => i.food_id)
     .filter((id): id is string => id !== null);
-  const foodById = new Map<string, Tables<"foods">>();
+  const perFood = new Map<string, Record<string, number>>();
   if (foodIds.length > 0) {
     const { data: foods } = await supabase
       .from("foods")
-      .select("*")
+      .select("id, per_100g")
       .in("id", foodIds);
-    for (const food of foods ?? []) foodById.set(food.id, food);
-  }
-
-  const forClassification: IngredientForClassification[] = ingredients.map(
-    (ingredient) => {
-      const food = ingredient.food_id
-        ? foodById.get(ingredient.food_id)
-        : undefined;
-      return {
-        label: ingredient.label,
-        foodClass: (food?.kashrut_class ?? null) as KashrutClass | null,
-        foodIsFish: food?.is_fish ?? false,
-        foodHint: food?.kosher_hint ?? null,
-      };
-    },
-  );
-
-  let classification = classifyRecipe(forClassification);
-  if (classification.confidence < 0.8) {
-    const checked = await checkKashrut(ingredients.map((i) => i.label));
-    if (checked) {
-      classification = {
-        ...checked,
-        flags: [...new Set([...classification.flags, ...checked.flags])],
-      };
+    for (const food of foods ?? []) {
+      perFood.set(food.id, (food.per_100g ?? {}) as Record<string, number>);
     }
   }
-
-  const nutrition = computeRecipeNutrition(
+  // Diet verdicts are computed from the ingredients when read (ADR-032).
+  return computeRecipeNutrition(
     ingredients.map((ingredient) => ({
       grams: ingredient.grams,
       per_100g: ingredient.food_id
-        ? ((foodById.get(ingredient.food_id)?.per_100g ?? {}) as Record<
-            string,
-            number
-          >)
+        ? (perFood.get(ingredient.food_id) ?? {})
         : {},
     })),
     servings,
   );
-
-  return { classification, nutrition };
 }
 
 async function uniqueSlug(
@@ -173,7 +129,7 @@ export async function saveRecipe(raw: RecipeInput) {
   const input = recipeSchema.parse(raw);
   const { supabase, user } = await requireUser();
 
-  const { classification, nutrition } = await classifyAndNutrition(
+  const nutrition = await recipeNutrition(
     supabase,
     input.ingredients,
     input.servings,
@@ -209,10 +165,6 @@ export async function saveRecipe(raw: RecipeInput) {
         icon: input.icon,
         source_url: input.sourceUrl,
         source_author: input.sourceAuthor,
-        kashrut_class: classification.kashrutClass,
-        is_fish: classification.isFish,
-        kashrut_confidence: classification.confidence,
-        kosher_flags: classification.flags,
         nutrition_per_serving: nutrition,
       })
       .eq("id", recipeId);
@@ -243,10 +195,6 @@ export async function saveRecipe(raw: RecipeInput) {
         icon: input.icon,
         source_url: input.sourceUrl,
         source_author: input.sourceAuthor,
-        kashrut_class: classification.kashrutClass,
-        is_fish: classification.isFish,
-        kashrut_confidence: classification.confidence,
-        kosher_flags: classification.flags,
         nutrition_per_serving: nutrition,
       })
       .select("id")
@@ -333,10 +281,6 @@ export async function forkRecipe(id: string) {
       version_kind: source.version_kind,
       parent_recipe_id: source.id,
       icon: source.icon,
-      kashrut_class: source.kashrut_class,
-      is_fish: source.is_fish,
-      kashrut_confidence: source.kashrut_confidence,
-      kosher_flags: source.kosher_flags,
       nutrition_per_serving: source.nutrition_per_serving,
       source_author: source.source_author,
       source_url: source.source_url,
@@ -424,11 +368,7 @@ export async function createProteinVersion(id: string) {
     }),
   );
 
-  const { classification, nutrition } = await classifyAndNutrition(
-    supabase,
-    linked,
-    source.servings,
-  );
+  const nutrition = await recipeNutrition(supabase, linked, source.servings);
 
   const slug = await uniqueSlug(supabase, generated.title, null);
   const { data: created, error } = await supabase
@@ -449,10 +389,6 @@ export async function createProteinVersion(id: string) {
       version_kind: "proteine",
       parent_recipe_id: source.id,
       icon: source.icon,
-      kashrut_class: classification.kashrutClass,
-      is_fish: classification.isFish,
-      kashrut_confidence: classification.confidence,
-      kosher_flags: classification.flags,
       nutrition_per_serving: nutrition,
       substitutions: generated.substitutions,
     })

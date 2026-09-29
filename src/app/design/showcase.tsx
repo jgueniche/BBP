@@ -30,7 +30,8 @@ import {
 } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
-import { KashrutPill } from "@/components/ui/kashrut-pill";
+import { DietFactChips } from "@/components/diets/diet-facts";
+import { VerdictPill } from "@/components/diets/verdict-pill";
 import { MacroRing } from "@/components/ui/macro-ring";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -78,9 +79,7 @@ const SAMPLE_RECIPES: RecipeCardData[] = [
     slug: "tarte-fine-abricots",
     title: "Tarte fine aux abricots",
     icon: null,
-    kashrut_class: null,
-    is_fish: false,
-    origin: null,
+    origin: "france",
     version_kind: "boutargue",
     prep_min: 15,
     cook_min: 20,
@@ -89,9 +88,7 @@ const SAMPLE_RECIPES: RecipeCardData[] = [
     slug: "dal-lentilles-corail",
     title: "Dal de lentilles corail",
     icon: null,
-    kashrut_class: null,
-    is_fish: false,
-    origin: null,
+    origin: "inde",
     version_kind: "boutargue",
     prep_min: 10,
     cook_min: 25,
@@ -364,14 +361,21 @@ export function DesignShowcase() {
         </div>
       </Section>
 
-      <Section title={s.kashrut}>
-        <p className="text-sm text-ink-70">{d.kashrutHint}</p>
+      <Section title={s.compatibility}>
+        <p className="text-sm text-ink-70">{d.compatibilityHint}</p>
         <div className="mt-3 flex flex-wrap gap-3">
-          <KashrutPill kind="bassari" />
-          <KashrutPill kind="halavi" />
-          <KashrutPill kind="parve" />
-          <KashrutPill kind="parve" isFish />
+          <VerdictPill status="compatible" />
+          <VerdictPill status="adaptable" />
+          <VerdictPill status="incompatible" />
+          <VerdictPill status="verify" />
         </div>
+        <DietFactChips
+          className="mt-3"
+          facts={{
+            diets: ["vegan", "halal", "kosher", "gluten_free"],
+            certifiedMeat: true,
+          }}
+        />
       </Section>
 
       <Section title={s.progress}>

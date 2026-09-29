@@ -3,9 +3,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { KashrutPill } from "@/components/ui/kashrut-pill";
+import { DietFactChips } from "@/components/diets/diet-facts";
 import { fr } from "@/i18n/fr";
-import type { KashrutClass } from "@/lib/kashrut/meal";
+import { recipeDietFacts, type DietFacts } from "@/lib/diets/verdict";
 import type { Totals } from "@/lib/nutrition/items";
 import { recipeJsonLd, type RecipeForSeo } from "@/lib/seo/recipe-jsonld";
 import { siteUrl } from "@/lib/site";
@@ -31,13 +31,15 @@ export async function generateStaticParams(): Promise<{ slug: string }[]> {
   return (data ?? []).map((recipe) => ({ slug: recipe.slug }));
 }
 
-async function loadRecipe(slug: string): Promise<RecipeForSeo | null> {
+async function loadRecipe(
+  slug: string,
+): Promise<(RecipeForSeo & { facts: DietFacts }) | null> {
   if (!isSupabaseConfigured) return null;
   const supabase = createAnonClient();
   const { data: recipe } = await supabase
     .from("recipes")
     .select(
-      "id, title, description, icon, slug, kashrut_class, is_fish, origin, category, prep_min, cook_min, servings, source_author, source_url, tags, nutrition_per_serving, created_at, updated_at",
+      "id, title, description, icon, slug, origin, category, prep_min, cook_min, servings, source_author, source_url, tags, nutrition_per_serving, created_at, updated_at",
     )
     .eq("slug", slug)
     .eq("visibility", "community")
@@ -48,7 +50,7 @@ async function loadRecipe(slug: string): Promise<RecipeForSeo | null> {
   const [{ data: ingredients }, { data: steps }] = await Promise.all([
     supabase
       .from("recipe_ingredients")
-      .select("label_raw, section")
+      .select("label_raw, section, grams, food_id")
       .eq("recipe_id", recipe.id)
       .order("position"),
     supabase
@@ -58,13 +60,28 @@ async function loadRecipe(slug: string): Promise<RecipeForSeo | null> {
       .order("position"),
   ]);
 
+  const foodIds = (ingredients ?? [])
+    .map((i) => i.food_id)
+    .filter((id): id is string => id !== null);
+  const { data: foods } =
+    foodIds.length > 0
+      ? await supabase.from("foods").select("id, name_fr").in("id", foodIds)
+      : { data: [] };
+  const foodName = new Map((foods ?? []).map((f) => [f.id, f.name_fr]));
+  const facts = recipeDietFacts(
+    (ingredients ?? []).map((i) => ({
+      label: i.label_raw,
+      grams: i.grams,
+      foodName: i.food_id ? (foodName.get(i.food_id) ?? null) : null,
+    })),
+  );
+
   return {
+    facts,
     slug: recipe.slug,
     title: recipe.title,
     description: recipe.description,
     icon: recipe.icon,
-    kashrut_class: recipe.kashrut_class,
-    is_fish: recipe.is_fish,
     origin: recipe.origin,
     category: recipe.category,
     prep_min: recipe.prep_min,
@@ -194,17 +211,6 @@ export default async function PublicRecipePage({
             <p className="mt-2 text-ink-70">{recipe.description}</p>
           )}
           <dl className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-ink-70">
-            {recipe.kashrut_class && (
-              <div>
-                <dt className="sr-only">{t.public.kashrut}</dt>
-                <dd>
-                  <KashrutPill
-                    kind={recipe.kashrut_class as KashrutClass}
-                    isFish={recipe.is_fish}
-                  />
-                </dd>
-              </div>
-            )}
             {totalMin !== null && (
               <div className="flex items-center gap-1.5">
                 <Clock size={16} strokeWidth={2} aria-hidden />
@@ -222,6 +228,7 @@ export default async function PublicRecipePage({
               </dd>
             </div>
           </dl>
+          <DietFactChips facts={recipe.facts} className="mt-3" />
           {recipe.source_author && (
             <p className="mt-3 text-xs text-ink-50">
               {t.importedFrom}{" "}
@@ -344,7 +351,7 @@ export default async function PublicRecipePage({
           </section>
         )}
 
-        <p className="text-xs text-ink-50">{t.kosherDisclaimer}</p>
+        <p className="text-xs text-ink-50">{fr.regimes.disclaimer}</p>
       </article>
 
       <Link

@@ -7,9 +7,12 @@ import { NoteEditor } from "@/components/recipes/note-editor";
 import { SocialBar } from "@/components/recipes/social-bar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { KashrutPill } from "@/components/ui/kashrut-pill";
+import { DietFactChips } from "@/components/diets/diet-facts";
+import { ForYouPanel } from "@/components/diets/for-you-panel";
 import { fr } from "@/i18n/fr";
-import type { KashrutClass } from "@/lib/kashrut/meal";
+import { loadFoodRules } from "@/lib/diets/preferences";
+import { loadRecipeIngredients } from "@/lib/diets/recipes";
+import { evaluateRecipe, recipeDietFacts } from "@/lib/diets/verdict";
 import type { Totals } from "@/lib/nutrition/items";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
@@ -48,6 +51,8 @@ export default async function RecipePage({
     likedRes,
     savedRes,
     noteRes,
+    engineIngredients,
+    rules,
   ] = await Promise.all([
     supabase
       .from("recipe_ingredients")
@@ -105,7 +110,12 @@ export default async function RecipePage({
           .eq("user_id", user.id)
           .maybeSingle()
       : Promise.resolve({ data: null }),
+    loadRecipeIngredients(supabase, [recipe.id]),
+    user ? loadFoodRules(supabase, user.id) : Promise.resolve(null),
   ]);
+  const forEngine = engineIngredients.get(recipe.id) ?? [];
+  const verdict = evaluateRecipe(forEngine, rules);
+  const facts = recipeDietFacts(forEngine);
 
   const commenterIds = [...new Set((comments ?? []).map((c) => c.user_id))];
   const authorIds = [
@@ -179,12 +189,6 @@ export default async function RecipePage({
           <p className="text-sm text-ink-70">{recipe.description}</p>
         )}
         <div className="flex flex-wrap items-center gap-2">
-          {recipe.kashrut_class && (
-            <KashrutPill
-              kind={recipe.kashrut_class as KashrutClass}
-              isFish={recipe.is_fish}
-            />
-          )}
           <Badge
             variant={recipe.version_kind === "proteine" ? "primary" : "default"}
           >
@@ -231,6 +235,10 @@ export default async function RecipePage({
           </p>
         )}
       </header>
+
+      <DietFactChips facts={facts} />
+
+      {user && <ForYouPanel verdict={verdict} rules={rules} />}
 
       {user && (
         <SocialBar
@@ -403,17 +411,6 @@ export default async function RecipePage({
         </section>
       )}
 
-      {recipe.kosher_flags.length > 0 && (
-        <section className="rounded-lg bg-warn-soft p-3">
-          <h2 className="text-sm font-bold text-warn">{t.flagsTitle}</h2>
-          <ul className="mt-1 text-xs text-ink-70">
-            {recipe.kosher_flags.map((flag, i) => (
-              <li key={i}>{flag}</li>
-            ))}
-          </ul>
-        </section>
-      )}
-
       {user && (
         <NoteEditor
           recipeId={recipe.id}
@@ -433,7 +430,7 @@ export default async function RecipePage({
         />
       )}
 
-      <p className="text-[11px] text-ink-50">{t.kosherDisclaimer}</p>
+      <p className="text-[11px] text-ink-50">{fr.regimes.disclaimer}</p>
     </article>
   );
 }

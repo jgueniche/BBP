@@ -7,8 +7,6 @@ const mechouia: RecipeForSeo = {
   title: "Salade méchouia",
   description: "Poivrons et tomates grillés, ail, huile d'olive.",
   icon: "🫑",
-  kashrut_class: "parve",
-  is_fish: false,
   origin: "tunisie",
   category: "entree",
   prep_min: 20,
@@ -67,7 +65,9 @@ describe("recipeJsonLd", () => {
       proteinContent: "2.3 g",
       sodiumContent: "210 mg",
     });
-    expect(json.keywords).toBe("salade, grillé, Parvé, tunisie");
+    expect(json.keywords).toBe("salade, grillé, Tunisie");
+    expect(json.recipeCuisine).toBe("Tunisie");
+    expect(json.recipeCategory).toBe("Entrée");
     expect(json.author).toEqual({
       "@type": "Organization",
       name: "Copine en cuisine",

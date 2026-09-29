@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { fr } from "@/i18n/fr";
+import { CUISINE_GROUPS } from "@/lib/recipes/cuisines";
 import { cn } from "@/lib/utils/cn";
 
 const t = fr.recettes;
@@ -76,7 +77,7 @@ export const emptyEditorInitial: EditorInitial = {
   id: null,
   title: "",
   description: "",
-  origin: "tunisie",
+  origin: "autre",
   category: "plat",
   difficulty: "facile",
   prepMin: "15",
@@ -293,11 +294,19 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
             }
             className={selectClass}
           >
-            {Object.entries(t.origins).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
+            {CUISINE_GROUPS.map((group) => (
+              <optgroup key={group.label} label={group.label}>
+                {group.cuisines.map((cuisine) => (
+                  <option key={cuisine} value={cuisine}>
+                    {t.origins[cuisine]}
+                  </option>
+                ))}
+              </optgroup>
             ))}
+            {state.origin === "ashkenaze" && (
+              <option value="ashkenaze">{t.origins.ashkenaze}</option>
+            )}
+            <option value="autre">{t.origins.autre}</option>
           </select>
         </label>
         <label className="flex flex-col gap-1.5">
@@ -366,7 +375,7 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
         <Input
           value={state.tags}
           onChange={(e) => update("tags", e.target.value)}
-          placeholder="chabbat, express…"
+          placeholder="express, batch cooking…"
         />
       </label>
 

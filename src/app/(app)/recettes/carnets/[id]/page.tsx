@@ -7,6 +7,8 @@ import {
 } from "@/components/recipes/recipe-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { fr } from "@/i18n/fr";
+import { loadFoodRules } from "@/lib/diets/preferences";
+import { verdictStatuses } from "@/lib/diets/recipes";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
@@ -55,7 +57,7 @@ export default async function CollectionPage({
       ? await supabase
           .from("recipes")
           .select(
-            "id, title, slug, icon, origin, kashrut_class, is_fish, prep_min, cook_min, version_kind",
+            "id, title, slug, icon, origin, prep_min, cook_min, version_kind",
           )
           .in("id", recipeIds)
       : { data: [] };
@@ -65,6 +67,12 @@ export default async function CollectionPage({
     .filter((r): r is NonNullable<typeof r> => r !== undefined);
 
   const members = memberCount ?? 0;
+  const rules = await loadFoodRules(supabase, user.id);
+  const statuses = await verdictStatuses(
+    supabase,
+    rules,
+    ordered.map((r) => r.id),
+  );
 
   return (
     <section className="flex flex-col gap-4">
@@ -104,7 +112,10 @@ export default async function CollectionPage({
         <ul className="flex flex-col gap-3">
           {ordered.map((recipe) => (
             <li key={recipe.id}>
-              <RecipeCard recipe={recipe as RecipeCardData} />
+              <RecipeCard
+                recipe={recipe as RecipeCardData}
+                verdict={statuses.get(recipe.id) ?? null}
+              />
             </li>
           ))}
         </ul>

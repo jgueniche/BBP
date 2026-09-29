@@ -15,10 +15,11 @@ import {
   COLLECTION_COLOR_CLASSES,
   type CollectionColor,
 } from "@/lib/collections/colors";
-import {
-  getCalendarDays,
-  loadCalendarSettings,
-} from "@/lib/jewish-calendar/cache";
+import { loadFoodRules } from "@/lib/diets/preferences";
+import { loadRecipeIngredients, verdictStatuses } from "@/lib/diets/recipes";
+import { DIETS, type Diet } from "@/lib/diets/types";
+import { evaluateRecipe } from "@/lib/diets/verdict";
+import { CUISINE_GROUPS } from "@/lib/recipes/cuisines";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils/cn";
@@ -28,16 +29,23 @@ const t = fr.recettes;
 type Filters = {
   tab?: string;
   q?: string;
-  casher?: string;
-  origine?: string;
+  cuisine?: string;
+  regime?: string;
+  pourmoi?: string;
   version?: string;
   tmax?: string;
   tri?: string;
-  pessah?: string;
 };
 
 const CARD_SELECT =
-  "id, title, slug, icon, origin, kashrut_class, is_fish, tags, prep_min, cook_min, version_kind, visibility, author_id";
+  "id, title, slug, icon, origin, tags, prep_min, cook_min, version_kind, visibility, author_id";
+
+const STATUS_ORDER = {
+  compatible: 0,
+  adaptable: 1,
+  verify: 2,
+  incompatible: 3,
+};
 
 function filterHref(current: Filters, patch: Partial<Filters>): string {
   const params = new URLSearchParams();
@@ -145,31 +153,16 @@ async function DiscoverTab({ filters }: { filters: Filters }) {
     .limit(100);
 
   if (filters.q) query = query.ilike("title", `%${filters.q}%`);
-  if (filters.casher) query = query.eq("kashrut_class", filters.casher);
-  if (filters.origine) query = query.eq("origin", filters.origine);
+  if (filters.cuisine) query = query.eq("origin", filters.cuisine);
   if (filters.version) query = query.eq("version_kind", filters.version);
-  if (filters.pessah) query = query.contains("tags", ["pessah"]);
 
-  // During Pessah, suggest the hametz-free filter (session 13).
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  let pessahNow = false;
-  if (user) {
-    const userCalendar = await loadCalendarSettings(supabase, user.id);
-    if (userCalendar.enabled) {
-      const todayKey = new Intl.DateTimeFormat("en-CA", {
-        timeZone: "Europe/Paris",
-      }).format(new Date());
-      const [dayInfo] = await getCalendarDays(
-        supabase,
-        user.id,
-        todayKey,
-        todayKey,
-      );
-      pessahNow = dayInfo?.isPessah ?? false;
-    }
-  }
+  const rules = user ? await loadFoodRules(supabase, user.id) : null;
+  const regime = (DIETS as readonly string[]).includes(filters.regime ?? "")
+    ? (filters.regime as Diet)
+    : null;
 
   const { data } = await query;
   const maxTime = filters.tmax ? parseInt(filters.tmax, 10) : null;
@@ -178,6 +171,38 @@ async function DiscoverTab({ filters }: { filters: Filters }) {
       maxTime === null ||
       (recipe.prep_min ?? 0) + (recipe.cook_min ?? 0) <= maxTime,
   );
+
+  // Diet facts are computed from the ingredients, never stored on people.
+  const allIds = recipes.map((r) => r.id);
+  const [statuses, ingredientsById] = await Promise.all([
+    verdictStatuses(supabase, rules, allIds),
+    regime
+      ? loadRecipeIngredients(supabase, allIds)
+      : Promise.resolve(new Map()),
+  ]);
+  if (regime) {
+    recipes = recipes.filter(
+      (recipe) =>
+        evaluateRecipe(ingredientsById.get(recipe.id) ?? [], {
+          diets: [regime],
+          allergens: [],
+          dislikes: [],
+        })?.status === "compatible",
+    );
+  }
+  const mineOnly = Boolean(filters.pourmoi) && rules !== null;
+  if (mineOnly) {
+    recipes = recipes
+      .filter((recipe) => {
+        const status = statuses.get(recipe.id);
+        return status === "compatible" || status === "adaptable";
+      })
+      .sort(
+        (a, b) =>
+          STATUS_ORDER[statuses.get(a.id) ?? "compatible"] -
+          STATUS_ORDER[statuses.get(b.id) ?? "compatible"],
+      );
+  }
 
   const ids = recipes.map((r) => r.id);
   const authorIds = [
@@ -232,37 +257,15 @@ async function DiscoverTab({ filters }: { filters: Filters }) {
         >
           {t.sortTop}
         </Link>
-        <Link
-          href={filterHref(filters, {
-            pessah: filters.pessah ? undefined : "1",
-          })}
-          className={chipClass(Boolean(filters.pessah))}
-        >
-          {t.filterPessah}
-        </Link>
-        {(["bassari", "halavi", "parve"] as const).map((k) => (
+        {rules && (
           <Link
-            key={k}
             href={filterHref(filters, {
-              casher: filters.casher === k ? undefined : k,
+              pourmoi: filters.pourmoi ? undefined : "1",
             })}
-            className={chipClass(filters.casher === k)}
+            className={chipClass(Boolean(filters.pourmoi))}
           >
-            {fr.kashrut[k]}
+            {fr.regimes.filterMine}
           </Link>
-        ))}
-        {(["tunisie", "algerie", "maroc", "israel", "ashkenaze"] as const).map(
-          (o) => (
-            <Link
-              key={o}
-              href={filterHref(filters, {
-                origine: filters.origine === o ? undefined : o,
-              })}
-              className={chipClass(filters.origine === o)}
-            >
-              {t.origins[o]}
-            </Link>
-          ),
         )}
         {(["boutargue", "proteine"] as const).map((v) => (
           <Link
@@ -285,17 +288,49 @@ async function DiscoverTab({ filters }: { filters: Filters }) {
         </Link>
       </div>
 
-      {pessahNow && !filters.pessah && (
-        <p className="text-xs text-ink-50">
-          {t.pessahSuggestion}{" "}
-          <Link
-            href={filterHref(filters, { pessah: "1" })}
-            className="font-semibold underline underline-offset-2"
-          >
-            {t.filterPessah}
-          </Link>
-        </p>
-      )}
+      <form
+        action="/recettes"
+        className="flex flex-wrap items-center gap-2 text-xs"
+      >
+        {(["q", "pourmoi", "version", "tmax", "tri"] as const).map((key) =>
+          filters[key] ? (
+            <input key={key} type="hidden" name={key} value={filters[key]} />
+          ) : null,
+        )}
+        <select
+          name="cuisine"
+          aria-label={t.filters.origin}
+          defaultValue={filters.cuisine ?? ""}
+          className="rounded-full border bg-card px-2.5 py-1 font-semibold"
+        >
+          <option value="">{t.filterCuisineAll}</option>
+          {CUISINE_GROUPS.map((group) => (
+            <optgroup key={group.label} label={group.label}>
+              {group.cuisines.map((cuisine) => (
+                <option key={cuisine} value={cuisine}>
+                  {t.origins[cuisine]}
+                </option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
+        <select
+          name="regime"
+          aria-label={fr.regimes.filterDiet}
+          defaultValue={regime ?? ""}
+          className="rounded-full border bg-card px-2.5 py-1 font-semibold"
+        >
+          <option value="">{fr.regimes.filterDietAll}</option>
+          {DIETS.map((diet) => (
+            <option key={diet} value={diet}>
+              {fr.regimes.facts[diet]}
+            </option>
+          ))}
+        </select>
+        <Button type="submit" size="sm" variant="secondary">
+          {t.filterApply}
+        </Button>
+      </form>
 
       {recipes.length === 0 ? (
         <EmptyState
@@ -310,6 +345,7 @@ async function DiscoverTab({ filters }: { filters: Filters }) {
                 recipe={recipe as RecipeCardData}
                 likes={likesById.get(recipe.id) ?? 0}
                 author={authorById.get(recipe.author_id ?? "") ?? null}
+                verdict={statuses.get(recipe.id) ?? null}
               />
             </li>
           ))}
@@ -349,6 +385,12 @@ async function BookTab({ userId }: { userId: string | null }) {
     .filter((r): r is NonNullable<typeof r> => r !== undefined)
     .filter((r) => r.author_id !== userId);
 
+  const rules = await loadFoodRules(supabase, userId);
+  const statuses = await verdictStatuses(supabase, rules, [
+    ...(mine ?? []).map((r) => r.id),
+    ...orderedSaved.map((r) => r.id),
+  ]);
+
   if ((mine ?? []).length === 0 && orderedSaved.length === 0) {
     return (
       <EmptyState
@@ -366,7 +408,10 @@ async function BookTab({ userId }: { userId: string | null }) {
           <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {(mine ?? []).map((recipe) => (
               <li key={recipe.id}>
-                <RecipeCard recipe={recipe as RecipeCardData} />
+                <RecipeCard
+                  recipe={recipe as RecipeCardData}
+                  verdict={statuses.get(recipe.id) ?? null}
+                />
               </li>
             ))}
           </ul>
@@ -380,7 +425,10 @@ async function BookTab({ userId }: { userId: string | null }) {
           <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {orderedSaved.map((recipe) => (
               <li key={recipe.id}>
-                <RecipeCard recipe={recipe as RecipeCardData} />
+                <RecipeCard
+                  recipe={recipe as RecipeCardData}
+                  verdict={statuses.get(recipe.id) ?? null}
+                />
               </li>
             ))}
           </ul>
