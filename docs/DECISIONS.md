@@ -1,5 +1,12 @@
 # DECISIONS.md — ADR courts (≤ 5 lignes chacun)
 
+## ADR-034 — Journal privé, notifications calculées à la lecture, push rare (29/09/2026)
+« J'ai cuisiné » écrit toujours une entrée privée (`cook_logs`) ; « Partager » ajoute le post, et « cuisinée N fois »
+compte tout le journal, anonymement. Les notifications ne sont pas stockées : `notification_events` les recalcule sous
+la RLS de l'appelante (suppression, modération et blocage s'appliquent d'office), seul `notifications_seen_at` est gardé.
+Le push passe par la clé service role après la réponse : types choisis, jamais les réactions, 2 par jour, rien de 21 h 30
+à 8 h 30. Listes d'abonnés privées, compteurs publics ; le profil public a une seule adresse, son @pseudo.
+
 ## ADR-033 — Recette sociale : photos ré-encodées, étiquettes à référence, astuces votées (29/09/2026)
 Photos de posts ré-encodées dans le navigateur (EXIF et géolocalisation retirés) puis déposées dans un bucket public
 `post-photos` par dossier personnel ; le serveur n'accepte que ce dossier. « J'ai cuisiné » = post `cooked` lié à la
