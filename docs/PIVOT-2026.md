@@ -1,6 +1,14 @@
 # PIVOT-2026.md — BBP devient une app de cuisine collaborative
 
-Session 17 · 29/09/2026 · Statut : **proposition à valider** (voir §9 Questions). Rien n'est encore décidé hormis la suppression du sport (ADR-027).
+Session 17 · 29/09/2026 · Statut : **cadrage validé** (ADR-027, ADR-028).
+
+> **Décidé le 29/09/2026** (réponses de Jeremy aux questions bloquantes, §9) :
+> 1. **Le suivi santé est supprimé** : journal, poids, calories, TDEE, progrès, coach minceur. Seules les kcal par portion restent, discrètes et optionnelles.
+> 2. **Collaboratif en V1 : foyer, Tablée, carnets partagés et communauté publique.**
+> 3. **Kémia garde son nom et devient une copine en cuisine multiculturelle**, sans minceur.
+> 4. **App iPhone/Android rapidement**, via une coque native qui réutilise l'app web, avec extension de partage.
+>
+> Les réponses par défaut des questions 5 à 12 s'appliquent tant qu'elles ne sont pas contestées.
 
 ## 1. La demande
 La femme de Jeremy reprend l'application pour en faire une **app de cuisine collaborative**, beaucoup plus **girly**, qui ne soit plus centrée sur le casher mais qui **propose du casher, du halal, du vegan, du végétarien indien, du pescétarien, du végétalien…** : toutes les communautés, tous les régimes. On **garde l'import de recettes depuis les réseaux sociaux (extrêmement important)**. La partie **sport est supprimée**. La charte graphique sera repensée en profondeur dans une session dédiée Claude Design : ici, seulement une direction et un brief.
@@ -321,7 +329,7 @@ Une session Claude Code ≈ un livrable testé et déployable, comme jusqu'ici. 
 | # | Session | Livrable clé |
 |---|---|---|
 | 17 | ✅ Audit & vision | Ce document, suppression du sport |
-| 18 | Brief v2 & grand ménage | Nouveau brief validé ; retrait du suivi santé (journal, poids, progrès, TDEE, nudges, garde-fous minceur) ; navigation recentrée sur la cuisine ; onboarding express (prénom, régimes, allergies) ; nom provisoire |
+| 18 | Brief v2 & grand ménage | Nouveau brief validé ; retrait du suivi santé (journal, poids, progrès, TDEE, nudges, garde-fous minceur, outils santé de Kémia) ; Kémia « copine en cuisine » (prompt v2, évals adaptées) ; navigation recentrée sur la cuisine ; communauté rethématisée (réactions et types de posts universels) ; onboarding express (prénom, régimes, allergies) ; nom provisoire |
 | 19 | Moteur multi-régimes | Attributs d'ingrédients, règles par régime avec niveaux de rigueur, pastilles de compatibilité par recette et par personne, profils alimentaires (moi, foyer, invités) ; le casher devient un module ; tests par régime |
 | 20 | Import v2 | File de jobs avec statut et quotas, description et vidéo YouTube (Gemini), Pinterest, captures multiples (carrousels Instagram), reformulation, dédoublonnage, traduction, **photos de recettes** (upload + couverture) |
 | 21 | App iPhone & Android | Coque Capacitor avec **extension de partage**, routes `/api` pour l'app, mode cuisine hors ligne, notifications ; TestFlight puis stores |
@@ -329,7 +337,7 @@ Une session Claude Code ≈ un livrable testé et déployable, comme jusqu'ici. 
 | 23 | Tablée | Dîner avec invités : contraintes de chacun → menu compatible → qui apporte quoi → liste partagée |
 | 24 | Adapter | Variantes IA par régime validées par le moteur de règles, portions et conversions, « même plat, toutes les tables » |
 | 25 | Nouvelle identité | Design system issu de la session Claude Design appliqué partout, logo, icônes, illustrations |
-| 26 | Communauté v2 | Profils de créatrices revendicables (stats, retrait), groupes par cuisine ou tradition, calendrier des fêtes multi-traditions |
+| 26 | Communauté publique | Profils de créatrices revendicables (stats, retrait), groupes par cuisine ou tradition, calendrier des fêtes multi-traditions (la communauté fait partie de la V1, ADR-028) |
 | 27 | Production | RGPD art. 9 (régimes religieux + allergies), export/suppression complets, CGU, CSP, rate limiting, tests RLS, observabilité, avis juridique sur l'import, abonnement |
 
 La session Claude Design peut se tenir **dès maintenant, en parallèle** : plus tôt la charte existe, moins il y a d'écrans à refaire (la session 25 peut alors remonter juste après la 18).
@@ -338,11 +346,11 @@ La session Claude Design peut se tenir **dès maintenant, en parallèle** : plus
 
 Les quatre premières bloquent l'écriture du brief v2. Pour les autres, une réponse par défaut est proposée : sans avis contraire, c'est elle qui sera retenue.
 
-### Bloquantes
-1. **Suivi santé** (journal alimentaire, poids, calories, TDEE, progrès, coach minceur) : on le **supprime** (recommandé), on le **met en sommeil** (masqué, réactivable), ou on le **garde** ?
-2. **« Collaboratif »**, quelles priorités ? Foyer (couple, famille : planning et courses partagés) · Tablée (dîners avec invités aux régimes différents) · Carnets partagés (copines, famille, recettes de mamie) · Communauté publique (fil, créatrices) · Cuisine en direct à plusieurs. *Recommandé : foyer + carnets + Tablée en V1, communauté en V2.*
-3. **Kémia** : garder la tata judéo-tunisienne telle quelle · la garder mais en « copine en cuisine » multiculturelle, sans minceur · un assistant discret sans personnage · plusieurs personnages au choix ? *Recommandé : garder le nom — la kémia, ce sont des petits plats partagés, tradition commune aux juifs, musulmans et chrétiens du Maghreb — mais en faire une copine en cuisine multiculturelle, sans minceur.*
-4. **Plateforme** : PWA d'abord puis stores · app native (App Store / Play Store) prioritaire pour partager depuis Instagram sur iPhone ? *Recommandé : oui, dès la session 21, avec une coque Capacitor qui réutilise l'app web (§3.7).*
+### Bloquantes (tranchées le 29/09/2026, voir l'encadré en tête)
+1. **Suivi santé** (journal alimentaire, poids, calories, TDEE, progrès, coach minceur) : on le **supprime** (recommandé), on le **met en sommeil** (masqué, réactivable), ou on le **garde** ? **→ Décidé : supprimé.**
+2. **« Collaboratif »**, quelles priorités ? Foyer (couple, famille : planning et courses partagés) · Tablée (dîners avec invités aux régimes différents) · Carnets partagés (copines, famille, recettes de mamie) · Communauté publique (fil, créatrices) · Cuisine en direct à plusieurs. *Recommandé : foyer + carnets + Tablée en V1, communauté en V2.* **→ Décidé : les quatre en V1** (foyer, Tablée, carnets partagés, communauté publique).
+3. **Kémia** : garder la tata judéo-tunisienne telle quelle · la garder mais en « copine en cuisine » multiculturelle, sans minceur · un assistant discret sans personnage · plusieurs personnages au choix ? *Recommandé : garder le nom — la kémia, ce sont des petits plats partagés, tradition commune aux juifs, musulmans et chrétiens du Maghreb — mais en faire une copine en cuisine multiculturelle, sans minceur.* **→ Décidé : copine en cuisine multiculturelle, nom gardé.**
+4. **Plateforme** : PWA d'abord puis stores · app native (App Store / Play Store) prioritaire pour partager depuis Instagram sur iPhone ? *Recommandé : oui, dès la session 21, avec une coque Capacitor qui réutilise l'app web (§3.7).* **→ Décidé : oui, rapidement.**
 
 ### Avec réponse par défaut
 5. **Nom** : BBP (Boukha = alcool, Protéines = fitness) ne colle plus. *Défaut : nouveau nom. Pistes : Mijotons, Pincée, Tablée, Kémia, Cocotte — disponibilité à vérifier (INPI, EUIPO, stores, domaine).*

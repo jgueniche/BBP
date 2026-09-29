@@ -8,6 +8,7 @@ Dernière mise à jour : 29/09/2026 · Sessions 1 à 17
 - **Veille (4 recherches web)** : aucun concurrent ne gère un repas pour des convives aux régimes mixtes ni de filtre casher/halal ; sur iPhone, une PWA ne peut pas recevoir de partage (coque native requise) ; l'oEmbed Instagram ne renvoie plus ni légende ni autrice depuis le 03/11/2025 (notre chemin à jeton Meta est obsolète) ; `@hebcal/core` (GPL-2.0) vérifié côté serveur uniquement.
 - **Sport supprimé** : pages `/sport` (programme, séance guidée, log rapide), moteur `lib/workout` + agent `workout_planner` + seed des 188 exercices, outil Kémia `create_workout_program` (prompt coach **v1.2.0**), carte sport de l'accueil, liens journal/profil, série « sport », badges `yalla`/`marcheur-belleville`, défis `paris-tel-aviv`/`hanouka-8-8`, posts « séance », illustrations haltère/chaussure, récap hebdo sans séances. Les niveaux d'activité de l'onboarding restent (ils nourrissent le TDEE).
 - **Migration `202609291000_drop_sport_module.sql` écrite mais NON appliquée** : supprime `workout_sessions`, `workout_programs`, `exercises`, convertit les posts « séance » en messages, retire série/badges/défis sport et resserre les contraintes. Types `src/db/types.ts` alignés sur le schéma post-migration.
+- **Cadrage validé par Jeremy (ADR-028)** : suivi santé supprimé ; V1 collaborative = foyer + Tablée + carnets partagés + communauté publique ; Kémia devient une copine en cuisine multiculturelle ; app iPhone/Android rapidement (coque native + extension de partage). Réponses par défaut des questions 5 à 12 retenues sauf objection.
 - 205 tests verts (−10 : moteur sport et badges sport), lint/typecheck/build OK.
 
 ## Fait — Session 16 (PWA, performance, accessibilité, SEO — brief §10.14, ADR-025/026)
@@ -163,7 +164,8 @@ Limites : la base Supabase de BBP n'est pas exposée au connecteur MCP de cette 
 - Rien.
 
 ## Reste à faire (actions côté Jeremy)
-- **Répondre aux questions de cadrage du pivot** (`docs/PIVOT-2026.md` › Questions) : elles conditionnent le brief v2 et la session suivante.
+- **Relire les réponses par défaut des questions 5 à 12** (`docs/PIVOT-2026.md` §9 : nom, données, régimes V1, langue, modèle économique, cible, calendrier des fêtes, organisation) et signaler tout désaccord avant la session 18.
+- **Session Claude Design** (en parallèle) : brief prêt à coller dans `docs/PIVOT-2026.md` §7.3.
 - **Après merge de la PR de la session 17** : appliquer la migration `202609291000_drop_sport_module.sql` sur Supabase (destructive : historique sport supprimé). Sans elle, rien ne casse — le code ne lit plus ces tables.
 - (Facultatif) `NEXT_PUBLIC_SITE_URL=https://bbp-mu.vercel.app` sur Vercel si un domaine custom arrive ; sans elle, le domaine de production Vercel est utilisé pour sitemap/JSON-LD/OG.
 0. **Notifications push** : générer les clés (`npx web-push generate-vapid-keys`) puis poser `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (mailto:ton@email) + `SUPABASE_SERVICE_ROLE_KEY` + `CRON_SECRET` sur Vercel. Sans elles, la carte Notifications l'explique et le cron répond 501 (aucun crash).

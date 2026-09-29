@@ -1,5 +1,12 @@
 # DECISIONS.md — ADR courts (≤ 5 lignes chacun)
 
+## ADR-028 — Cadrage du pivot validé (29/09/2026)
+Réponses de Jeremy aux 4 questions bloquantes de `docs/PIVOT-2026.md` : **suivi santé supprimé** (journal, poids,
+calories, TDEE, progrès, coach minceur ; seules les kcal par portion restent, discrètes) ; V1 collaborative =
+**foyer, Tablée, carnets partagés et communauté publique** ; **Kémia garde son nom et devient une copine en cuisine
+multiculturelle**, sans minceur ; **app iPhone/Android rapidement** via une coque native (extension de partage).
+Les réponses par défaut des questions 5 à 12 s'appliquent tant qu'elles ne sont pas contestées.
+
 ## ADR-027 — Pivot vers la cuisine collaborative ; le sport est supprimé (29/09/2026)
 Demande de Jeremy : sa femme reprend l'app pour en faire une app de cuisine collaborative, « girly », ouverte
 à toutes les communautés et à tous les régimes (casher, halal, vegan, végétarien indien…), l'import social

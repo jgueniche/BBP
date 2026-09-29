@@ -2,7 +2,7 @@
 
 Coach nutrition + communauté, casher-natif, culturellement judéo-oriental. Source de vérité : `BRIEF-BBP.md`. État courant : `docs/STATE.md`. Décisions : `docs/DECISIONS.md`.
 
-> **Pivot en cours (session 17, ADR-027)** : BBP devient une app de cuisine collaborative, inclusive (tous régimes, toutes communautés) et « girly », reprise par la femme de Jeremy. Le sport est supprimé. Audit, benchmark, vision et questions de cadrage : `docs/PIVOT-2026.md`. Tant que le brief v2 n'est pas validé, ne rien construire de nouveau sur le suivi santé ni sur Kémia.
+> **Pivot en cours (session 17, ADR-027)** : BBP devient une app de cuisine collaborative, inclusive (tous régimes, toutes communautés) et « girly », reprise par la femme de Jeremy. Le sport est supprimé. Audit, benchmark, vision et feuille de route : `docs/PIVOT-2026.md`. **Cadrage validé (ADR-028)** : suivi santé à supprimer (session 18), V1 collaborative = foyer + Tablée + carnets + communauté, Kémia = copine en cuisine multiculturelle, app native rapidement. Ne rien construire de nouveau sur le suivi santé ; les sections ci-dessous sur le casher-natif, la minceur et la persona de Kémia seront réécrites avec le brief v2.
 
 ## Rituel de session
 1. Lire ce fichier + `docs/STATE.md` + la section §10.<N> de `BRIEF-BBP.md`.
