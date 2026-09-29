@@ -4,11 +4,11 @@
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Couscous au poisson', 'couscous-au-poisson', 'Le grand classique tunisien du vendredi : semoule, légumes et poisson en sauce rouge.', 'tunisie', 'plat', 'moyen', 30, 60,
-     6, 'parve', true, 1.0, array['chabbat'], 'community', 'boutargue',
+     6, array['chabbat'], 'community', 'boutargue',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -39,11 +39,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Couscous boulettes', 'couscous-boulettes', 'Couscous du chabbat aux boulettes de bœuf, sauce rouge généreuse.', 'tunisie', 'plat', 'moyen', 40, 75,
-     6, 'bassari', false, 1.0, array['chabbat'], 'community', 'boutargue',
+     6, array['chabbat'], 'community', 'boutargue',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -74,11 +74,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Couscous boulettes — version Protéine', 'couscous-boulettes-proteine', 'La version allégée : boulettes de dinde, semoule complète mesurée, moitié moins d''huile.', 'tunisie', 'plat', 'moyen', 35, 60,
-     6, 'bassari', false, 1.0, array['chabbat','meal-prep'], 'community', 'proteine',
+     6, array['chabbat','meal-prep'], 'community', 'proteine',
      (select id from public.recipes where slug = 'couscous-boulettes'), 'published')
   on conflict (slug) do nothing
   returning id
@@ -109,11 +109,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Brik à l''œuf', 'brik-a-l-oeuf', 'La brik croustillante à l''œuf coulant, thon et câpres.', 'tunisie', 'entree', 'facile', 15, 10,
-     4, 'parve', true, 1.0, array['express'], 'community', 'boutargue',
+     4, array['express'], 'community', 'boutargue',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -142,11 +142,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Brik à l''œuf — version Protéine', 'brik-a-l-oeuf-proteine', 'La brik au four : croustillante, deux fois moins grasse.', 'tunisie', 'entree', 'facile', 15, 12,
-     4, 'parve', true, 1.0, array['express'], 'community', 'proteine',
+     4, array['express'], 'community', 'proteine',
      (select id from public.recipes where slug = 'brik-a-l-oeuf'), 'published')
   on conflict (slug) do nothing
   returning id
@@ -175,11 +175,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Pkaila aux haricots', 'pkaila', 'Le plat mijoté tunisien aux épinards confits et haricots blancs.', 'tunisie', 'plat', 'difficile', 40, 180,
-     8, 'bassari', false, 1.0, array['chabbat','meal-prep'], 'community', 'boutargue',
+     8, array['chabbat','meal-prep'], 'community', 'boutargue',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -209,11 +209,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Loubia', 'loubia', 'Haricots blancs en sauce rouge, le réconfort du dimanche soir.', 'algerie', 'plat', 'facile', 15, 60,
-     6, 'parve', false, 1.0, array['meal-prep'], 'community', 'boutargue',
+     6, array['meal-prep'], 'community', 'boutargue',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -243,11 +243,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Mloukhia', 'mloukhia', 'La sauce noire tunisienne à la corète, mijotée des heures avec la viande.', 'tunisie', 'plat', 'difficile', 20, 240,
-     8, 'bassari', false, 1.0, array['fete','meal-prep'], 'community', 'boutargue',
+     8, array['fete','meal-prep'], 'community', 'boutargue',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -276,11 +276,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Nikitouches', 'nikitouches', 'La soupe de petites pâtes au bouillon de poulet des grands-mères tunes.', 'tunisie', 'plat', 'facile', 15, 45,
-     6, 'bassari', false, 1.0, array['chabbat'], 'community', 'boutargue',
+     6, array['chabbat'], 'community', 'boutargue',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -309,11 +309,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Tfina / Dafina', 'tfina', 'Le plat chaud du chabbat : mijoté toute la nuit, pommes de terre confites, œufs bruns.', 'maroc', 'plat', 'moyen', 30, 720,
-     8, 'bassari', false, 1.0, array['chabbat'], 'community', 'boutargue',
+     8, array['chabbat'], 'community', 'boutargue',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -343,11 +343,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Tershi de potiron', 'tershi', 'La purée de courge relevée à l''harissa et au citron — kémia essentielle.', 'tunisie', 'kemia', 'facile', 10, 20,
-     4, 'parve', false, 1.0, array['express','sans-gluten'], 'community', 'proteine',
+     4, array['express','sans-gluten'], 'community', 'proteine',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -376,11 +376,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Slata méchouia', 'slata-mechouia', 'Poivrons et tomates grillés, écrasés à l''huile d''olive — LA salade tunisienne.', 'tunisie', 'kemia', 'facile', 15, 25,
-     4, 'parve', false, 1.0, array['sans-gluten'], 'community', 'proteine',
+     4, array['sans-gluten'], 'community', 'proteine',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -409,11 +409,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Salade de carottes au cumin', 'salade-carottes-cumin', 'Carottes fondantes, ail, cumin, citron : la kémia la plus simple et la plus fraîche.', 'maroc', 'kemia', 'facile', 10, 15,
-     4, 'parve', false, 1.0, array['express','sans-gluten'], 'community', 'proteine',
+     4, array['express','sans-gluten'], 'community', 'proteine',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -442,11 +442,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Plateau de kémia', 'plateau-kemia', 'L''apéro tunisien complet : olives, tershi, méchouia, œufs, pickles.', 'tunisie', 'kemia', 'facile', 20, 0,
-     6, 'parve', false, 1.0, array['chabbat','fete'], 'community', 'boutargue',
+     6, array['chabbat','fete'], 'community', 'boutargue',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -476,11 +476,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Boutargue tranchée', 'boutargue-tranchee', 'Fines tranches de boutargue, huile d''olive et citron. Le luxe simple.', 'tunisie', 'kemia', 'facile', 5, 0,
-     4, 'parve', true, 1.0, array['fete','sans-gluten','express'], 'community', 'boutargue',
+     4, array['fete','sans-gluten','express'], 'community', 'boutargue',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -505,11 +505,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Chakchouka', 'chakchouka', 'Poivrons, tomates, œufs pochés dans la sauce — avec ou sans feta.', 'tunisie', 'plat', 'facile', 15, 25,
-     4, 'halavi', false, 1.0, array['express'], 'community', 'proteine',
+     4, array['express'], 'community', 'proteine',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -539,11 +539,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Fricassé tunisien', 'fricasse', 'Le petit pain frit garni thon-harissa-olives-citron confit.', 'tunisie', 'entree', 'moyen', 45, 15,
-     6, 'parve', true, 1.0, array['fete'], 'community', 'boutargue',
+     6, array['fete'], 'community', 'boutargue',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -574,11 +574,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Complet poisson', 'complet-poisson', 'L''assiette tunisienne complète : poisson grillé, riz ou frites, méchouia, œuf.', 'tunisie', 'plat', 'moyen', 25, 30,
-     4, 'parve', true, 1.0, '{}', 'community', 'proteine',
+     4, '{}', 'community', 'proteine',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -608,11 +608,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Mekbouba', 'mekbouba', 'La compotée tomates-poivrons-piments confite à l''huile, servie tiède ou froide.', 'tunisie', 'kemia', 'facile', 15, 40,
-     4, 'parve', false, 1.0, array['sans-gluten','meal-prep'], 'community', 'proteine',
+     4, array['sans-gluten','meal-prep'], 'community', 'proteine',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -639,11 +639,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Marka hlou', 'marka-hlou', 'Le mijoté sucré-salé aux pruneaux et à la cannelle des fêtes.', 'tunisie', 'plat', 'moyen', 20, 90,
-     6, 'bassari', false, 1.0, array['fete'], 'community', 'boutargue',
+     6, array['fete'], 'community', 'boutargue',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -672,11 +672,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Boulettes de poisson en sauce', 'boulettes-poisson', 'Boulettes de poisson blanc, sauce tomate safranée piquante.', 'tunisie', 'plat', 'moyen', 30, 40,
-     4, 'parve', true, 1.0, '{}', 'community', 'proteine',
+     4, '{}', 'community', 'proteine',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -706,11 +706,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Poulet aux olives et citron confit', 'poulet-olives-citron', 'Tajine marocain fondant, olives vertes et citron confit.', 'maroc', 'plat', 'facile', 20, 60,
-     4, 'bassari', false, 1.0, '{}', 'community', 'proteine',
+     4, '{}', 'community', 'proteine',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -740,11 +740,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Tajine de kefta', 'tajine-kefta', 'Boulettes de bœuf épicées, sauce tomate, œufs pochés au centre.', 'maroc', 'plat', 'facile', 25, 35,
-     4, 'bassari', false, 1.0, '{}', 'community', 'boutargue',
+     4, '{}', 'community', 'boutargue',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -774,11 +774,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Hraimi', 'hraimi', 'Poisson en sauce rouge pimentée, spécialité de Tripoli servie le vendredi soir.', 'tunisie', 'plat', 'moyen', 15, 35,
-     4, 'parve', true, 1.0, array['chabbat'], 'community', 'proteine',
+     4, array['chabbat'], 'community', 'proteine',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -808,11 +808,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Sabich', 'sabich', 'La pita israélienne : aubergine, œuf, tahin, crudités.', 'israel', 'plat', 'facile', 20, 20,
-     4, 'parve', false, 1.0, array['express'], 'community', 'proteine',
+     4, array['express'], 'community', 'proteine',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -842,11 +842,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Bouillon de poulet & kneidlach', 'bouillon-kneidlach', 'Le bouillon doré ashkénaze et ses quenelles moelleuses.', 'ashkenaze', 'plat', 'moyen', 30, 90,
-     6, 'bassari', false, 1.0, array['chabbat','fete'], 'community', 'boutargue',
+     6, array['chabbat','fete'], 'community', 'boutargue',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -876,11 +876,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Hallah tressée', 'hallah', 'Le pain brioché du chabbat, doré et moelleux.', 'ashkenaze', 'pain', 'moyen', 30, 35,
-     8, 'parve', false, 1.0, array['chabbat'], 'community', 'boutargue',
+     8, array['chabbat'], 'community', 'boutargue',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -909,11 +909,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Kugel de nouilles', 'kugel', 'Le gratin sucré-salé de nouilles ashkénaze, entre dessert et plat.', 'ashkenaze', 'plat', 'facile', 15, 45,
-     8, 'halavi', false, 1.0, array['fete'], 'community', 'boutargue',
+     8, array['fete'], 'community', 'boutargue',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -943,11 +943,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Makrouds', 'makrouds', 'Losanges de semoule fourrés aux dattes, frits et trempés dans le miel.', 'tunisie', 'dessert', 'difficile', 60, 20,
-     10, 'parve', false, 1.0, array['fete'], 'community', 'boutargue',
+     10, array['fete'], 'community', 'boutargue',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -975,11 +975,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Yoyos', 'yoyos', 'Les beignets de Hanouka à l''orange, glacés au miel.', 'tunisie', 'dessert', 'moyen', 25, 20,
-     8, 'parve', false, 1.0, array['hanouka','fete'], 'community', 'boutargue',
+     8, array['hanouka','fete'], 'community', 'boutargue',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -1008,11 +1008,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Debla', 'debla', 'Rubans de pâte frits en rosace, nappés de miel — la fleur des fêtes.', 'tunisie', 'dessert', 'difficile', 45, 20,
-     10, 'parve', false, 1.0, array['fete'], 'community', 'boutargue',
+     10, array['fete'], 'community', 'boutargue',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -1041,11 +1041,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Banatages', 'banatages', 'Croquettes de pomme de terre farcies à la viande, dorées à la poêle.', 'tunisie', 'entree', 'moyen', 40, 20,
-     6, 'bassari', false, 1.0, array['fete'], 'community', 'boutargue',
+     6, array['fete'], 'community', 'boutargue',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -1074,11 +1074,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Mafroum', 'mafroum', 'Pommes de terre farcies à la viande, mijotées en sauce rouge — trésor de Tripoli.', 'tunisie', 'plat', 'difficile', 50, 90,
-     6, 'bassari', false, 1.0, array['chabbat','fete'], 'community', 'boutargue',
+     6, array['chabbat','fete'], 'community', 'boutargue',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -1108,11 +1108,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Salade d''oranges aux olives', 'salade-orange-olive', 'Oranges, olives noires, oignon doux et cumin — fraîcheur d''hiver.', 'maroc', 'kemia', 'facile', 10, 0,
-     4, 'parve', false, 1.0, array['express','sans-gluten'], 'community', 'proteine',
+     4, array['express','sans-gluten'], 'community', 'proteine',
      null, 'published')
   on conflict (slug) do nothing
   returning id
@@ -1140,11 +1140,11 @@ where exists (select 1 from r);
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, 'Harira', 'harira', 'La soupe marocaine aux pois chiches, lentilles et tomates.', 'maroc', 'plat', 'moyen', 20, 50,
-     6, 'parve', false, 1.0, array['meal-prep'], 'community', 'proteine',
+     6, array['meal-prep'], 'community', 'proteine',
      null, 'published')
   on conflict (slug) do nothing
   returning id

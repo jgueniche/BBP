@@ -552,12 +552,6 @@ export const fr = {
     body: "Peut-être un lien périmé ou une recette retirée. Le reste de la cuisine est ouvert.",
     cta: "Revenir à l'accueil",
   },
-  kashrut: {
-    bassari: "Bassari",
-    halavi: "Halavi",
-    parve: "Parvé",
-    parveFish: "Parvé · poisson",
-  },
   regimes: {
     diets: {
       vegetarian: "Végétarien",
@@ -684,7 +678,7 @@ export const fr = {
     submit: "Commencer",
     submitting: "Un instant…",
     later:
-      "Tes règles de cuisine (casher, halal, végétarien…), tes allergies et ton foyer se règlent plus tard, quand tu en as besoin.",
+      "Tes règles de cuisine (végétarien, halal, sans gluten…), tes allergies et ton foyer se règlent plus tard dans Moi, quand tu en as besoin.",
     error: "Quelque chose n'a pas fonctionné, réessaie.",
   },
   design: {

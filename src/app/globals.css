@@ -46,11 +46,6 @@
   --diet-foreground: var(--encre);
   --diet-border: #dcd1d7;
 
-  /* Kashrut category markers (kept until the multi-diet engine). */
-  --halavi: #5b7db1;
-  --bassari: #a63d2f;
-  --parve: #7a7a7a;
-
   /* Surfaces: white everywhere, hairlines between blocks. */
   --shell: #ffffff;
   --surface: #ffffff;
@@ -167,9 +162,6 @@
   --color-ok-soft: var(--ok-soft);
   --color-warn: var(--warn);
   --color-warn-soft: var(--warn-soft);
-  --color-halavi: var(--halavi);
-  --color-bassari: var(--bassari);
-  --color-parve: var(--parve);
   --color-shell: var(--shell);
   --color-surface: var(--surface);
   --color-surface-raised: var(--surface-raised);
