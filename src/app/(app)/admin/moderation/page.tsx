@@ -1,4 +1,5 @@
 import { ShieldCheck } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { fr } from "@/i18n/fr";
@@ -80,6 +81,12 @@ export default async function ModerationPage() {
         <ShieldCheck size={26} strokeWidth={2} aria-hidden />
         {t.title}
       </h1>
+      <Link
+        href="/admin/etiquettes"
+        className="self-start text-sm font-semibold underline underline-offset-2"
+      >
+        {t.tagsLink}
+      </Link>
 
       <div>
         <h2 className="font-display text-lg font-semibold">{t.openReports}</h2>

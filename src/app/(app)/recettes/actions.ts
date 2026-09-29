@@ -6,6 +6,7 @@ import { z } from "zod";
 import { generateProteinVersion as generateProteinVersionAi } from "@/ai/agents/protein-version";
 import { computeRecipeNutrition } from "@/lib/nutrition/recipe";
 import { ALL_CUISINES, CATEGORIES } from "@/lib/recipes/cuisines";
+import { resolveRecipeTags } from "@/lib/recipes/tags";
 import { createClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/utils/slug";
 
@@ -65,7 +66,7 @@ const recipeSchema = z.object({
   prepMin: z.number().int().min(0).max(600).nullable(),
   cookMin: z.number().int().min(0).max(1440).nullable(),
   servings: z.number().int().min(1).max(24),
-  tags: z.array(z.string().max(30)).max(10),
+  tags: z.array(z.string().max(40)).max(10),
   visibility: z.enum(["private", "famille", "community"]),
   versionKind: z.enum(["boutargue", "proteine"]),
   icon: z.string().max(8).nullable(),
@@ -134,6 +135,7 @@ export async function saveRecipe(raw: RecipeInput) {
     input.ingredients,
     input.servings,
   );
+  const tags = await resolveRecipeTags(supabase, user.id, input.tags);
 
   let recipeId = input.id;
   let slug: string;
@@ -159,7 +161,7 @@ export async function saveRecipe(raw: RecipeInput) {
         prep_min: input.prepMin,
         cook_min: input.cookMin,
         servings: input.servings,
-        tags: input.tags,
+        tags,
         visibility: input.visibility,
         version_kind: input.versionKind,
         icon: input.icon,
@@ -189,7 +191,7 @@ export async function saveRecipe(raw: RecipeInput) {
         prep_min: input.prepMin,
         cook_min: input.cookMin,
         servings: input.servings,
-        tags: input.tags,
+        tags,
         visibility: input.visibility,
         version_kind: input.versionKind,
         icon: input.icon,
@@ -418,4 +420,23 @@ export async function createProteinVersion(id: string) {
 
   revalidatePath("/recettes");
   return { ok: true as const, slug };
+}
+
+export type TagSuggestion = { slug: string; label: string };
+
+/** Reference tags only (never synonyms), for the editor suggestions. */
+export async function searchTags(q: string): Promise<TagSuggestion[]> {
+  const { supabase } = await requireUser();
+  const term = q.replace(/^#/, "").trim();
+  if (term.length < 2) return [];
+  const { data } = await supabase
+    .from("tags")
+    .select("slug, label")
+    .is("canonical_id", null)
+    .or(
+      `label.ilike.%${term.replace(/[%,()]/g, "")}%,slug.ilike.%${term.replace(/[%,()]/g, "")}%`,
+    )
+    .order("label")
+    .limit(8);
+  return data ?? [];
 }

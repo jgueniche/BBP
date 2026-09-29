@@ -497,6 +497,17 @@ export const fr = {
       dismiss: "Ignorer",
       done: "C'est traité.",
       notAdmin: "Cette page est réservée à la modération.",
+      tagsLink: "Étiquettes à relire",
+      tagsTitle: "Étiquettes à relire",
+      tagsHint:
+        "Rattache les synonymes à une étiquette de référence et range les étiquettes dans des catégories. Seules les étiquettes de référence sont proposées à la saisie.",
+      tagsEmpty: "Aucune étiquette à relire.",
+      synonymOf: "Synonyme de",
+      parent: "Catégorie",
+      validate: "Valider",
+      tagDelete: "Supprimer",
+      tagSaved: "C'est rangé.",
+      unknownTag: "Étiquette de référence introuvable.",
     },
   },
   notifications: {
