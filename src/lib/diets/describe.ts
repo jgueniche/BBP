@@ -1,6 +1,7 @@
 import { fr } from "@/i18n/fr";
 
 import type { Cause } from "./rules";
+import type { FoodRules } from "./types";
 import type { Finding } from "./verdict";
 
 const r = fr.regimes;
@@ -31,4 +32,29 @@ export function describeRemedy(finding: Finding): string {
   }
   if (finding.substitution?.kind === "omit") return r.omit;
   return finding.level === "verify" ? r.checkLabel : "";
+}
+
+/** The rules sentence given to the assistant (pure, testable). */
+export function describeRulesForCoach(rules: FoodRules): string {
+  const parts: string[] = [];
+  if (rules.diets.length > 0) {
+    parts.push(
+      `Règles de cuisine choisies : ${rules.diets
+        .map((d) => fr.regimes.diets[d].toLowerCase())
+        .join(", ")}.`,
+    );
+  }
+  if (rules.allergens.length > 0) {
+    parts.push(
+      `Allergies à éviter : ${rules.allergens
+        .map((a) => fr.regimes.allergens[a].toLowerCase())
+        .join(", ")}.`,
+    );
+  }
+  if (rules.dislikes.length > 0) {
+    parts.push(`N'aime pas : ${rules.dislikes.join(", ")}.`);
+  }
+  return parts.length > 0
+    ? parts.join(" ")
+    : "Aucune règle de cuisine particulière déclarée.";
 }

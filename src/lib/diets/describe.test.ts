@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { describeFinding, describeRemedy } from "./describe";
+import {
+  describeFinding,
+  describeRemedy,
+  describeRulesForCoach,
+} from "./describe";
 import { evaluateRecipe } from "./verdict";
 
 describe("describeFinding / describeRemedy", () => {
@@ -27,5 +31,25 @@ describe("describeFinding / describeRemedy", () => {
     );
     const finding = verdict!.findings[0]!;
     expect(describeFinding(finding)).toBe("peut contenir allergène (céleri)");
+  });
+});
+
+describe("describeRulesForCoach", () => {
+  it("lists rules, allergies and dislikes in plain French", () => {
+    expect(
+      describeRulesForCoach({
+        diets: ["halal", "gluten_free"],
+        allergens: ["tree_nuts"],
+        dislikes: ["coriandre"],
+      }),
+    ).toBe(
+      "Règles de cuisine choisies : halal, sans gluten. Allergies à éviter : fruits à coque. N'aime pas : coriandre.",
+    );
+  });
+
+  it("says when nothing is declared", () => {
+    expect(
+      describeRulesForCoach({ diets: [], allergens: [], dislikes: [] }),
+    ).toBe("Aucune règle de cuisine particulière déclarée.");
   });
 });

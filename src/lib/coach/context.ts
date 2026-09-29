@@ -3,6 +3,8 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/db/types";
+import { describeRulesForCoach } from "@/lib/diets/describe";
+import { loadStoredFoodRules } from "@/lib/diets/preferences";
 
 const MAX_MEMORIES = 40;
 
@@ -14,24 +16,19 @@ export type CoachContext = {
 
 /**
  * What the assistant knows about the person: first name, the cooking rules
- * they opted into, and the memories they can review and delete.
+ * they opted into (with consent), and the memories they can review.
  */
 export async function buildCoachContext(
   supabase: SupabaseClient<Database>,
   userId: string,
 ): Promise<CoachContext> {
-  const [profileRes, settingsRes, memoriesRes] = await Promise.all([
+  const [profileRes, rules, memoriesRes] = await Promise.all([
     supabase
       .from("profiles")
       .select("display_name")
       .eq("id", userId)
       .maybeSingle(),
-    supabase
-      .from("user_settings")
-      .select(
-        "kashrut_enabled, meat_to_dairy_wait_hours, no_fish_with_meat, kitniyot",
-      )
-      .maybeSingle(),
+    loadStoredFoodRules(supabase, userId),
     supabase
       .from("coach_memories")
       .select("content")
@@ -41,24 +38,9 @@ export async function buildCoachContext(
   ]);
 
   const profile = profileRes.data;
-  const settings = settingsRes.data;
-
   const parts: string[] = [];
   if (profile?.display_name) parts.push(`Prénom : ${profile.display_name}.`);
-  if (settings?.kashrut_enabled) {
-    const rules = [
-      `pas de viande et de lait au même repas, délai viande → lait ${settings.meat_to_dairy_wait_hours} h`,
-    ];
-    if (settings.no_fish_with_meat) rules.push("pas de poisson avec la viande");
-    rules.push(
-      settings.kitniyot
-        ? "légumineuses autorisées à Pessah"
-        : "pas de légumineuses à Pessah",
-    );
-    parts.push(`Règles de cuisine choisies : casher (${rules.join(", ")}).`);
-  } else {
-    parts.push("Aucune règle alimentaire particulière déclarée.");
-  }
+  parts.push(describeRulesForCoach(rules));
 
   const memories = (memoriesRes.data ?? [])
     .map((m) => `- ${m.content}`)
@@ -69,4 +51,15 @@ export async function buildCoachContext(
     memories,
     displayName: profile?.display_name ?? null,
   };
+}
+
+/** Today's date in French (Paris time) for the assistant's prompt. */
+export function todayForCoach(now: Date = new Date()): string {
+  return new Intl.DateTimeFormat("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "Europe/Paris",
+  }).format(now);
 }
