@@ -1,6 +1,6 @@
 # PIVOT-2026.md — BBP devient une app de cuisine collaborative
 
-Session 17 · 29/09/2026 · Statut : **cadrage validé** (ADR-027, ADR-028).
+Session 17 · 29/09/2026 · Statut : **cadrage validé** (ADR-027, ADR-028) · **Brief v2 : `BRIEF.md`** (session 18, ADR-029 : l'app s'appelle Copine en cuisine, l'assistante Copine).
 
 > **Décidé le 29/09/2026** (réponses de Jeremy aux questions bloquantes, §9) :
 > 1. **Le suivi santé est supprimé** : journal, poids, calories, TDEE, progrès, coach minceur. Seules les kcal par portion restent, discrètes et optionnelles.

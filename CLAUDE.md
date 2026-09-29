@@ -1,66 +1,69 @@
-# CLAUDE.md — BBP (Boukha, Boutargue & Protéines)
+# CLAUDE.md — Copine en cuisine
 
-Coach nutrition + communauté, casher-natif, culturellement judéo-oriental. Source de vérité : `BRIEF-BBP.md`. État courant : `docs/STATE.md`. Décisions : `docs/DECISIONS.md`.
-
-> **Pivot en cours (session 17, ADR-027)** : BBP devient une app de cuisine collaborative, inclusive (tous régimes, toutes communautés) et « girly », reprise par la femme de Jeremy. Le sport est supprimé. Audit, benchmark, vision et feuille de route : `docs/PIVOT-2026.md`. **Cadrage validé (ADR-028)** : suivi santé à supprimer (session 18), V1 collaborative = foyer + Tablée + carnets + communauté, Kémia = copine en cuisine multiculturelle, app native rapidement. Ne rien construire de nouveau sur le suivi santé ; les sections ci-dessous sur le casher-natif, la minceur et la persona de Kémia seront réécrites avec le brief v2.
+App de cuisine collaborative, inclusive (toutes les communautés, tous les régimes) et élégante : import de recettes depuis Instagram/TikTok/sites, adaptation par régime, réseau social, carnets, foyer, Tablée. Source de vérité : `BRIEF.md`. État : `docs/STATE.md`. Décisions : `docs/DECISIONS.md`. Pourquoi (audit, benchmark, règles des régimes) : `docs/PIVOT-2026.md`. Ancien produit (BBP, coach minceur casher) : `docs/archive/BRIEF-BBP-v1.md`, **ne plus s'en inspirer**.
 
 ## Rituel de session
-1. Lire ce fichier + `docs/STATE.md` + la section §10.<N> de `BRIEF-BBP.md`.
+1. Lire ce fichier + `docs/STATE.md` + la session concernée (`BRIEF.md` §9).
 2. Plan en ≤ 15 lignes, validation, puis commits atomiques.
-3. Avant tout commit final : `pnpm lint` + `pnpm typecheck` + `pnpm test` verts.
+3. Avant tout commit final : `pnpm lint` + `pnpm typecheck` + `pnpm test` verts (+ `pnpm build` si routes touchées).
 4. Mettre à jour `STATE.md` / `DECISIONS.md`. Résumé ≤ 10 lignes (livré / non livré / risques).
 5. Ne jamais anticiper la session suivante ; le manque va dans `STATE.md › Backlog`.
+6. Migrations écrites dans le dépôt, **jamais appliquées en prod sans l'accord explicite de Jeremy**.
 
-## Stack (brief §6)
+## Stack
 - Next.js 15 App Router + RSC + Server Actions, React 19, TypeScript **strict** (zéro `any`), pnpm, Node 22.
-- UI : Tailwind v4 (tokens `@theme`), shadcn/ui re-thémé, Lucide, Framer Motion, Recharts.
-- Client : TanStack Query, Zustand (léger), Zod à toutes les frontières (API, IA, imports).
-- Backend : Supabase Paris (eu-west-3) — Postgres, Auth (email OTP + Google + Apple), Storage, Realtime, pg_cron, pgmq. RLS sur **toute** table. Migrations SQL versionnées `YYYYMMDDHHMM_description.sql` dans `supabase/migrations/` (ADR-004) ; types générés dans `src/db/types.ts`, régénérés à chaque migration.
-- IA : Vercel AI SDK multi-provider (`src/ai/provider.ts`). Défaut `gemini-3.7-flash` (coût, ADR-010) pour coach, extraction et mémoires ; fallback Anthropic (`claude-sonnet-5` chat / `claude-haiku-4-5` léger) si seule sa clé est posée — choix final du modèle coach à confirmer via `pnpm eval:coach` (promptfoo). Prompts versionnés dans `src/ai/prompts/*.ts` avec `PROMPT_VERSION`.
-- Calendrier juif : `@hebcal/core` (offline). Nutrition : Ciqual (table `foods`) + OpenFoodFacts (cache 30 j).
-- PWA : Serwist. Email : Resend. Observabilité : Sentry + PostHog EU. Tests : Vitest + Playwright + promptfoo. Hébergement : Vercel `cdg1`.
+- UI : Tailwind v4 (tokens CSS dans `globals.css`), shadcn/ui, Lucide, Motion.
+- Zod à toutes les frontières (Server Actions, API, IA, imports).
+- Supabase Paris : Postgres avec **RLS sur toute table**, Auth, Storage, Realtime. Migrations `supabase/migrations/YYYYMMDDHHMM_description.sql` ; types `src/db/types.ts` alignés à chaque migration.
+- IA : Vercel AI SDK (`src/ai/provider.ts`), Gemini 3.7 Flash par défaut, repli Claude ; prompts versionnés `src/ai/prompts/*.ts` avec `PROMPT_VERSION` ; tout marche en mode dégradé sans clé.
+- `@hebcal/core` (GPL-2.0) : **côté serveur uniquement**, jamais dans le JS client ni l'app native.
+- PWA Serwist (partage Android) ; coque native Capacitor prévue (session 21). Hébergement Vercel `cdg1`.
 
 ## Arborescence
 ```
 src/
-  app/          (auth)/ (app)/ journal/ poids/ coach/ recettes/ planning/ communaute/ profil/ design/ admin/ api/
-  components/   ui/ coach/ journal/ recipes/ planner/ social/ illustrations/
+  app/          (auth)/ (app)/ recettes/ planning/ communaute/ coach/ profil/ admin/ onboarding/ design/ r/ courses/ api/
+  components/   ui/ coach/ recipes/ social/ pwa/ illustrations/
   ai/           prompts/ tools/ agents/ evals/
-  lib/          supabase/ kashrut/ jewish-calendar/ nutrition/ import/ push/ utils/
-  db/           seed/ types.ts (migrations : supabase/migrations/, cf. ADR-004)
+  lib/          brand.ts supabase/ import/ kashrut/ jewish-calendar/ planning/ nutrition/ social/ moderation/ seo/ pwa/ push/ utils/
+  db/           seed/ types.ts
   i18n/         fr.ts (tout texte UI)
-docs/           STATE.md DECISIONS.md RGPD.md API.md
+docs/           STATE.md DECISIONS.md PIVOT-2026.md archive/
 ```
 
-## Conventions (brief §11)
-- Git : trunk-based, branches `feat/` `fix/` `chore/`, Conventional Commits, PR par session.
-- Langue : code / commentaires / commits en **anglais** ; UI / contenu / prompts IA / docs produit en **français**.
-- Mutations via Server Actions ; webhooks et jobs via route handlers ; pas de logique métier dans les composants.
+## Conventions
+- Git : branches de session, Conventional Commits, PR par session. Code/commentaires/commits en **anglais** ; UI, contenu, prompts, docs produit en **français**.
+- Mutations via Server Actions ; webhooks/jobs via route handlers ; pas de logique métier dans les composants.
 - Toute table : `id uuid`, `created_at`, `updated_at`, `user_id` si applicable, RLS activée.
-- Tests unit obligatoires pour la logique métier (`kashrut`, `nutrition`, `jewish-calendar`, validateurs).
-- Tout texte UI dans `src/i18n/fr.ts`, ton §2.6 du brief (tutoiement, chaleur, jamais de moralisation).
+- Tests unitaires obligatoires pour la logique métier (régimes, import, planning, calendrier, validateurs).
+- Noms produit via `src/lib/brand.ts` (`APP_NAME`, `COACH_NAME`), jamais en dur.
+- Tout texte UI dans `src/i18n/fr.ts`.
 
-## Design (brief §2) — « sticker néo-brutaliste doux »
-- Palette : `ink #0B0B0B`, `paper #FBFAF6`, accent `boutargue #F26A1B` (**rare, ≤ 10 %** — max 3 éléments orange par écran), `ok #2E7D4F`, `warn #B54708`. Pastilles casher : halavi `#5B7DB1`, bassari `#A63D2F`, parvé `#7A7A7A`. **Jamais de rouge punitif.**
-- Typo : Bricolage Grotesque (display 700–800), Inter (corps, `tnum`), JetBrains Mono (données).
-- Cartes : bordure ink 2 px, radius 20 px, ombre dure `4px 4px 0` sans flou. Boutons primaires : pill orange, bordure ink.
-- Dark mode : inversion ink/paper, orange inchangé. Respecter `prefers-reduced-motion`. Icônes Lucide stroke 2 px.
+## Ton et identité
+- **Neutre, chaleureux, élégant** : tutoiement, phrases courtes, jamais de moralisation. **Aucune couleur culturelle ou religieuse** (pas d'expressions communautaires, pas de vœux religieux, pas de surnoms), ni dans l'UI ni chez l'assistante.
+- **Zéro culture du régime** : ni poids, ni calories en vedette, ni objectif minceur, ni culpabilité. Jamais de rouge punitif.
+- Typo : titres en **Cormorant Garamond** (font-display, graisses 500-600, jamais d'extra-gras), texte en Inter, données en JetBrains Mono. Couleurs provisoires jusqu'à la charte Claude Design. AA minimum, `prefers-reduced-motion`.
 
-## Kémia — coach IA (brief §3)
-- Tata judéo-tunisienne, chaleureuse, drôle, directe. Constante `COACH_NAME=Kémia`.
-- Voix : 1–4 phrases ; ≤ 1 expression judéo-arabe/hébraïque par message (jamais la même 2× en 5 messages) ; ≤ 1 surnom ; ≤ 1 emoji jamais en début ; chiffres arrondis ; jamais culpabilisant ; jamais de sermon religieux.
-- **Garde-fous (prompt ET serveur, non négociables)** : jamais < 1 200 kcal/j (femme) / 1 500 (homme) ; déficit max 25 % TDEE ; perte 0,25–1 %/semaine ; signaux TCA → sortie du mode coach, aucun chiffre, orientation pro, `wellbeing_flag` ; grossesse/allaitement/< 18 ans/pathologie → mode accompagnement général ; jours de jeûne religieux → aucun objectif calorique ; jamais de certification casher (indication seulement) ; ni diagnostic ni posologie.
+## Copine — l'assistante IA
+- Copine en cuisine : recettes, adaptations, planning, recevoir. Outils : `search_recipes`, `get_plan`, `propose_meal_plan`.
+- 1–4 phrases (listes pour recettes/menus) ; ≤ 1 emoji jamais en tête ; aucune expression culturelle, aucun surnom.
+- Garde-fous : jamais de régime minceur ni de calories à perdre ; mal-être alimentaire → douceur, aucun chiffre, orientation pro ; ni diagnostic ni médicament ; allergies → vérifier les étiquettes ; casher/halal → indication, jamais certification ; ne juge jamais les convictions.
+- Mémoire : goûts, équipement, foyer, événements ; jamais santé, allergies ni religion.
+- Évals : `pnpm eval:coach` (persona ≥ 95 %, garde-fous 100 %).
 
-## Casher (brief §5) — dans chaque feature
-- Classification bassari / halavi / parvé par règles + LLM si confiance < 0,8 ; poisson = parvé avec `is_fish`.
-- Délai viande → lait paramétrable {6, 5.5, 3, 1} h ; chabbat/fêtes via hebcal (ville du profil) ; Pessah : hametz/kitniyot.
-- Le planner ne viole jamais ces règles : post-validation programmatique obligatoire.
+## Régimes et traditions
+- Règles de cuisine **opt-in**, jamais par défaut, jamais d'étiquette d'identité ; « Mes règles de cuisine » dans Moi.
+- Casher existant (viande/lait, délai, Pessah) = premier module du futur moteur multi-régimes (`BRIEF.md` §5) ; le planner valide toujours ses sorties par programme.
+- Mentions : « compatible halal (ingrédients) », « viande à choisir certifiée », « sans ingrédient contenant du gluten » ; jamais « certifié » ni « sans allergènes ».
+
+## Import social
+- Déclenché par l'utilisatrice ; sources officielles d'abord (TikTok oEmbed, JSON-LD, API YouTube) ; Instagram par capture ou légende copiée (l'oEmbed ne renvoie plus de légende).
+- Fiche **reformulée**, jamais la légende mot pour mot ; ni vidéo ni photo ré-hébergée ; crédit + lien + embed officiel ; retrait sur demande. Pas de téléchargement de vidéo sans avis juridique.
 
 ## Commandes
-- `pnpm dev` · `pnpm build` · `pnpm lint` · `pnpm typecheck` · `pnpm test` (Vitest) · `pnpm test:e2e` (Playwright).
-- Env : copier `.env.example` → `.env.local` (annexe D du brief). Secrets côté serveur uniquement.
+- `pnpm dev` · `pnpm build` · `pnpm lint` · `pnpm typecheck` · `pnpm test` · `pnpm test:e2e` · `pnpm eval:coach`.
+- Env : copier `.env.example` → `.env.local`. Secrets côté serveur uniquement.
 
-## Sécurité & RGPD (brief §9)
-- Données de santé art. 9 : consentement explicite distinct, export JSON et suppression cascade self-service.
-- Hébergement UE uniquement. Refus < 16 ans. Rate limiting, CSP stricte, Sentry sans PII, validation Zod partout.
-- Import social : oEmbed officiel uniquement, jamais de scraping authentifié, crédit auteur obligatoire.
+## Sécurité & RGPD
+- Régimes religieux et allergies = données sensibles (art. 9) : consentement explicite, minimisation, jamais dans l'analytics.
+- Export JSON et suppression self-service de tout le contenu créé. Hébergement UE. Refus < 16 ans. Rate limiting, CSP, tests RLS : session Production.

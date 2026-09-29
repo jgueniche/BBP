@@ -1,5 +1,11 @@
 # DECISIONS.md — ADR courts (≤ 5 lignes chacun)
 
+## ADR-029 — Copine en cuisine : nom, assistante neutre, typo élégante, règles opt-in (29/09/2026)
+Demandes de Jeremy : l'app s'appelle **Copine en cuisine** et Kémia devient **Copine** (`src/lib/brand.ts`), au ton
+neutre sans aucune couleur culturelle ni religieuse (prompt v2.0.0, calendrier factuel sans vœux, réactions J'adore /
+Bravo / Miam) ; titres en Cormorant Garamond (graisses fines) en attendant Claude Design ; casher et calendrier juif
+**opt-in** pour tous. Le suivi santé est retiré du code ; `BRIEF.md` v2 remplace le brief BBP (archivé).
+
 ## ADR-028 — Cadrage du pivot validé (29/09/2026)
 Réponses de Jeremy aux 4 questions bloquantes de `docs/PIVOT-2026.md` : **suivi santé supprimé** (journal, poids,
 calories, TDEE, progrès, coach minceur ; seules les kcal par portion restent, discrètes) ; V1 collaborative =
