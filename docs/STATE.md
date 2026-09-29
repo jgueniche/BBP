@@ -1,12 +1,30 @@
 # STATE.md — État du projet Copine en cuisine (ex-BBP)
 
-Dernière mise à jour : 29/09/2026 · Sessions 1 à 18 + charte Claude Design (tokens)
+Dernière mise à jour : 29/09/2026 · Sessions 1 à 19 + charte Claude Design (tokens)
+
+## Fait — Session 19 (Brief v3 & régimes simples — ADR-031, ADR-032)
+- **Plan validé par Jeremy** (29/09) ; choix du catalogue : **les 35 recettes de départ restent telles quelles** (textes, étiquettes chabbat/Hanouka et « versions Protéine » compris), on ajoute seulement.
+- **Docs** : `BRIEF.md` v3 (réseau social de la cuisine, principes, priorités P0-P2, régimes simples, feuille de route 19 → 28), `CLAUDE.md` et `README.md` réécrits, ADR-032.
+- **Moteur de régimes** `src/lib/diets/` : attributs neutres par ingrédient (dictionnaire FR avec masquage des faux amis : « noix de beurre », « lait de coco », « cœur de palmier »…), 14 allergènes UE propagés depuis les produits composés, règles des 9 régimes, dégoûts, substitutions revérifiées contre toutes les règles, retrait des ingrédients d'appoint, verdict **compatible · adaptable · incompatible · à vérifier** (4 états de la charte), mentions prudentes, faits « toutes les tables ». 32 tests (un par régime, allergies, combinaisons) + passage du moteur sur les 61 recettes.
+- **Moi › Mes règles de cuisine** : 9 régimes, 14 allergènes, « je n'aime pas » ; **consentement explicite art. 9** avant tout régime ou allergie (encart, date enregistrée, revérifié côté serveur et par contrainte SQL), « Tout effacer » = retrait. Carte « Mon profil » séparée pour la visibilité.
+- **Recettes** : bloc « Pour toi » (verdict, ce qu'il faut changer et pourquoi, mentions), pastilles « toutes les tables » (aussi sur `/r/[slug]`), pastille de verdict sur les cartes (Découvrir, Mon carnet, carnets), filtres « Compatibles avec mes règles », cuisine (24 cuisines du monde groupées) et régime ; éditeur aux cuisines du monde et catégories élargies ; plus de classification casher à l'enregistrement ; JSON-LD sans mot-clé casher, cuisine et catégorie en clair ; image OG avec la cuisine.
+- **Planning** : ne propose que les recettes compatibles telles quelles ; contrôle réécrit (règles de cuisine, sans viande/lait, chabbat, Pessah, jeûnes ni cible calorique) ; restes du mardi soir le mercredi midi ; portions à 1 ; la grille signale une recette qui ne convient plus ; prompt du planificateur 1.2.0 ; plus de mention « épicerie casher » dans les courses.
+- **Copine** : prompt **2.1.0** (règles, allergies et dégoûts consentis dans le contexte, date du jour au lieu du calendrier), `search_recipes` renvoie `pour_toi` ; évals mises à jour (cas « allergie et régime » à la place du cas calendrier) — **à relancer avec la clé Gemini**.
+- **Retraits** : `lib/kashrut`, `lib/jewish-calendar`, pastille casher, agent `kashrut_checker`, jetons de couleur halavi/bassari/parvé, textes casher et calendrier, **`@hebcal/core` (fin de la contrainte GPL)** ; clés de couleur des carnets renommées d'après leur pastel.
+- **Migrations écrites, testées sur un Postgres 16 local** (toutes les migrations depuis la 1re + graines, puis rejouées), **NON appliquées** :
+  - `202609291200_simple_cooking_rules.sql` (additive) : `diets`, `allergens`, `dislikes`, `food_rules_consent_at` + contraintes ; cuisines et catégories élargies (anciennes valeurs toujours valides) ; couleurs des carnets renommées.
+  - `202609291210_drop_kosher_and_calendar.sql` (**destructive**) : colonnes casher de `foods`, `recipes`, `meal_plan_slots`, `shopping_items` (RPC `shopping_list_by_token` recréée), réglages casher et calendrier de `user_settings`, table `jewish_calendar_cache`, `profiles.city/lat/lng`.
+  - `202609291220_world_starter_recipes.sql` (données, idempotente) : **26 recettes du monde** (France, Italie, Espagne, Grèce, Liban, Turquie, Inde, Chine, Vietnam, Japon, Corée, Thaïlande, Afrique de l'Ouest, Antilles, Mexique, Amérique du Sud, États-Unis, Europe de l'Est), textes originaux, liées à Ciqual ; nutrition stockée seulement si ≥ 90 % des grammes ont une valeur énergétique (5 recettes sans nutrition).
+- Graines Ciqual et 35 recettes (et leurs générateurs) réalignées sur le nouveau schéma, contenu identique.
+- Lint, typecheck, **102 tests** (121 avant : tests casher et calendrier retirés, moteur de régimes et planning réécrits), build verts ; rendu des pastilles vérifié par captures (clair + sombre).
+- **Non livré / limites** : rendu des pages connectées non vérifié (pas de projet Supabase dans cette session) ; évals Copine non relancées (clé Gemini) ; ingrédients inconnus du dictionnaire considérés sans contrainte.
+- **Prochaine session : 20 — La recette sociale** (« j'ai cuisiné », astuces votées, versions avec crédit, étiquettes libres et catégories).
 
 ## Fait — Veille « plateforme sociale de la cuisine » (29/09/2026, ADR-031)
 - **Demande de Jeremy** : devenir LA plateforme sociale de la cuisine (il n'en existe pas de vraie) ; régimes pour tous mais **plus rien de communautaire** ni de détail religieux ; étiquettes et sous-catégories créées par les membres et les créatrices.
 - **Veille** : 7 recherches parallèles (communautés de recettes, applis sociales récentes, grandes plateformes et marché, économie des créatrices, mécaniques sociales, régimes et étiquettes, risques DSA/droit d'auteur/AI Act) → `docs/BENCHMARK-SOCIAL-2026.md`. Limite : startups FR/UE non recherchées (quota de recherche épuisé).
 - **Proposition validée par Jeremy le 29/09/2026** : vision réécrite, régimes simples, fonctions priorisées, conformité, feuille de route 19 → 28 → `docs/PLAN-SOCIAL-2026.md`.
-- **Prochaine session : 19 — Brief v3 & régimes simples** (réécrire `BRIEF.md` et `CLAUDE.md`, retirer le module casher détaillé et le calendrier juif, préférences simples + verdict par recette). La feuille de route de `BRIEF.md` §9 sera remplacée à cette occasion.
+- Session 19 livrée dans la foulée (section ci-dessus).
 
 ## Fait — Charte Claude Design : tokens appliqués (ADR-030)
 - **Canevas Claude Design** (privé, à partager depuis son menu) : https://claude.ai/artifact/FJCbHw9jW7rQzZGwxJ9EXD — logo, monogramme, avatar Copine, palette clair/sombre, typo, composants, pastilles, icônes d'app, OG, 11 écrans mobiles + onboarding, fiche recette et fil desktop, états.
@@ -199,23 +217,23 @@ Limites : la base Supabase de BBP n'est pas exposée au connecteur MCP de cette 
 ## Reste à faire (actions côté Jeremy)
 - **Migrations bloquées (29/09)** : le compte Supabase connecté aux sessions Claude ne contient pas le projet de l'app (seulement « Alpha Report » et « ShiftX »). Les appliquer depuis le SQL Editor du projet, ou connecter le bon compte Supabase.
 - **Au déploiement** : appliquer dans l'ordre `202609291000_drop_sport_module.sql`, `202609291100_drop_health_tracking.sql`, `202609291110_universal_social_kinds.sql` (destructives : historique sport et santé supprimés). Sans elles, les pages sociales lisent encore les anciens noms de réactions (`post_stats`) : **appliquer la 1110 en même temps que le déploiement**.
+- **Session 19, au déploiement** : appliquer `202609291200_simple_cooking_rules.sql` **en même temps** que le code (sans elle, « Mes règles de cuisine » et les filtres échouent), puis `202609291220_world_starter_recipes.sql` ; `202609291210_drop_kosher_and_calendar.sql` (**destructive**) une fois le code déployé. Les réglages casher existants ne sont pas repris : les réactiver dans Moi (2 gestes, avec consentement).
 - **Session Claude Design** : brief prêt dans `docs/CLAUDE-DESIGN-BRIEF.md` (en précisant : typographie classe, épurée, élégante ; Cormorant Garamond en place provisoirement).
-- **Relancer `pnpm eval:coach`** avec la clé Gemini pour valider la voix de Copine (DoD : persona ≥ 95 %, garde-fous 100 %).
+- **Relancer `pnpm eval:coach`** avec la clé Gemini pour valider la voix de Copine, prompt 2.1.0 (DoD : persona ≥ 95 %, garde-fous 100 %).
 - (Facultatif) domaine et `NEXT_PUBLIC_SITE_URL` au nom de Copine en cuisine ; renommer le projet Vercel.
 - `GOOGLE_GENERATIVE_AI_API_KEY` sur Vercel pour l'IA (import, Copine, variantes, planning) ; sans elle, mode dégradé.
 - Dashboard Supabase : « Confirm email » et Site URL (cf. ADR-006) ; clés Sentry/PostHog le moment venu.
 
 ## Backlog
-- **Opt-in casher à faire respecter** : la fiche recette affiche la pastille Bassari/Halavi et la mention « demande à ton rabbin » même quand les règles de cacherout sont désactivées (constaté sur le compte démo) → à traiter avec le moteur multi-régimes (S19).
-- **Charte (suite)** : migrer les composants des alias BBP (`ink`, `boutargue`…) vers les tokens Copine, pastels à poser sur les futurs écrans Tablée et compatibilité, image de partage Open Graph du site (attend de vraies photos), repenser les couleurs halavi/bassari dans le moteur multi-régimes.
-- **Régimes (S19)** : moteur multi-régimes, profils alimentaires, allergies et dégoûts avec consentement (les anciennes allergies du profil santé ont disparu avec lui) ; filtres Recettes « Origine » encore maghrébins et « Casher » seul ; catégories à élargir.
-- **Import (S20)** : chemin Instagram par jeton Meta obsolète (l'oEmbed ne renvoie plus de légende) → capture/légende copiée ; YouTube ne lit que le titre ; pas de quota ni de file de jobs ; pas d'upload de photos de recettes.
-- **Réseau social (S22)** : photos dans les posts, notifications (réactions, commentaires, abonnés — infra push `lib/push/send.ts` conservée, sans usage aujourd'hui), temps réel, mentions, pagination du fil (30 derniers), réactions sur commentaires, profils de créatrices.
+- **Charte (suite)** : migrer les composants des alias BBP (`ink`, `boutargue`…) vers les tokens Copine, pastels à poser sur les futurs écrans Tablée, image de partage Open Graph du site (attend de vraies photos).
+- **Régimes (suite)** : IA pour les ingrédients inconnus du dictionnaire (aujourd'hui considérés sans contrainte, d'où la mention « vérifie les étiquettes ») ; règles du foyer et des invités (S26-S27, la fonction `combineRules` est prête) ; `suitableForDiet` en JSON-LD (prudence) ; stocker des attributs par recette si le catalogue dépasse quelques centaines de recettes (filtres aujourd'hui calculés sur les 100 dernières) ; variantes par régime générées (la variante végétarienne reste la seule).
+- **Données** : ~890 aliments Ciqual sans valeur énergétique dans la graine (sucre, tahin, mascarpone, oignon cru…) → nutrition sous-estimée ou absente ; réimport Ciqual 2025 par codes. La clé de catégorie `kemia` (« Apéro ») et `version_kind` `boutargue`/`proteine` restent des clés historiques (à renommer avec les versions, S20). Les 35 recettes BBP gardent leurs mentions chabbat/Hanouka et leurs 2 « versions Protéine » allégées (choix de Jeremy) : à revoir si besoin.
+- **Import (S23)** : chemin Instagram par jeton Meta obsolète (l'oEmbed ne renvoie plus de légende) → capture/légende copiée ; YouTube ne lit que le titre ; pas de quota ni de file de jobs ; pas d'upload de photos de recettes.
+- **Réseau social (S20-S22)** : photos dans les posts, notifications (réactions, commentaires, abonnés — infra push `lib/push/send.ts` conservée, sans usage aujourd'hui), temps réel, mentions, pagination du fil (30 derniers), réactions sur commentaires, profils de créatrices.
 - **Copine** : outils « adapter une recette » et « composer une Tablée » ; renommer une conversation ; recherche dans l'historique.
-- **Variantes (S25)** : la variante végétarienne est la seule ; `version_kind` garde ses clés historiques (`boutargue`/`proteine`, libellés Originale/Variante).
-- **Planning** : rattachement au foyer (S23) ; vue mois ; verrouillage de créneaux ; drag & drop tactile ; le validateur garde sa logique de cible calorique inactive (toujours `null`).
+- **Planning** : rattachement au foyer (S26) ; vue mois ; verrouillage de créneaux ; drag & drop tactile ; appliquer les substitutions d'une recette « adaptable » au planning et aux courses.
 - **PWA** : Web Share Target perd `url/text` si non connecté (ajouter `next=`) ; précache à affiner ; e2e hors CI.
-- **Production (S27)** : CGU, confidentialité, CSP, rate limiting, tests RLS par rôle, suppression du compte auth (service role), Sentry/PostHog sans PII, OAuth Apple/Google.
+- **Production (S25)** : CGU, confidentialité, CSP, rate limiting, tests RLS par rôle, suppression du compte auth (service role), Sentry/PostHog sans PII, OAuth Apple/Google.
 - Branches distantes obsolètes (`feat/coach-conversations`, `claude/kemia-agent-ui-ux-moo7wp`) à supprimer après accord.
 
 ## Bugs connus
