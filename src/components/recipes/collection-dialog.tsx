@@ -65,7 +65,7 @@ export function CollectionDialog({
   const [name, setName] = useState(initial?.name ?? "");
   const [icon, setIcon] = useState(initial?.icon ?? "📒");
   const [color, setColor] = useState<CollectionColor>(
-    (initial?.color as CollectionColor) ?? "boutargue",
+    (initial?.color as CollectionColor) ?? "rose",
   );
   const [description, setDescription] = useState(initial?.description ?? "");
 

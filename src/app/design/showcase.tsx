@@ -103,9 +103,9 @@ const SAMPLE_COLLECTIONS: {
   count: number;
   color: CollectionColor;
 }[] = [
-  { name: "Dîners de semaine", count: 32, color: "boutargue" },
-  { name: "Desserts d'enfance", count: 18, color: "parve" },
-  { name: "Batch cooking", count: 24, color: "ok" },
+  { name: "Dîners de semaine", count: 32, color: "rose" },
+  { name: "Desserts d'enfance", count: 18, color: "lilas" },
+  { name: "Batch cooking", count: 24, color: "menthe" },
 ];
 
 const COPY = [

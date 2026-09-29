@@ -950,9 +950,13 @@ export type Database = {
       };
       user_settings: {
         Row: {
+          allergens: string[];
           candle_offset_min: number;
           created_at: string;
           dairy_to_meat_wait_hours: number;
+          diets: string[];
+          dislikes: string[];
+          food_rules_consent_at: string | null;
           israel_calendar: boolean;
           jewish_calendar_enabled: boolean;
           kashrut_enabled: boolean;
@@ -967,9 +971,13 @@ export type Database = {
           user_id: string;
         };
         Insert: {
+          allergens?: string[];
           candle_offset_min?: number;
           created_at?: string;
           dairy_to_meat_wait_hours?: number;
+          diets?: string[];
+          dislikes?: string[];
+          food_rules_consent_at?: string | null;
           israel_calendar?: boolean;
           jewish_calendar_enabled?: boolean;
           kashrut_enabled?: boolean;
@@ -984,9 +992,13 @@ export type Database = {
           user_id: string;
         };
         Update: {
+          allergens?: string[];
           candle_offset_min?: number;
           created_at?: string;
           dairy_to_meat_wait_hours?: number;
+          diets?: string[];
+          dislikes?: string[];
+          food_rules_consent_at?: string | null;
           israel_calendar?: boolean;
           jewish_calendar_enabled?: boolean;
           kashrut_enabled?: boolean;

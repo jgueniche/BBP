@@ -1,23 +1,22 @@
 export const COLLECTION_COLORS = [
-  "boutargue",
-  "halavi",
-  "bassari",
-  "ok",
-  "warn",
-  "parve",
-  "ink",
+  "rose",
+  "ciel",
+  "peche",
+  "menthe",
+  "beurre",
+  "lilas",
+  "nacre",
 ] as const;
 
 export type CollectionColor = (typeof COLLECTION_COLORS)[number];
 
-/** Cover tint per stored color key (legacy BBP keys, kept to avoid a data
- *  migration) — pastel panels from the Copine palette, ink text stays readable. */
+/** Cover tint per stored color key: pastel panels, ink text stays readable. */
 export const COLLECTION_COLOR_CLASSES: Record<CollectionColor, string> = {
-  boutargue: "bg-rose",
-  halavi: "bg-ciel",
-  bassari: "bg-peche",
-  ok: "bg-menthe",
-  warn: "bg-beurre",
-  parve: "bg-lilas",
-  ink: "bg-nacre",
+  rose: "bg-rose",
+  ciel: "bg-ciel",
+  peche: "bg-peche",
+  menthe: "bg-menthe",
+  beurre: "bg-beurre",
+  lilas: "bg-lilas",
+  nacre: "bg-nacre",
 };
