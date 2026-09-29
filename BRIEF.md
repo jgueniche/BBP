@@ -49,7 +49,7 @@ Des femmes de 22 à 45 ans, francophones, de toutes cultures, qui cuisinent pour
 | Assistante | **Copine** (constante `COACH_NAME`) — ta copine en cuisine |
 | Typographie | Titres : **Cormorant Garamond** (serif fine, 500-600, jamais d'extra-gras) ; texte : Inter ; données : JetBrains Mono |
 | Couleurs | Provisoires (tokens actuels) jusqu'à la session Claude Design ; piste recommandée « Beurre & Cerise » (`docs/PIVOT-2026.md` §7) |
-| Logo | Provisoire : mot-symbole en Cormorant + monogramme « C » ; identité finale via Claude Design (brief prêt, §7.3 du pivot) |
+| Logo | Provisoire : mot-symbole en Cormorant + monogramme « C » ; identité finale via Claude Design (brief prêt : `docs/CLAUDE-DESIGN-BRIEF.md`) |
 | Ton UI | Tutoiement, chaleur, phrases courtes, élégance ; jamais de moralisation, jamais de rouge punitif |
 
 ---

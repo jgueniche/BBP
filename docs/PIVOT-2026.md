@@ -283,44 +283,7 @@ Next.js 15 + Supabase Paris + Vercel + Gemini Flash (repli Claude) restent : ils
 
 ### 7.3 Le brief à coller dans Claude Design
 
-```text
-Conçois l'identité visuelle et le design system mobile-first d'une app de cuisine collaborative
-(nom provisoire à choisir). Public : femmes de 22 à 45 ans, francophones, de toutes cultures
-(casher, halal, vegan, végétarien indien, sans gluten…), qui enregistrent leurs recettes sur
-Instagram et TikTok et cuisinent pour leur foyer et leurs invités.
-
-Promesse : « le carnet de recettes qui se remplit tout seul depuis Insta et TikTok, s'adapte à
-chaque table et se cuisine à plusieurs ».
-
-Ton visuel : girly assumé mais chic et adulte — chaleureux, gourmand, doux ; pas de rose bonbon
-partout, pas de clichés « princesse ». Les photos de plats sont les héroïnes. Une touche ludique
-(stickers, étiquettes, motif vichy ou autre élément signature) utilisée avec parcimonie.
-Point de départ : la piste « Beurre & Cerise » (crème #FFF7E6, beurre #FBE7A1, espresso #2B1D14,
-cerise #B0172F, Mocha Mousse #A47764, pistache #9DBE8A ; Fraunces + DM Sans + Caveat).
-
-Contraintes :
-- Accessibilité WCAG AA (texte ≥ 4,5:1), mode clair ET sombre, mouvements réduits respectés.
-- Pastilles de régime lisibles sans connotation identitaire (casher, halal, vegan, végétarien,
-  pescétarien, végétarien indien, sans porc, sans alcool, sans gluten, sans lactose, allergènes) :
-  forme + icône + texte, jamais la couleur seule.
-- Jamais de rouge « punitif », jamais d'imagerie régime ou minceur.
-- Livrables compatibles Tailwind v4 + shadcn/ui : tokens CSS nommés (--background, --foreground,
-  --card, --primary, --primary-foreground, --secondary, --accent, --muted, --border, --ring,
-  --radius + couleurs de marque et de régimes), échelle typographique, rayons, ombres, espacements.
-- Polices Google Fonts uniquement.
-
-Écrans à maquetter (mobile d'abord, puis desktop pour l'accueil et la fiche recette) :
-1. Accueil : « continuer à cuisiner », dernières recettes importées, bouton Importer bien visible.
-2. Import : partager ou coller un lien Insta/TikTok → « on lit la recette… » → fiche à relire.
-3. Fiche recette : photo, crédit de la créatrice, pastilles de compatibilité (« OK pour toi et
-   Léa ; adaptable pour Sami : halal »), ingrédients avec portions, étapes, bouton Mode cuisine.
-4. Mode cuisine : une étape à la fois, minuteurs, gros caractères.
-5. Carnets partagés : grille de carnets (couverture, membres).
-6. Tablée : un dîner, les invités et leurs contraintes, le menu proposé, qui apporte quoi.
-7. Liste de courses du foyer : par rayon, cochée à plusieurs en temps réel.
-8. Profil alimentaire : mes régimes, mes allergies, les membres du foyer.
-Inclure : logo et icône d'app, états vides, chargement, erreurs, notifications, onboarding en 3 écrans.
-```
+Version à jour (après la session 18 : nom « Copine en cuisine », assistante « Copine » neutre, typographie classe et épurée, réseau social) : **[`docs/CLAUDE-DESIGN-BRIEF.md`](./CLAUDE-DESIGN-BRIEF.md)**.
 
 ## 8. Feuille de route proposée
 
