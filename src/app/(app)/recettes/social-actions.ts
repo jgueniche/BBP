@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
+import { runModeration } from "@/ai/agents/moderator";
 import { createClient } from "@/lib/supabase/server";
 
 async function requireUser() {
@@ -68,17 +69,51 @@ export async function toggleSave(recipeId: string) {
   return { ok: true as const, saved: true };
 }
 
+/** A tip under a recipe, moderated like any community text. */
 export async function addComment(recipeId: string, text: string) {
   const rid = z.uuid().parse(recipeId);
   const body = z.string().min(1).max(500).parse(text.trim());
   const { supabase, user } = await requireUser();
+  const verdict = await runModeration(body);
+  if (!verdict.allow)
+    return { ok: false as const, code: "moderation" as const };
   const { data, error } = await supabase
     .from("recipe_comments")
-    .insert({ recipe_id: rid, user_id: user.id, text: body })
+    .insert({
+      recipe_id: rid,
+      user_id: user.id,
+      text: body,
+      moderation: verdict.severity === "medium" ? "flagged" : "ok",
+      moderation_reasons: verdict.reasons,
+    })
     .select("id, text, created_at, user_id")
     .single();
   if (error) throw new Error(error.message);
   return { ok: true as const, comment: data };
+}
+
+/** « Utile » vote on someone else's tip (toggle). */
+export async function toggleTipVote(commentId: string) {
+  const cid = z.uuid().parse(commentId);
+  const { supabase, user } = await requireUser();
+  const { data: existing } = await supabase
+    .from("recipe_comment_votes")
+    .select("comment_id")
+    .eq("comment_id", cid)
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (existing) {
+    await supabase
+      .from("recipe_comment_votes")
+      .delete()
+      .eq("comment_id", cid)
+      .eq("user_id", user.id);
+    return { ok: true as const, voted: false };
+  }
+  const { error } = await supabase
+    .from("recipe_comment_votes")
+    .insert({ comment_id: cid, user_id: user.id });
+  return { ok: !error, voted: !error };
 }
 
 export async function deleteComment(commentId: string) {
