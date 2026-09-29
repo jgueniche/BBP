@@ -179,8 +179,7 @@ Limites : la base Supabase de BBP n'est pas exposée au connecteur MCP de cette 
 - Rien.
 
 ## Reste à faire (actions côté Jeremy)
-- **Migrations bloquées (29/09)** : le compte Supabase connecté aux sessions Claude ne contient pas le projet de l'app (seulement « Alpha Report » et « ShiftX »). Les appliquer depuis le SQL Editor du projet, ou connecter le bon compte Supabase.
-- **Au déploiement** : appliquer dans l'ordre `202609291000_drop_sport_module.sql`, `202609291100_drop_health_tracking.sql`, `202609291110_universal_social_kinds.sql` (destructives : historique sport et santé supprimés). Sans elles, les pages sociales lisent encore les anciens noms de réactions (`post_stats`) : **appliquer la 1110 en même temps que le déploiement**.
+- ✅ **Migrations appliquées le 29/09** (après le déploiement de la PR #7) : `202609291000`, `202609291100` (sans suppression SQL du stockage, bloquée par Supabase : bucket `progress-photos`, vide, supprimé via l'API Storage), `202609291110`. Base : 32 tables publiques, `post_stats` avec love/bravo/miam ; prod vérifiée (`/login`, `/r/…`, manifeste).
 - **Session Claude Design** : brief prêt dans `docs/CLAUDE-DESIGN-BRIEF.md` (en précisant : typographie classe, épurée, élégante ; Cormorant Garamond en place provisoirement).
 - **Relancer `pnpm eval:coach`** avec la clé Gemini pour valider la voix de Copine (DoD : persona ≥ 95 %, garde-fous 100 %).
 - Icônes d'app et favicon : encore ceux de BBP (`public/brand/`), à refaire avec l'identité Claude Design.
