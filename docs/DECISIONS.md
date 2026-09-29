@@ -1,5 +1,17 @@
 # DECISIONS.md — ADR courts (≤ 5 lignes chacun)
 
+## ADR-033 — Recette sociale : photos ré-encodées, étiquettes à référence, astuces votées (29/09/2026)
+Photos de posts ré-encodées dans le navigateur (EXIF et géolocalisation retirés) puis déposées dans un bucket public
+`post-photos` par dossier personnel ; le serveur n'accepte que ce dossier. « J'ai cuisiné » = post `cooked` lié à la
+recette (compteur par vue). Les commentaires de recette deviennent des astuces modérées, votées « utile ». Étiquettes :
+`recipes.tags` garde des slugs, un registre `tags` porte synonymes (référence) et catégories, relus en modération (AO3).
+
+## ADR-032 — Verdict à 4 états calculé à la lecture, consentement art. 9 en base (29/09/2026)
+Le verdict suit les 4 états de la charte (compatible · adaptable · incompatible en gris neutre · à vérifier ; le plan
+n'en citait que 3), calculé à la lecture depuis les ingrédients : aucun attribut stocké, aucun backfill quand le
+dictionnaire évolue. Régimes et allergies exigent `food_rules_consent_at` (Server Action + contrainte SQL) ; les
+anciens réglages casher ne sont pas repris. Le planner ne prend que les recettes compatibles telles quelles.
+
 ## ADR-031 — Régimes simples, sans communautarisme ; la finesse vient des membres (29/09/2026)
 Décision de Jeremy : l'app n'est plus communautaire ; elle s'adapte à tous les régimes (casher, halal, vegan…) sans entrer
 dans le détail des traditions. Mise en œuvre validée le 29/09/2026 (session 19, `docs/PLAN-SOCIAL-2026.md` §3) : préférences

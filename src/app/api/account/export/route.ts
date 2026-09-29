@@ -26,6 +26,7 @@ export async function GET() {
     messages,
     memories,
     plans,
+    tipVotes,
   ] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
     supabase.from("user_settings").select("*").maybeSingle(),
@@ -48,6 +49,7 @@ export async function GET() {
       .from("meal_plans")
       .select("*, meal_plan_slots(*)")
       .eq("user_id", user.id),
+    supabase.from("recipe_comment_votes").select("*").eq("user_id", user.id),
   ]);
 
   const payload = {
@@ -65,6 +67,7 @@ export async function GET() {
     assistant_messages: messages.data,
     assistant_memories: memories.data,
     meal_plans: plans.data,
+    tip_votes: tipVotes.data,
   };
 
   return new NextResponse(JSON.stringify(payload, null, 2), {

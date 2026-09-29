@@ -3,13 +3,25 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { CommentsSection } from "@/components/recipes/comments-section";
+import { CookedButton } from "@/components/recipes/cooked-button";
+import { CookedGallery } from "@/components/recipes/cooked-gallery";
 import { NoteEditor } from "@/components/recipes/note-editor";
 import { SocialBar } from "@/components/recipes/social-bar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { KashrutPill } from "@/components/ui/kashrut-pill";
+import { DietFactChips } from "@/components/diets/diet-facts";
+import { ForYouPanel } from "@/components/diets/for-you-panel";
 import { fr } from "@/i18n/fr";
-import type { KashrutClass } from "@/lib/kashrut/meal";
+import { loadFoodRules } from "@/lib/diets/preferences";
+import { loadRecipeIngredients } from "@/lib/diets/recipes";
+import { evaluateRecipe, recipeDietFacts } from "@/lib/diets/verdict";
+import {
+  loadCommunityVersions,
+  loadCooked,
+  loadCreditChain,
+  loadTips,
+} from "@/lib/recipes/social";
+import { creditLine } from "@/lib/recipes/versions";
 import type { Totals } from "@/lib/nutrition/items";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
@@ -44,10 +56,12 @@ export default async function RecipePage({
     { data: versions },
     parentRes,
     { data: stats },
-    { data: comments },
+    tips,
     likedRes,
     savedRes,
     noteRes,
+    engineIngredients,
+    rules,
   ] = await Promise.all([
     supabase
       .from("recipe_ingredients")
@@ -75,12 +89,7 @@ export default async function RecipePage({
       .select("likes, saves, comments")
       .eq("recipe_id", recipe.id)
       .maybeSingle(),
-    supabase
-      .from("recipe_comments")
-      .select("id, text, created_at, user_id")
-      .eq("recipe_id", recipe.id)
-      .order("created_at")
-      .limit(100),
+    user ? loadTips(supabase, recipe.id, user.id) : Promise.resolve([]),
     user
       ? supabase
           .from("recipe_likes")
@@ -105,16 +114,20 @@ export default async function RecipePage({
           .eq("user_id", user.id)
           .maybeSingle()
       : Promise.resolve({ data: null }),
+    loadRecipeIngredients(supabase, [recipe.id]),
+    user ? loadFoodRules(supabase, user.id) : Promise.resolve(null),
   ]);
+  const [cooked, chain, communityVersions] = await Promise.all([
+    loadCooked(supabase, recipe.id),
+    loadCreditChain(supabase, recipe.parent_recipe_id),
+    loadCommunityVersions(supabase, recipe.id),
+  ]);
+  const credit = creditLine(chain);
+  const forEngine = engineIngredients.get(recipe.id) ?? [];
+  const verdict = evaluateRecipe(forEngine, rules);
+  const facts = recipeDietFacts(forEngine);
 
-  const commenterIds = [...new Set((comments ?? []).map((c) => c.user_id))];
-  const authorIds = [
-    ...new Set(
-      [...commenterIds, recipe.author_id].filter(
-        (id): id is string => id !== null,
-      ),
-    ),
-  ];
+  const authorIds = recipe.author_id ? [recipe.author_id] : [];
   const { data: profiles } =
     authorIds.length > 0
       ? await supabase
@@ -179,12 +192,6 @@ export default async function RecipePage({
           <p className="text-sm text-ink-70">{recipe.description}</p>
         )}
         <div className="flex flex-wrap items-center gap-2">
-          {recipe.kashrut_class && (
-            <KashrutPill
-              kind={recipe.kashrut_class as KashrutClass}
-              isFish={recipe.is_fish}
-            />
-          )}
           <Badge
             variant={recipe.version_kind === "proteine" ? "primary" : "default"}
           >
@@ -207,12 +214,13 @@ export default async function RecipePage({
         {recipe.tags.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {recipe.tags.map((tag) => (
-              <span
+              <Link
                 key={tag}
-                className="rounded-full bg-ink-10 px-2 py-0.5 text-[11px] font-medium text-ink-70"
+                href={`/recettes/etiquette/${encodeURIComponent(tag)}`}
+                className="rounded-full bg-ink-10 px-2 py-0.5 text-[11px] font-medium text-ink-70 hover:bg-lilas"
               >
                 #{tag}
-              </span>
+              </Link>
             ))}
           </div>
         )}
@@ -231,6 +239,10 @@ export default async function RecipePage({
           </p>
         )}
       </header>
+
+      <DietFactChips facts={facts} />
+
+      {user && <ForYouPanel verdict={verdict} rules={rules} />}
 
       {user && (
         <SocialBar
@@ -253,9 +265,7 @@ export default async function RecipePage({
               href={`/recettes/${parent.slug}`}
               className="font-medium underline underline-offset-4"
             >
-              {recipe.version_kind === "proteine"
-                ? `${t.proteinOf} « ${parent.title} »`
-                : `${t.versionOf} « ${parent.title} »`}
+              {credit ?? `${t.versionOf} « ${parent.title} »`}
             </Link>
           )}
           {(versions ?? []).map((v) => (
@@ -275,6 +285,7 @@ export default async function RecipePage({
 
       {user && (
         <div className="flex flex-wrap items-center gap-2">
+          <CookedButton recipeId={recipe.id} />
           {(steps ?? []).length > 0 && (
             <Button asChild variant="secondary" size="sm">
               <Link href={`/recettes/${recipe.slug}/cuisine`}>
@@ -403,12 +414,30 @@ export default async function RecipePage({
         </section>
       )}
 
-      {recipe.kosher_flags.length > 0 && (
-        <section className="rounded-lg bg-warn-soft p-3">
-          <h2 className="text-sm font-bold text-warn">{t.flagsTitle}</h2>
-          <ul className="mt-1 text-xs text-ink-70">
-            {recipe.kosher_flags.map((flag, i) => (
-              <li key={i}>{flag}</li>
+      <CookedGallery count={cooked.count} entries={cooked.entries} />
+
+      {communityVersions.length > 0 && (
+        <section className="flex flex-col gap-2">
+          <h2 className="font-display text-lg font-semibold">
+            {t.versionsTab.title}
+            <span className="ml-1.5 font-mono text-sm text-ink-50">
+              {communityVersions.length}
+            </span>
+          </h2>
+          <ul className="flex flex-col gap-1.5 text-sm">
+            {communityVersions.map((version) => (
+              <li key={version.slug}>
+                <Link
+                  href={`/recettes/${version.slug}`}
+                  className="font-medium underline underline-offset-4"
+                >
+                  {version.title}
+                </Link>
+                <span className="text-ink-50">
+                  {" "}
+                  {t.authorBy} {version.authorName ?? t.authorHidden}
+                </span>
+              </li>
             ))}
           </ul>
         </section>
@@ -426,14 +455,11 @@ export default async function RecipePage({
           recipeId={recipe.id}
           currentUserId={user.id}
           isRecipeAuthor={isOwner}
-          initialComments={(comments ?? []).map((comment) => ({
-            ...comment,
-            authorName: nameById.get(comment.user_id) ?? null,
-          }))}
+          initialComments={tips}
         />
       )}
 
-      <p className="text-[11px] text-ink-50">{t.kosherDisclaimer}</p>
+      <p className="text-[11px] text-ink-50">{fr.regimes.disclaimer}</p>
     </article>
   );
 }

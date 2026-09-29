@@ -1,19 +1,5 @@
 import type { PlanMeal } from "./types";
 
-/** Assumed meal times (hours) for the meat→dairy wait computation. */
-export const MEAL_TIMES: Record<PlanMeal, number> = {
-  petit_dej: 8,
-  dej: 12.5,
-  diner: 20,
-};
-
-/** Share of the daily calorie target each meal is expected to carry. */
-export const MEAL_SHARES: Record<PlanMeal, number> = {
-  petit_dej: 0.25,
-  dej: 0.4,
-  diner: 0.35,
-};
-
 export const MEAL_ORDER: PlanMeal[] = ["petit_dej", "dej", "diner"];
 
 export function toDateString(date: Date): string {

@@ -4,6 +4,11 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { runModeration } from "@/ai/agents/moderator";
+import {
+  MAX_POST_PHOTOS,
+  POST_PHOTO_BUCKET,
+  isOwnPhotoPath,
+} from "@/lib/social/photos";
 import { slugify } from "@/lib/utils/slug";
 import { createClient } from "@/lib/supabase/server";
 
@@ -17,24 +22,42 @@ async function requireUser() {
 }
 
 const postSchema = z.object({
-  text: z.string().min(2).max(1000),
+  text: z.string().trim().max(1000),
   kind: z.enum(["text", "recipe", "cooked"]),
   recipeId: z.uuid().nullable(),
   groupId: z.uuid().nullable(),
+  photoPaths: z.array(z.string().max(120)).max(MAX_POST_PHOTOS).default([]),
 });
 
 export type CreatePostResult =
   | { ok: true; flagged: boolean }
   | { ok: false; code: "moderation"; reasons: string[] }
-  | { ok: false; code: "error" };
+  | { ok: false; code: "empty" | "error" };
 
 export async function createPost(
-  raw: z.infer<typeof postSchema>,
+  raw: z.input<typeof postSchema>,
 ): Promise<CreatePostResult> {
   const input = postSchema.parse(raw);
   const { supabase, user } = await requireUser();
 
-  const verdict = await runModeration(input.text);
+  // Photos must come from the person's own folder of the photo bucket.
+  if (!input.photoPaths.every((path) => isOwnPhotoPath(path, user.id))) {
+    return { ok: false, code: "error" };
+  }
+  if (input.text.length < 2 && input.photoPaths.length === 0) {
+    return { ok: false, code: "empty" };
+  }
+  if (
+    input.kind === "cooked" &&
+    input.recipeId === null &&
+    input.text.length < 2
+  ) {
+    return { ok: false, code: "empty" };
+  }
+
+  const verdict = input.text
+    ? await runModeration(input.text)
+    : { allow: true as const, severity: "none" as const, reasons: [] };
   if (!verdict.allow) {
     return { ok: false, code: "moderation", reasons: verdict.reasons };
   }
@@ -42,8 +65,9 @@ export async function createPost(
   const { error } = await supabase.from("posts").insert({
     author_id: user.id,
     kind: input.kind,
-    text: input.text,
+    text: input.text.length > 0 ? input.text : null,
     recipe_id: input.recipeId,
+    photo_paths: input.photoPaths,
     group_id: input.groupId,
     visibility: "community",
     moderation: verdict.severity === "medium" ? "flagged" : "ok",
@@ -52,13 +76,25 @@ export async function createPost(
   if (error) return { ok: false, code: "error" };
 
   revalidatePath("/communaute");
+  if (input.recipeId) revalidatePath("/recettes/[slug]", "page");
   return { ok: true, flagged: verdict.severity === "medium" };
 }
 
 export async function deletePost(postId: string) {
   const id = z.uuid().parse(postId);
-  const { supabase } = await requireUser();
+  const { supabase, user } = await requireUser();
+  const { data: post } = await supabase
+    .from("posts")
+    .select("photo_paths, author_id")
+    .eq("id", id)
+    .maybeSingle();
   await supabase.from("posts").delete().eq("id", id);
+  const own = (post?.photo_paths ?? []).filter((path) =>
+    isOwnPhotoPath(path, user.id),
+  );
+  if (own.length > 0) {
+    await supabase.storage.from(POST_PHOTO_BUCKET).remove(own);
+  }
   revalidatePath("/communaute");
   return { ok: true as const };
 }

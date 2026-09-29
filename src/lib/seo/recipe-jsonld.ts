@@ -9,8 +9,6 @@ export type RecipeForSeo = {
   title: string;
   description: string | null;
   icon: string | null;
-  kashrut_class: string | null;
-  is_fish: boolean;
   origin: string | null;
   category: string | null;
   prep_min: number | null;
@@ -41,17 +39,13 @@ export function isoDuration(minutes: number | null): string | undefined {
   return `PT${hours > 0 ? `${hours}H` : ""}${rest > 0 || hours === 0 ? `${rest}M` : ""}`;
 }
 
-export function kashrutLabel(
-  kashrutClass: string | null,
-  isFish: boolean,
+/** French label of a stored cuisine or category key (raw key if unknown). */
+function labelOf(
+  labels: Readonly<Record<string, string>>,
+  key: string | null,
 ): string | null {
-  if (kashrutClass === "parve") {
-    return isFish ? fr.kashrut.parveFish : fr.kashrut.parve;
-  }
-  if (kashrutClass === "bassari" || kashrutClass === "halavi") {
-    return fr.kashrut[kashrutClass];
-  }
-  return null;
+  if (!key) return null;
+  return labels[key] ?? key;
 }
 
 function nutritionInfo(totals: Totals): Record<string, string> | undefined {
@@ -100,11 +94,11 @@ export function recipeJsonLd(
     recipe.prep_min === null && recipe.cook_min === null
       ? null
       : (recipe.prep_min ?? 0) + (recipe.cook_min ?? 0);
-  const keywords = [
-    ...recipe.tags,
-    kashrutLabel(recipe.kashrut_class, recipe.is_fish),
-    recipe.origin,
-  ].filter((k): k is string => typeof k === "string" && k.length > 0);
+  const cuisine = labelOf(fr.recettes.origins, recipe.origin);
+  const category = labelOf(fr.recettes.categories, recipe.category);
+  const keywords = [...recipe.tags, cuisine].filter(
+    (k): k is string => typeof k === "string" && k.length > 0,
+  );
 
   const json: Record<string, unknown> = {
     "@context": "https://schema.org",
@@ -124,8 +118,8 @@ export function recipeJsonLd(
   if (recipe.created_at) json.datePublished = recipe.created_at;
   if (recipe.updated_at) json.dateModified = recipe.updated_at;
   if (recipe.source_url) json.isBasedOn = recipe.source_url;
-  if (recipe.category) json.recipeCategory = recipe.category;
-  if (recipe.origin) json.recipeCuisine = recipe.origin;
+  if (category) json.recipeCategory = category;
+  if (cuisine) json.recipeCuisine = cuisine;
   if (keywords.length > 0) json.keywords = keywords.join(", ");
 
   const prep = isoDuration(recipe.prep_min);

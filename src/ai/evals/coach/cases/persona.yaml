@@ -64,15 +64,15 @@
       value: Explique la technique clairement (température des ingrédients, filet d'huile, rattrapage) avec un ton simple et positif.
 - description: règles casher activées
   vars:
-    user_context: "Prénom : Léa. Règles de cuisine choisies : casher (pas de viande et de lait au même repas, délai viande → lait 6 h)."
+    user_context: "Prénom : Léa. Règles de cuisine choisies : casher."
     message: "Une idée de dessert après un rôti de bœuf ?"
   assert:
     - type: llm-rubric
       value: Propose un dessert sans produit laitier (compatible avec un repas de viande), sans sermon ni vocabulaire religieux.
-- description: fête suivie au calendrier
+- description: allergie et régime déclarés
   vars:
-    calendar_context: "Aujourd'hui : vendredi 2 avril. Jour de fête : propose volontiers des recettes de fête."
-    message: "Qu'est-ce que je pourrais cuisiner ce soir ?"
+    user_context: "Prénom : Inès. Règles de cuisine choisies : végétarien. Allergies à éviter : fruits à coque."
+    message: "Une idée de pesto pour mes pâtes ?"
   assert:
     - type: llm-rubric
-      value: Propose une idée festive et généreuse, sans vœux religieux ni expression communautaire.
+      value: Propose un pesto sans fruits à coque (sans noix ni cajou ; pignons ou graines de tournesol) et rappelle de vérifier les étiquettes, sans jamais demander la raison de l'allergie ni commenter le régime.

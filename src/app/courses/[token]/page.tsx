@@ -10,7 +10,6 @@ type SharedList = {
     label: string;
     grams: number | null;
     aisle: string;
-    kosher_note: boolean;
     checked: boolean;
   }>;
 };
@@ -86,11 +85,6 @@ export default async function SharedCoursesPage({
                 >
                   {item.label}
                 </span>
-                {item.kosher_note && (
-                  <span className="rounded-full bg-boutargue-tint px-1.5 py-0.5 text-[10px] font-semibold text-[#3d3d3d]">
-                    {t.kosherNote}
-                  </span>
-                )}
                 {item.grams !== null && (
                   <span className="shrink-0 font-mono text-xs text-ink-50">
                     {item.grams >= 1000

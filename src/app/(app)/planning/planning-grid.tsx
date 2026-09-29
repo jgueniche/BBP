@@ -1,6 +1,6 @@
 "use client";
 
-import { Dices, Flame, Plus, RefreshCw, Sparkles, X } from "lucide-react";
+import { Dices, Plus, RefreshCw, Sparkles, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
@@ -23,11 +23,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { KashrutPill } from "@/components/ui/kashrut-pill";
+import { VerdictPill } from "@/components/diets/verdict-pill";
 import { fr } from "@/i18n/fr";
-import type { KashrutClass } from "@/lib/kashrut/meal";
+import type { VerdictStatus } from "@/lib/diets/verdict";
 import type { PlanMeal } from "@/lib/planning/types";
-import { cn } from "@/lib/utils/cn";
 
 const t = fr.planning;
 
@@ -37,8 +36,8 @@ export type GridSlot = {
   meal: PlanMeal;
   title: string;
   icon: string | null;
-  kashrutClass: KashrutClass | null;
-  isFish: boolean;
+  /** The person's verdict for the recipe, when they set cooking rules. */
+  status: VerdictStatus | null;
   kcal: number | null;
   servings: number;
   isLeftover: boolean;
@@ -48,33 +47,18 @@ export type GridSlot = {
 export type GridDay = {
   date: string;
   label: string; // "lundi 7 sept."
-  hebrewDate: string;
-  badges: string[];
-  candleTime: string | null;
-  isFast: boolean;
-  isChabbat: boolean; // Friday or Saturday
 };
 
 const MEALS: PlanMeal[] = ["petit_dej", "dej", "diner"];
-
-function mealLabel(day: GridDay, meal: PlanMeal, shomer: boolean): string {
-  if (!shomer) return t.meals[meal];
-  const weekday = new Date(`${day.date}T00:00:00Z`).getUTCDay();
-  if (meal === "diner" && weekday === 5) return t.chabbatDinner;
-  if (meal === "dej" && weekday === 6) return t.chabbatLunch;
-  return t.meals[meal];
-}
 
 export function PlanningGrid({
   weekStart,
   days,
   slots,
-  shomerShabbat,
 }: {
   weekStart: string;
   days: GridDay[];
   slots: GridSlot[];
-  shomerShabbat: boolean;
 }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -197,33 +181,13 @@ export function PlanningGrid({
           return (
             <section
               key={day.date}
-              className={cn(
-                "rounded-lg border bg-card p-3 shadow-soft",
-                day.isChabbat && "bg-boutargue-tint",
-              )}
+              className="rounded-lg border bg-card p-3 shadow-soft"
             >
               <header className="flex flex-wrap items-baseline justify-between gap-1">
                 <div className="flex flex-wrap items-baseline gap-2">
                   <h2 className="font-display text-base font-semibold capitalize">
                     {day.label}
                   </h2>
-                  <span className="text-[11px] text-ink-50">
-                    {day.hebrewDate}
-                  </span>
-                  {day.candleTime && (
-                    <span className="inline-flex items-center gap-0.5 rounded-full bg-ink-10 px-1.5 py-0.5 text-[11px] font-semibold text-ink-70">
-                      <Flame size={11} strokeWidth={2} aria-hidden />
-                      {t.candles} {day.candleTime}
-                    </span>
-                  )}
-                  {day.badges.map((badge) => (
-                    <span
-                      key={badge}
-                      className="rounded-full bg-ink-10 px-1.5 py-0.5 text-[11px] font-semibold text-ink-70"
-                    >
-                      {badge}
-                    </span>
-                  ))}
                 </div>
               </header>
 
@@ -236,7 +200,7 @@ export function PlanningGrid({
                     className="flex items-center gap-2"
                   >
                     <span className="w-24 shrink-0 text-[11px] font-bold uppercase tracking-wide text-ink-50">
-                      {mealLabel(day, meal, shomerShabbat)}
+                      {t.meals[meal]}
                     </span>
                     {slot ? (
                       <div
@@ -268,12 +232,8 @@ export function PlanningGrid({
                             {t.leftover}
                           </span>
                         )}
-                        {slot.kashrutClass && (
-                          <KashrutPill
-                            kind={slot.kashrutClass}
-                            isFish={slot.isFish}
-                            className="scale-75"
-                          />
+                        {slot.status && slot.status !== "compatible" && (
+                          <VerdictPill status={slot.status} size="sm" />
                         )}
                         {slot.servings !== 1 && (
                           <span className="shrink-0 font-mono text-[11px] text-ink-50">
@@ -364,11 +324,8 @@ export function PlanningGrid({
                     <span className="min-w-0 flex-1 truncate">
                       {candidate.title}
                     </span>
-                    {candidate.kashrutClass && (
-                      <KashrutPill
-                        kind={candidate.kashrutClass}
-                        className="scale-75"
-                      />
+                    {candidate.status && (
+                      <VerdictPill status={candidate.status} size="sm" />
                     )}
                   </button>
                 </li>

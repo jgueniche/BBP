@@ -4,9 +4,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { generateWeekPlanAi } from "@/ai/agents/meal-planner";
 import type { Database } from "@/db/types";
-import type { KashrutClass } from "@/lib/kashrut/meal";
-import { getCalendarDays } from "@/lib/jewish-calendar/cache";
-import type { DayJewishInfo } from "@/lib/jewish-calendar/week";
+import { loadFoodRules } from "@/lib/diets/preferences";
+import { verdictStatuses } from "@/lib/diets/recipes";
 
 import { buildFallbackPlan } from "./fallback";
 import type { PlanContext, PlannerRecipe, PlanSlot } from "./types";
@@ -18,130 +17,93 @@ const POOL_LIMIT = 80;
 
 export type PlanningData = {
   ctx: PlanContext;
-  calendar: DayJewishInfo[];
-  calendarText: string;
+  /** Recipes that suit the person's rules as they are. */
   pool: PlannerRecipe[];
-  constraintsFromProfile: string | null;
 };
 
-function calendarSummary(days: DayJewishInfo[]): string {
-  return days
-    .map((day) => {
-      const bits = [day.hebrewDate, ...day.labels];
-      if (day.candleTime) bits.push(`allumage ${day.candleTime}`);
-      if (day.isFast) bits.push("JEÛNE");
-      if (day.isPessah) bits.push("PESSAH");
-      if (day.isChavouot) bits.push("CHAVOUOT (repas lacté le soir)");
-      if (day.isFeast) bits.push("FÊTE (budget kiff : cible kcal non imposée)");
-      return `${day.date} : ${bits.join(", ")}`;
-    })
-    .join("\n");
+const RECIPE_SELECT =
+  "id, title, icon, category, prep_min, cook_min, tags, nutrition_per_serving, author_id";
+
+type RecipeRow = {
+  id: string;
+  title: string;
+  icon: string | null;
+  category: string | null;
+  prep_min: number | null;
+  cook_min: number | null;
+  tags: string[];
+  nutrition_per_serving: unknown;
+};
+
+export function toPlannerRecipe(recipe: RecipeRow): PlannerRecipe {
+  const nutrition = (recipe.nutrition_per_serving ?? {}) as {
+    kcal?: number;
+    protein_g?: number;
+  };
+  return {
+    id: recipe.id,
+    title: recipe.title,
+    icon: recipe.icon,
+    category: recipe.category,
+    kcal: typeof nutrition.kcal === "number" ? nutrition.kcal : null,
+    proteinG:
+      typeof nutrition.protein_g === "number" ? nutrition.protein_g : null,
+    timeMin:
+      recipe.prep_min === null && recipe.cook_min === null
+        ? null
+        : (recipe.prep_min ?? 0) + (recipe.cook_min ?? 0),
+    tags: recipe.tags,
+  };
 }
 
-async function loadPool(
+async function loadCandidates(
   supabase: Supabase,
   userId: string,
 ): Promise<PlannerRecipe[]> {
-  const select =
-    "id, title, icon, kashrut_class, is_fish, category, prep_min, cook_min, tags, nutrition_per_serving, author_id";
   const [{ data: community }, { data: mine }, { data: saves }] =
     await Promise.all([
       supabase
         .from("recipes")
-        .select(select)
+        .select(RECIPE_SELECT)
         .eq("status", "published")
         .eq("visibility", "community")
         .order("created_at")
         .limit(POOL_LIMIT),
-      supabase.from("recipes").select(select).eq("author_id", userId),
+      supabase.from("recipes").select(RECIPE_SELECT).eq("author_id", userId),
       supabase.from("recipe_saves").select("recipe_id").eq("user_id", userId),
     ]);
 
   const savedIds = (saves ?? []).map((s) => s.recipe_id);
   const { data: saved } =
     savedIds.length > 0
-      ? await supabase.from("recipes").select(select).in("id", savedIds)
+      ? await supabase.from("recipes").select(RECIPE_SELECT).in("id", savedIds)
       : { data: [] };
 
-  const byId = new Map<string, NonNullable<typeof community>[number]>();
+  const byId = new Map<string, RecipeRow>();
+  // The person's own and saved recipes first, then the community.
   for (const recipe of [
-    ...(community ?? []),
     ...(mine ?? []),
     ...(saved ?? []),
+    ...(community ?? []),
   ]) {
     byId.set(recipe.id, recipe);
   }
-  const rows = [...byId.values()].slice(0, POOL_LIMIT);
+  return [...byId.values()].slice(0, POOL_LIMIT).map(toPlannerRecipe);
+}
 
-  // Hametz/kitniyot per recipe via its linked foods.
-  const recipeIds = rows.map((r) => r.id);
-  const flagged = new Map<string, { hametz: boolean; kitniyot: boolean }>();
-  if (recipeIds.length > 0) {
-    const { data: links } = await supabase
-      .from("recipe_ingredients")
-      .select("recipe_id, food_id")
-      .in("recipe_id", recipeIds)
-      .not("food_id", "is", null);
-    const foodIds = [
-      ...new Set(
-        (links ?? [])
-          .map((l) => l.food_id)
-          .filter((id): id is string => id !== null),
-      ),
-    ];
-    const { data: foods } =
-      foodIds.length > 0
-        ? await supabase
-            .from("foods")
-            .select("id, hametz, kitniyot")
-            .in("id", foodIds)
-        : { data: [] };
-    const foodFlags = new Map(
-      (foods ?? []).map((f) => [
-        f.id,
-        { hametz: f.hametz, kitniyot: f.kitniyot },
-      ]),
-    );
-    for (const link of links ?? []) {
-      if (!link.food_id) continue;
-      const flags = foodFlags.get(link.food_id);
-      if (!flags) continue;
-      const current = flagged.get(link.recipe_id) ?? {
-        hametz: false,
-        kitniyot: false,
-      };
-      flagged.set(link.recipe_id, {
-        hametz: current.hametz || flags.hametz,
-        kitniyot: current.kitniyot || flags.kitniyot,
-      });
-    }
-  }
-
-  return rows.map((recipe) => {
-    const nutrition = (recipe.nutrition_per_serving ?? {}) as {
-      kcal?: number;
-      protein_g?: number;
-    };
-    const flags = flagged.get(recipe.id) ?? { hametz: false, kitniyot: false };
-    return {
-      id: recipe.id,
-      title: recipe.title,
-      icon: recipe.icon,
-      kashrutClass: (recipe.kashrut_class ?? null) as KashrutClass | null,
-      isFish: recipe.is_fish,
-      category: recipe.category,
-      kcal: typeof nutrition.kcal === "number" ? nutrition.kcal : null,
-      proteinG:
-        typeof nutrition.protein_g === "number" ? nutrition.protein_g : null,
-      timeMin:
-        recipe.prep_min === null && recipe.cook_min === null
-          ? null
-          : (recipe.prep_min ?? 0) + (recipe.cook_min ?? 0),
-      hasHametz: flags.hametz,
-      hasKitniyot: flags.kitniyot,
-      tags: recipe.tags,
-    };
-  });
+/** Recipe ids that do not suit the person's rules as they are. */
+export async function unsuitableRecipes(
+  supabase: Supabase,
+  userId: string,
+  recipeIds: readonly string[],
+): Promise<Set<string>> {
+  const rules = await loadFoodRules(supabase, userId);
+  const statuses = await verdictStatuses(supabase, rules, recipeIds);
+  return new Set(
+    [...statuses]
+      .filter(([, status]) => status !== "compatible")
+      .map(([id]) => id),
+  );
 }
 
 export async function buildPlanningData(
@@ -149,62 +111,15 @@ export async function buildPlanningData(
   userId: string,
   weekStart: string,
 ): Promise<PlanningData> {
-  const [{ data: settings }, pool] = await Promise.all([
-    supabase
-      .from("user_settings")
-      .select(
-        "shomer_shabbat, meat_to_dairy_wait_hours, dairy_to_meat_wait_hours, kitniyot, israel_calendar, kashrut_enabled, jewish_calendar_enabled",
-      )
-      .eq("user_id", userId)
-      .maybeSingle(),
-    loadPool(supabase, userId),
-  ]);
-
-  const calendarEnabled = settings?.jewish_calendar_enabled ?? false;
-  const weekEnd = new Date(
-    Date.parse(`${weekStart}T00:00:00Z`) + 6 * 86_400_000,
-  )
-    .toISOString()
-    .slice(0, 10);
-  // Cache-backed per-user calendar: profile city, Israel option, minor
-  // fasts and candle offset all flow from the user's settings (session 13).
-  const calendar = await getCalendarDays(supabase, userId, weekStart, weekEnd);
-  // With the calendar disabled, chabbat/fast/Pessah rules vanish at the
-  // source: empty date sets and no mandatory chabbat meals.
-  const ctx: PlanContext = {
-    weekStart,
-    // No calorie targets any more (pivot, ADR-028): portions stay at 1.
-    calorieTarget: null,
-    kashrutEnabled: settings?.kashrut_enabled ?? false,
-    shomerShabbat: calendarEnabled && (settings?.shomer_shabbat ?? false),
-    meatToDairyWaitHours: settings?.meat_to_dairy_wait_hours ?? 6,
-    dairyToMeatWaitHours: settings?.dairy_to_meat_wait_hours ?? 1,
-    eatsKitniyot: settings?.kitniyot ?? true,
-    pessahDates: calendarEnabled
-      ? new Set(calendar.filter((d) => d.isPessah).map((d) => d.date))
-      : new Set(),
-    fastDates: calendarEnabled
-      ? new Set(calendar.filter((d) => d.isFast).map((d) => d.date))
-      : new Set(),
-    feastDates: calendarEnabled
-      ? new Set(calendar.filter((d) => d.isFeast).map((d) => d.date))
-      : new Set(),
-    chavouotDates: calendarEnabled
-      ? new Set(calendar.filter((d) => d.isChavouot).map((d) => d.date))
-      : new Set(),
-  };
-
-  const profileBits: string[] = [];
-
+  const candidates = await loadCandidates(supabase, userId);
+  const unsuitable = await unsuitableRecipes(
+    supabase,
+    userId,
+    candidates.map((r) => r.id),
+  );
   return {
-    ctx,
-    calendar,
-    calendarText: calendarEnabled
-      ? calendarSummary(calendar)
-      : "Aucune contrainte calendaire (calendrier juif désactivé par la personne).",
-    pool,
-    constraintsFromProfile:
-      profileBits.length > 0 ? profileBits.join(" ") : null,
+    ctx: { weekStart, unsuitable },
+    pool: candidates.filter((recipe) => !unsuitable.has(recipe.id)),
   };
 }
 
@@ -234,19 +149,14 @@ export async function generateValidatedWeek(params: {
   constraints: string | null;
   lockedSlots: PlanSlot[];
 }): Promise<GeneratedPlan> {
-  const { data, lockedSlots } = params;
-  const constraints =
-    [params.constraints, data.constraintsFromProfile]
-      .filter(Boolean)
-      .join(" ") || null;
+  const { data, lockedSlots, constraints } = params;
 
   let aiTried = false;
   let previousViolations: string[] | null = null;
   for (let attempt = 0; attempt < 2; attempt += 1) {
     const aiSlots = await generateWeekPlanAi({
       recipes: data.pool,
-      ctx: data.ctx,
-      calendarText: data.calendarText,
+      weekStart: data.ctx.weekStart,
       constraints,
       previousViolations,
     });
@@ -290,7 +200,7 @@ export async function getOrCreatePlan(
   return created;
 }
 
-function slotToRow(slot: PlanSlot, planId: string) {
+export function slotToRow(slot: PlanSlot, planId: string) {
   return {
     plan_id: planId,
     date: slot.date,
@@ -298,17 +208,32 @@ function slotToRow(slot: PlanSlot, planId: string) {
     recipe_id: slot.recipeId,
     title: slot.title,
     icon: slot.icon,
-    kashrut_class: slot.kashrutClass,
-    is_fish: slot.isFish,
     kcal: slot.kcal,
     protein_g: slot.proteinG,
     time_min: slot.timeMin,
-    has_hametz: slot.hasHametz,
-    has_kitniyot: slot.hasKitniyot,
     tags: slot.tags,
     is_leftover: slot.isLeftover,
     locked: slot.locked,
     servings: slot.servings,
+  };
+}
+
+type SlotRow = Database["public"]["Tables"]["meal_plan_slots"]["Row"];
+
+export function rowToSlot(row: SlotRow): PlanSlot {
+  return {
+    date: row.date,
+    meal: row.meal as PlanSlot["meal"],
+    recipeId: row.recipe_id,
+    title: row.title,
+    icon: row.icon,
+    kcal: row.kcal,
+    proteinG: row.protein_g,
+    timeMin: row.time_min,
+    tags: row.tags,
+    isLeftover: row.is_leftover,
+    locked: row.locked,
+    servings: row.servings,
   };
 }
 
@@ -338,24 +263,7 @@ export async function generateAndStoreWeek(
     .select("*")
     .eq("plan_id", plan.id)
     .eq("locked", true);
-  const lockedSlots: PlanSlot[] = (lockedRows ?? []).map((row) => ({
-    date: row.date,
-    meal: row.meal as PlanSlot["meal"],
-    recipeId: row.recipe_id,
-    title: row.title,
-    icon: row.icon,
-    kashrutClass: (row.kashrut_class ?? null) as KashrutClass | null,
-    isFish: row.is_fish,
-    kcal: row.kcal,
-    proteinG: row.protein_g,
-    timeMin: row.time_min,
-    hasHametz: row.has_hametz,
-    hasKitniyot: row.has_kitniyot,
-    tags: row.tags,
-    isLeftover: row.is_leftover,
-    locked: row.locked,
-    servings: row.servings,
-  }));
+  const lockedSlots = (lockedRows ?? []).map(rowToSlot);
 
   const data = await buildPlanningData(supabase, userId, weekStart);
   if (data.pool.length < 4) return { ok: false, code: "empty_pool" };

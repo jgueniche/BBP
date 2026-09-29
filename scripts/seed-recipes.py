@@ -1,6 +1,8 @@
 # Generates src/db/seed/recipes/recipes.sql from the annexe A recipe set.
 # Ingredients are pinned to Ciqual foods by external_id (resolved 30/08/2026).
 # Idempotent: recipes upsert on slug, children only insert with a fresh recipe.
+# Session 19: the kosher class columns are no longer written (dropped by
+# 202609291210); the historical kash/fish fields of R are ignored.
 import json
 
 OUT = "src/db/seed/recipes/recipes.sql"
@@ -180,11 +182,11 @@ for (slug, title, desc, origin, cat, diff, prep, cook, servings, kash, fish,
 with r as (
   insert into public.recipes
     (author_id, title, slug, description, origin, category, difficulty, prep_min, cook_min,
-     servings, kashrut_class, is_fish, kashrut_confidence, tags, visibility, version_kind,
+     servings, tags, visibility, version_kind,
      parent_recipe_id, status)
   values
     (null, '{esc(title)}', '{esc(slug)}', '{esc(desc)}', '{origin}', '{cat}', '{diff}', {prep}, {cook},
-     {servings}, '{kash}', {str(fish).lower()}, 1.0, {arr(tags)}, 'community', '{vkind}',
+     {servings}, {arr(tags)}, 'community', '{vkind}',
      {parent_sql}, 'published')
   on conflict (slug) do nothing
   returning id

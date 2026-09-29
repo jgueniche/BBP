@@ -231,12 +231,7 @@ export type Database = {
           category: string | null;
           created_at: string;
           external_id: string | null;
-          hametz: boolean;
           id: string;
-          is_fish: boolean;
-          kashrut_class: string | null;
-          kitniyot: boolean;
-          kosher_hint: string | null;
           name_fr: string;
           per_100g: Json;
           search: unknown;
@@ -249,12 +244,7 @@ export type Database = {
           category?: string | null;
           created_at?: string;
           external_id?: string | null;
-          hametz?: boolean;
           id?: string;
-          is_fish?: boolean;
-          kashrut_class?: string | null;
-          kitniyot?: boolean;
-          kosher_hint?: string | null;
           name_fr: string;
           per_100g?: Json;
           search?: unknown;
@@ -267,12 +257,7 @@ export type Database = {
           category?: string | null;
           created_at?: string;
           external_id?: string | null;
-          hametz?: boolean;
           id?: string;
-          is_fish?: boolean;
-          kashrut_class?: string | null;
-          kitniyot?: boolean;
-          kosher_hint?: string | null;
           name_fr?: string;
           per_100g?: Json;
           search?: unknown;
@@ -340,13 +325,9 @@ export type Database = {
         Row: {
           created_at: string;
           date: string;
-          has_hametz: boolean;
-          has_kitniyot: boolean;
           icon: string | null;
           id: string;
-          is_fish: boolean;
           is_leftover: boolean;
-          kashrut_class: string | null;
           kcal: number | null;
           locked: boolean;
           meal: string;
@@ -361,13 +342,9 @@ export type Database = {
         Insert: {
           created_at?: string;
           date: string;
-          has_hametz?: boolean;
-          has_kitniyot?: boolean;
           icon?: string | null;
           id?: string;
-          is_fish?: boolean;
           is_leftover?: boolean;
-          kashrut_class?: string | null;
           kcal?: number | null;
           locked?: boolean;
           meal: string;
@@ -382,13 +359,9 @@ export type Database = {
         Update: {
           created_at?: string;
           date?: string;
-          has_hametz?: boolean;
-          has_kitniyot?: boolean;
           icon?: string | null;
           id?: string;
-          is_fish?: boolean;
           is_leftover?: boolean;
-          kashrut_class?: string | null;
           kcal?: number | null;
           locked?: boolean;
           meal?: string;
@@ -399,33 +372,6 @@ export type Database = {
           tags?: string[];
           time_min?: number | null;
           title?: string;
-        };
-        Relationships: [];
-      };
-      jewish_calendar_cache: {
-        Row: {
-          created_at: string;
-          date: string;
-          id: string;
-          payload: Json;
-          settings_hash: string;
-          user_id: string;
-        };
-        Insert: {
-          created_at?: string;
-          date: string;
-          id?: string;
-          payload: Json;
-          settings_hash: string;
-          user_id: string;
-        };
-        Update: {
-          created_at?: string;
-          date?: string;
-          id?: string;
-          payload?: Json;
-          settings_hash?: string;
-          user_id?: string;
         };
         Relationships: [];
       };
@@ -586,12 +532,9 @@ export type Database = {
         Row: {
           avatar_url: string | null;
           bio: string | null;
-          city: string | null;
           created_at: string;
           display_name: string | null;
           id: string;
-          lat: number | null;
-          lng: number | null;
           onboarding_completed_at: string | null;
           timezone: string;
           updated_at: string;
@@ -601,12 +544,9 @@ export type Database = {
         Insert: {
           avatar_url?: string | null;
           bio?: string | null;
-          city?: string | null;
           created_at?: string;
           display_name?: string | null;
           id: string;
-          lat?: number | null;
-          lng?: number | null;
           onboarding_completed_at?: string | null;
           timezone?: string;
           updated_at?: string;
@@ -616,12 +556,9 @@ export type Database = {
         Update: {
           avatar_url?: string | null;
           bio?: string | null;
-          city?: string | null;
           created_at?: string;
           display_name?: string | null;
           id?: string;
-          lat?: number | null;
-          lng?: number | null;
           onboarding_completed_at?: string | null;
           timezone?: string;
           updated_at?: string;
@@ -630,10 +567,30 @@ export type Database = {
         };
         Relationships: [];
       };
+      recipe_comment_votes: {
+        Row: {
+          comment_id: string;
+          created_at: string;
+          user_id: string;
+        };
+        Insert: {
+          comment_id: string;
+          created_at?: string;
+          user_id: string;
+        };
+        Update: {
+          comment_id?: string;
+          created_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       recipe_comments: {
         Row: {
           created_at: string;
           id: string;
+          moderation: string;
+          moderation_reasons: string[];
           recipe_id: string;
           text: string;
           user_id: string;
@@ -641,6 +598,8 @@ export type Database = {
         Insert: {
           created_at?: string;
           id?: string;
+          moderation?: string;
+          moderation_reasons?: string[];
           recipe_id: string;
           text: string;
           user_id: string;
@@ -648,6 +607,8 @@ export type Database = {
         Update: {
           created_at?: string;
           id?: string;
+          moderation?: string;
+          moderation_reasons?: string[];
           recipe_id?: string;
           text?: string;
           user_id?: string;
@@ -796,10 +757,6 @@ export type Database = {
           difficulty: string | null;
           icon: string | null;
           id: string;
-          is_fish: boolean;
-          kashrut_class: string | null;
-          kashrut_confidence: number | null;
-          kosher_flags: string[];
           nutrition_per_serving: Json;
           origin: string | null;
           parent_recipe_id: string | null;
@@ -827,10 +784,6 @@ export type Database = {
           difficulty?: string | null;
           icon?: string | null;
           id?: string;
-          is_fish?: boolean;
-          kashrut_class?: string | null;
-          kashrut_confidence?: number | null;
-          kosher_flags?: string[];
           nutrition_per_serving?: Json;
           origin?: string | null;
           parent_recipe_id?: string | null;
@@ -858,10 +811,6 @@ export type Database = {
           difficulty?: string | null;
           icon?: string | null;
           id?: string;
-          is_fish?: boolean;
-          kashrut_class?: string | null;
-          kashrut_confidence?: number | null;
-          kosher_flags?: string[];
           nutrition_per_serving?: Json;
           origin?: string | null;
           parent_recipe_id?: string | null;
@@ -919,7 +868,6 @@ export type Database = {
           created_at: string;
           grams: number | null;
           id: string;
-          kosher_note: boolean;
           label: string;
           plan_id: string;
           position: number;
@@ -930,7 +878,6 @@ export type Database = {
           created_at?: string;
           grams?: number | null;
           id?: string;
-          kosher_note?: boolean;
           label: string;
           plan_id: string;
           position?: number;
@@ -941,62 +888,79 @@ export type Database = {
           created_at?: string;
           grams?: number | null;
           id?: string;
-          kosher_note?: boolean;
           label?: string;
           plan_id?: string;
           position?: number;
         };
         Relationships: [];
       };
+      tags: {
+        Row: {
+          canonical_id: string | null;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          label: string;
+          parent_id: string | null;
+          reviewed: boolean;
+          slug: string;
+          updated_at: string;
+        };
+        Insert: {
+          canonical_id?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          label: string;
+          parent_id?: string | null;
+          reviewed?: boolean;
+          slug: string;
+          updated_at?: string;
+        };
+        Update: {
+          canonical_id?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          label?: string;
+          parent_id?: string | null;
+          reviewed?: boolean;
+          slug?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       user_settings: {
         Row: {
-          candle_offset_min: number;
+          allergens: string[];
           created_at: string;
-          dairy_to_meat_wait_hours: number;
-          israel_calendar: boolean;
-          jewish_calendar_enabled: boolean;
-          kashrut_enabled: boolean;
-          kitniyot: boolean;
-          meat_to_dairy_wait_hours: number;
-          minor_fasts: boolean;
-          no_fish_with_meat: boolean;
+          diets: string[];
+          dislikes: string[];
+          food_rules_consent_at: string | null;
           notif_prefs: Json;
           quiet_hours: Json | null;
-          shomer_shabbat: boolean;
           updated_at: string;
           user_id: string;
         };
         Insert: {
-          candle_offset_min?: number;
+          allergens?: string[];
           created_at?: string;
-          dairy_to_meat_wait_hours?: number;
-          israel_calendar?: boolean;
-          jewish_calendar_enabled?: boolean;
-          kashrut_enabled?: boolean;
-          kitniyot?: boolean;
-          meat_to_dairy_wait_hours?: number;
-          minor_fasts?: boolean;
-          no_fish_with_meat?: boolean;
+          diets?: string[];
+          dislikes?: string[];
+          food_rules_consent_at?: string | null;
           notif_prefs?: Json;
           quiet_hours?: Json | null;
-          shomer_shabbat?: boolean;
           updated_at?: string;
           user_id: string;
         };
         Update: {
-          candle_offset_min?: number;
+          allergens?: string[];
           created_at?: string;
-          dairy_to_meat_wait_hours?: number;
-          israel_calendar?: boolean;
-          jewish_calendar_enabled?: boolean;
-          kashrut_enabled?: boolean;
-          kitniyot?: boolean;
-          meat_to_dairy_wait_hours?: number;
-          minor_fasts?: boolean;
-          no_fish_with_meat?: boolean;
+          diets?: string[];
+          dislikes?: string[];
+          food_rules_consent_at?: string | null;
           notif_prefs?: Json;
           quiet_hours?: Json | null;
-          shomer_shabbat?: boolean;
           updated_at?: string;
           user_id?: string;
         };
@@ -1011,6 +975,21 @@ export type Database = {
           love: number;
           miam: number;
           post_id: string;
+        };
+        Relationships: [];
+      };
+      recipe_comment_stats: {
+        Row: {
+          comment_id: string;
+          helpful: number;
+        };
+        Relationships: [];
+      };
+      recipe_cooked_stats: {
+        Row: {
+          cooked: number;
+          cooks: number;
+          recipe_id: string;
         };
         Relationships: [];
       };
@@ -1072,12 +1051,7 @@ export type Database = {
           category: string | null;
           created_at: string;
           external_id: string | null;
-          hametz: boolean;
           id: string;
-          is_fish: boolean;
-          kashrut_class: string | null;
-          kitniyot: boolean;
-          kosher_hint: string | null;
           name_fr: string;
           per_100g: Json;
           search: unknown;

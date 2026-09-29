@@ -8,8 +8,13 @@ import { toast } from "sonner";
 
 import { createPost } from "@/app/(app)/communaute/actions";
 import { searchPlannerRecipes } from "@/app/(app)/planning/actions";
+import {
+  PhotoPicker,
+  type PickedPhoto,
+} from "@/components/social/photo-picker";
 import { Button } from "@/components/ui/button";
 import { fr } from "@/i18n/fr";
+import { uploadPostPhotos } from "@/lib/social/upload";
 import { cn } from "@/lib/utils/cn";
 
 const t = fr.communaute.composer;
@@ -27,6 +32,7 @@ export function PostComposer({ groupId }: { groupId?: string | null }) {
   const [query, setQuery] = useState("");
   const [candidates, setCandidates] = useState<Attached[]>([]);
   const [pending, setPending] = useState(false);
+  const [photos, setPhotos] = useState<PickedPhoto[]>([]);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function onQuery(value: string) {
@@ -48,20 +54,32 @@ export function PostComposer({ groupId }: { groupId?: string | null }) {
     event.preventDefault();
     setPending(true);
     try {
+      let photoPaths: string[] = [];
+      try {
+        photoPaths = await uploadPostPhotos(photos.map((p) => p.file));
+      } catch {
+        toast(t.photoFailed);
+        return;
+      }
       const result = await createPost({
         text: text.trim(),
-        kind: recipe ? "recipe" : kind,
+        kind: recipe && kind !== "cooked" ? "recipe" : kind,
         recipeId: recipe?.id ?? null,
         groupId: groupId ?? null,
+        photoPaths,
       });
       if (!result.ok) {
         toast(
           result.code === "moderation"
             ? `${t.blockedPrefix} (${result.reasons.join(", ")}).`
-            : fr.recettes.saveError,
+            : result.code === "empty"
+              ? t.needTextOrPhoto
+              : fr.recettes.saveError,
         );
         return;
       }
+      photos.forEach((p) => URL.revokeObjectURL(p.preview));
+      setPhotos([]);
       toast(t.published);
       setText("");
       setRecipe(null);
@@ -169,6 +187,8 @@ export function PostComposer({ groupId }: { groupId?: string | null }) {
         </div>
       )}
 
+      <PhotoPicker photos={photos} onChange={setPhotos} disabled={pending} />
+
       <div className="flex items-center gap-2">
         <Link
           href="/communaute/charte"
@@ -182,7 +202,7 @@ export function PostComposer({ groupId }: { groupId?: string | null }) {
         <Button
           type="submit"
           size="sm"
-          disabled={pending || text.trim().length < 2}
+          disabled={pending || (text.trim().length < 2 && photos.length === 0)}
         >
           <Send />
           {pending ? t.publishing : t.publish}

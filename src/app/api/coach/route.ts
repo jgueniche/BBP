@@ -12,10 +12,8 @@ import type { Json } from "@/db/types";
 import { buildCoachSystem } from "@/ai/prompts/coach";
 import { pickModel } from "@/ai/provider";
 import { buildCoachTools } from "@/ai/tools/coach-tools";
-import { buildCoachContext } from "@/lib/coach/context";
+import { buildCoachContext, todayForCoach } from "@/lib/coach/context";
 import { DAILY_MESSAGE_QUOTA } from "@/lib/coach/quota";
-import { loadCalendarSettings } from "@/lib/jewish-calendar/cache";
-import { buildCalendarContext } from "@/lib/jewish-calendar/context";
 import { COACH_NAME } from "@/lib/brand";
 import { createClient } from "@/lib/supabase/server";
 
@@ -68,13 +66,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "quota_exceeded" }, { status: 429 });
   }
 
-  const [context, userCalendar] = await Promise.all([
-    buildCoachContext(supabase, user.id),
-    loadCalendarSettings(supabase, user.id),
-  ]);
-  const calendar = userCalendar.enabled
-    ? buildCalendarContext(new Date(), userCalendar.settings)
-    : { text: "", isFastToday: false };
+  const context = await buildCoachContext(supabase, user.id);
 
   // Resolve the conversation: the one the client is on, else the most
   // recent one, else a fresh one (first message ever).
@@ -128,7 +120,7 @@ export async function POST(request: Request) {
     coachName: COACH_NAME,
     userContext: context.userContext,
     memories: context.memories,
-    calendarContext: calendar.text,
+    today: todayForCoach(),
   });
 
   const result = streamText({

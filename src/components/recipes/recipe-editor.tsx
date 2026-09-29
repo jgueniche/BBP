@@ -8,12 +8,15 @@ import { toast } from "sonner";
 import {
   saveRecipe,
   searchFoodsForRecipe,
+  searchTags,
   type RecipeFoodCandidate,
   type RecipeInput,
+  type TagSuggestion,
 } from "@/app/(app)/recettes/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { fr } from "@/i18n/fr";
+import { CUISINE_GROUPS } from "@/lib/recipes/cuisines";
 import { cn } from "@/lib/utils/cn";
 
 const t = fr.recettes;
@@ -76,7 +79,7 @@ export const emptyEditorInitial: EditorInitial = {
   id: null,
   title: "",
   description: "",
-  origin: "tunisie",
+  origin: "autre",
   category: "plat",
   difficulty: "facile",
   prepMin: "15",
@@ -107,6 +110,29 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
     items: RecipeFoodCandidate[];
   } | null>(null);
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const tagTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [tagSuggestions, setTagSuggestions] = useState<TagSuggestion[]>([]);
+
+  // Suggestions show reference tags only (synonyms are merged by moderation).
+  function onTagsChange(value: string) {
+    update("tags", value);
+    if (tagTimer.current) clearTimeout(tagTimer.current);
+    const last = value.split(",").at(-1)?.trim() ?? "";
+    if (last.length < 2) {
+      setTagSuggestions([]);
+      return;
+    }
+    tagTimer.current = setTimeout(async () => {
+      setTagSuggestions(await searchTags(last));
+    }, 300);
+  }
+
+  function pickTag(tag: TagSuggestion) {
+    const parts = state.tags.split(",").map((part) => part.trim());
+    parts[parts.length - 1] = tag.label;
+    update("tags", `${parts.filter(Boolean).join(", ")}, `);
+    setTagSuggestions([]);
+  }
 
   function update<K extends keyof EditorInitial>(
     key: K,
@@ -293,11 +319,19 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
             }
             className={selectClass}
           >
-            {Object.entries(t.origins).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
+            {CUISINE_GROUPS.map((group) => (
+              <optgroup key={group.label} label={group.label}>
+                {group.cuisines.map((cuisine) => (
+                  <option key={cuisine} value={cuisine}>
+                    {t.origins[cuisine]}
+                  </option>
+                ))}
+              </optgroup>
             ))}
+            {state.origin === "ashkenaze" && (
+              <option value="ashkenaze">{t.origins.ashkenaze}</option>
+            )}
+            <option value="autre">{t.origins.autre}</option>
           </select>
         </label>
         <label className="flex flex-col gap-1.5">
@@ -365,10 +399,25 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
         {f.tags}
         <Input
           value={state.tags}
-          onChange={(e) => update("tags", e.target.value)}
-          placeholder="chabbat, express…"
+          onChange={(e) => onTagsChange(e.target.value)}
+          placeholder="express, batch cooking…"
         />
       </label>
+      {tagSuggestions.length > 0 && (
+        <div className="-mt-2 flex flex-wrap items-center gap-1.5 text-xs">
+          <span className="text-ink-50">{t.tagsPage.suggestions} :</span>
+          {tagSuggestions.map((tag) => (
+            <button
+              key={tag.slug}
+              type="button"
+              onClick={() => pickTag(tag)}
+              className="rounded-full border bg-card px-2 py-0.5 font-medium hover:border-ink"
+            >
+              #{tag.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-3 text-sm font-medium">
         <label className="flex flex-col gap-1.5">

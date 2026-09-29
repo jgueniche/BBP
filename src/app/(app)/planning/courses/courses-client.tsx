@@ -20,7 +20,6 @@ export type CoursesItem = {
   label: string;
   grams: number | null;
   aisle: string;
-  kosherNote: boolean;
   checked: boolean;
 };
 
@@ -124,11 +123,6 @@ export function CoursesClient({
                     >
                       {item.label}
                     </span>
-                    {item.kosherNote && (
-                      <span className="rounded-full bg-rose px-1.5 py-0.5 text-[10px] font-semibold text-ink-70">
-                        {t.kosherNote}
-                      </span>
-                    )}
                     {item.grams !== null && (
                       <span className="shrink-0 font-mono text-xs text-ink-50">
                         {item.grams >= 1000

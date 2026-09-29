@@ -2,10 +2,10 @@ import { Clock, Heart } from "lucide-react";
 import Link from "next/link";
 
 import { IlluCasserole } from "@/components/illustrations";
+import { VerdictPill } from "@/components/diets/verdict-pill";
 import { Badge } from "@/components/ui/badge";
-import { KashrutPill } from "@/components/ui/kashrut-pill";
 import { fr } from "@/i18n/fr";
-import type { KashrutClass } from "@/lib/kashrut/meal";
+import type { VerdictStatus } from "@/lib/diets/verdict";
 import { cn } from "@/lib/utils/cn";
 import { PASTEL_BG, pastelFor } from "@/lib/utils/pastel";
 
@@ -15,8 +15,6 @@ export type RecipeCardData = {
   slug: string;
   title: string;
   icon: string | null;
-  kashrut_class: string | null;
-  is_fish: boolean;
   origin: string | null;
   version_kind: string;
   prep_min: number | null;
@@ -27,10 +25,13 @@ export function RecipeCard({
   recipe,
   likes,
   author,
+  verdict,
 }: {
   recipe: RecipeCardData;
   likes?: number;
   author?: string | null;
+  /** The viewer's verdict, only when they set cooking rules. */
+  verdict?: VerdictStatus | null;
 }) {
   return (
     <Link
@@ -56,13 +57,7 @@ export function RecipeCard({
           {recipe.title}
         </span>
         <span className="mt-1 flex flex-wrap items-center gap-1.5">
-          {recipe.kashrut_class && (
-            <KashrutPill
-              kind={recipe.kashrut_class as KashrutClass}
-              isFish={recipe.is_fish}
-              className="scale-90"
-            />
-          )}
+          {verdict && <VerdictPill status={verdict} size="sm" />}
           {recipe.version_kind === "proteine" && (
             <Badge className="scale-90">{t.versions.proteine}</Badge>
           )}

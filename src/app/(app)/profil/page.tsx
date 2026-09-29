@@ -3,31 +3,29 @@ import Link from "next/link";
 import { InstallCard } from "@/components/pwa/install-prompt";
 import { Button } from "@/components/ui/button";
 import { fr } from "@/i18n/fr";
-import { KNOWN_CITIES } from "@/lib/jewish-calendar/locations";
+import { loadStoredFoodRules } from "@/lib/diets/preferences";
+import type { Allergen, Diet } from "@/lib/diets/types";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
 import { signOut } from "./actions";
 import { DeleteAccountButton } from "./delete-button";
 import { NotificationsCard } from "./notifications-card";
-import { PracticeToggles } from "./practice-toggles";
+import { FoodRulesCard } from "./food-rules-card";
+import { VisibilityCard } from "./visibility-card";
 
 const t = fr.profil;
 
 export default async function ProfilPage() {
   let email: string | null = null;
   let displayName: string | null = null;
-  let kashrutEnabled = false;
-  let jewishCalendarEnabled = false;
   let publicProfile = false;
-  let calendarPrefs = {
-    city: "",
-    israelCalendar: false,
-    minorFasts: false,
-    kitniyot: true,
-    noFishWithMeat: false,
-    candleOffsetMin: 18,
+  let rules: { diets: Diet[]; allergens: Allergen[]; dislikes: string[] } = {
+    diets: [],
+    allergens: [],
+    dislikes: [],
   };
+  let consented = false;
 
   if (isSupabaseConfigured) {
     const supabase = await createClient();
@@ -37,32 +35,22 @@ export default async function ProfilPage() {
     email = user?.email ?? null;
 
     if (user) {
-      const [profileRes, settingsRes] = await Promise.all([
+      const [profileRes, stored] = await Promise.all([
         supabase
           .from("profiles")
-          .select("display_name, visibility, city")
+          .select("display_name, visibility")
           .eq("id", user.id)
           .maybeSingle(),
-        supabase
-          .from("user_settings")
-          .select(
-            "kashrut_enabled, jewish_calendar_enabled, israel_calendar, minor_fasts, kitniyot, no_fish_with_meat, candle_offset_min",
-          )
-          .maybeSingle(),
+        loadStoredFoodRules(supabase, user.id),
       ]);
       displayName = profileRes.data?.display_name ?? null;
       publicProfile = profileRes.data?.visibility === "public";
-      kashrutEnabled = settingsRes.data?.kashrut_enabled ?? false;
-      jewishCalendarEnabled =
-        settingsRes.data?.jewish_calendar_enabled ?? false;
-      calendarPrefs = {
-        city: profileRes.data?.city ?? "",
-        israelCalendar: settingsRes.data?.israel_calendar ?? false,
-        minorFasts: settingsRes.data?.minor_fasts ?? false,
-        kitniyot: settingsRes.data?.kitniyot ?? true,
-        noFishWithMeat: settingsRes.data?.no_fish_with_meat ?? false,
-        candleOffsetMin: settingsRes.data?.candle_offset_min ?? 18,
+      rules = {
+        diets: [...stored.diets],
+        allergens: [...stored.allergens],
+        dislikes: [...stored.dislikes],
       };
+      consented = stored.consentedAt !== null;
     }
   }
 
@@ -80,19 +68,17 @@ export default async function ProfilPage() {
           </p>
 
           <div className="grid items-start gap-4 md:grid-cols-2">
-            <PracticeToggles
-              initialKashrut={kashrutEnabled}
-              initialCalendar={jewishCalendarEnabled}
-              initialPublicProfile={publicProfile}
-              initialPrefs={calendarPrefs}
-              knownCities={[...KNOWN_CITIES]}
-            />
+            <FoodRulesCard initial={rules} initialConsent={consented} />
 
-            <NotificationsCard
-              vapidPublicKey={process.env.VAPID_PUBLIC_KEY ?? null}
-            />
+            <div className="flex flex-col gap-4">
+              <VisibilityCard initialPublic={publicProfile} />
 
-            <InstallCard />
+              <NotificationsCard
+                vapidPublicKey={process.env.VAPID_PUBLIC_KEY ?? null}
+              />
+
+              <InstallCard />
+            </div>
 
             <div className="flex flex-wrap gap-2 md:col-span-2">
               <Button asChild variant="secondary" size="sm">

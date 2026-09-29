@@ -17,9 +17,6 @@ importers:
       '@ai-sdk/react':
         specifier: ^4.0.88
         version: 4.0.88(react@19.1.0)(zod@4.5.4)
-      '@hebcal/core':
-        specifier: ^6.9.2
-        version: 6.9.2
       '@supabase/ssr':
         specifier: ^0.12.5
         version: 0.12.5(@supabase/supabase-js@2.112.4)
@@ -483,17 +480,6 @@ packages:
 
   '@floating-ui/utils@0.2.12':
     resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
-
-  '@hebcal/core@6.9.2':
-    resolution: {integrity: sha512-6GNcu3dWPAcngSWC4SB9nZebl99l+x2fN+GFQOrll+CXg+VX9yuXjzv91c9/Q/RF5HaHQwy1GkKTbCvQPPWIbA==}
-    engines: {node: '>= 18'}
-
-  '@hebcal/hdate@0.22.8':
-    resolution: {integrity: sha512-kTGFm9zHbF2qz6/Pst3e8Zr7TWzVLcYCWQLKu1HacDJAocKXITEqMPYS0AJpO2V4YTD26EkWR2BgMYL44Dh39w==}
-
-  '@hebcal/noaa@0.12.3':
-    resolution: {integrity: sha512-CQId2yEpUPGl0EWVxditqkG2MvEd9uKibiQtrcEQux9UnTILTPM6mwyKMTygZmNBwJl1kXqvuPQCJm0NxqLykA==}
-    engines: {node: '>=18'}
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -3558,10 +3544,6 @@ packages:
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
-  quick-lru@7.3.0:
-    resolution: {integrity: sha512-k9lSsjl36EJdK7I06v7APZCbyGT2vMTsYSRX1Q2nbYmnkBqgUhRkAuzH08Ciotteu/PLJmIF2+tti7o3C/ts2g==}
-    engines: {node: '>=18'}
-
   radix-ui@1.6.7:
     resolution: {integrity: sha512-QBdhh1arIEUvPC0dQ5+nwWAxt7+N+oP/9jPwjJkGFoSk/sqxg32gJtSXGtFh8frAIcS6oC9cx2Q+7KYCQLOAeA==}
     peerDependencies:
@@ -3892,15 +3874,6 @@ packages:
   tapable@2.3.3:
     resolution: {integrity: sha512-uxc/zpqFg6x7C8vOE7lh6Lbda8eEL9zmVm/PLeTPBRhh1xCgdWaQ+J1CUieGpIfm2HdtsUpRv+HshiasBMcc6A==}
     engines: {node: '>=6'}
-
-  temporal-polyfill@1.0.4:
-    resolution: {integrity: sha512-MLEU0qOD2uXlz24oINNtdLZQl8RgmMxSnRtKEGZGGetTJjlRwQJjk+VsJ4EREaUoiaTb8NJOcUiKtoAiWn9EBg==}
-
-  temporal-spec@1.0.1:
-    resolution: {integrity: sha512-wxVoanmDeavXie1vu2JaQ3WIc3JZnWAOYFBsJyATaVsXsycKYUflGsyBmrRSnoCpZJpwPyr38VpgSUlQ8CbFxg==}
-
-  temporal-utils@1.0.2:
-    resolution: {integrity: sha512-1B8Dl4KzrOvsNUlpoWGno2VLQlxroLjDgc5NBjVC9ax9ymdo+ezfyvhyjEMx+IVfhINr6CIG2gcnlP95iRrybQ==}
 
   throttleit@2.1.0:
     resolution: {integrity: sha512-nt6AMGKW1p/70DF/hGBdJB57B8Tspmbp5gfJ8ilhLnt7kkr2ye7hzD6NVG8GGErk2HWF34igrL2CXmNIkzKqKw==}
@@ -4476,19 +4449,6 @@ snapshots:
       react-dom: 19.1.0(react@19.1.0)
 
   '@floating-ui/utils@0.2.12': {}
-
-  '@hebcal/core@6.9.2':
-    dependencies:
-      '@hebcal/hdate': 0.22.8
-      '@hebcal/noaa': 0.12.3
-      quick-lru: 7.3.0
-      temporal-polyfill: 1.0.4
-
-  '@hebcal/hdate@0.22.8': {}
-
-  '@hebcal/noaa@0.12.3':
-    dependencies:
-      temporal-polyfill: 1.0.4
 
   '@humanfs/core@0.19.2':
     dependencies:
@@ -7514,8 +7474,6 @@ snapshots:
 
   queue-microtask@1.2.3: {}
 
-  quick-lru@7.3.0: {}
-
   radix-ui@1.6.7(@types/react-dom@19.2.5(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
       '@radix-ui/primitive': 1.1.7
@@ -7963,15 +7921,6 @@ snapshots:
   tailwindcss@4.3.3: {}
 
   tapable@2.3.3: {}
-
-  temporal-polyfill@1.0.4:
-    dependencies:
-      temporal-spec: 1.0.1
-      temporal-utils: 1.0.2
-
-  temporal-spec@1.0.1: {}
-
-  temporal-utils@1.0.2: {}
 
   throttleit@2.1.0: {}
 

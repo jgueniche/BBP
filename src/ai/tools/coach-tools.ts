@@ -5,6 +5,8 @@ import { tool } from "ai";
 import { z } from "zod";
 
 import type { Database } from "@/db/types";
+import { loadFoodRules } from "@/lib/diets/preferences";
+import { verdictStatuses } from "@/lib/diets/recipes";
 import { generateAndStoreWeek } from "@/lib/planning/generate";
 import { toDateString, weekStartOf } from "@/lib/planning/week";
 
@@ -50,7 +52,7 @@ export function buildCoachTools(params: {
 
     search_recipes: tool({
       description:
-        "Cherche des recettes par mot-clé dans le titre. Retourne catégorie, temps, portions et lien.",
+        "Cherche des recettes par mot-clé dans le titre. Retourne catégorie, temps, portions, lien et pour_toi (compatible, adaptable, incompatible, verify) selon les règles de cuisine de la personne.",
       inputSchema: z.object({
         query: z.string().min(2).max(80),
       }),
@@ -58,14 +60,21 @@ export function buildCoachTools(params: {
         const { data } = await supabase
           .from("recipes")
           .select(
-            "title, slug, category, prep_min, cook_min, servings, tags, source_author",
+            "id, title, slug, category, prep_min, cook_min, servings, tags, source_author",
           )
           .eq("status", "published")
           .ilike("title", `%${query}%`)
           .limit(6);
+        const rules = await loadFoodRules(supabase, userId);
+        const statuses = await verdictStatuses(
+          supabase,
+          rules,
+          (data ?? []).map((recipe) => recipe.id),
+        );
         return {
-          recipes: (data ?? []).map((recipe) => ({
+          recipes: (data ?? []).map(({ id, ...recipe }) => ({
             ...recipe,
+            pour_toi: statuses.get(id) ?? null,
             url: `/recettes/${recipe.slug}`,
           })),
         };

@@ -10,17 +10,14 @@ const source = fs.readFileSync(
 const template = source.match(/COACH_SYSTEM_TEMPLATE = `([\s\S]*?)`;/)[1];
 
 const DEFAULT_CONTEXT =
-  "Prénom : Camille. Aucune règle alimentaire particulière déclarée.";
+  "Prénom : Camille. Aucune règle de cuisine particulière déclarée.";
 
 module.exports = async function ({ vars }) {
   let system = template
     .replace("{{coach_name}}", "Copine")
     .replace("{{user_context}}", vars.user_context || DEFAULT_CONTEXT)
     .replace("{{memories}}", vars.memories || "(aucune mémoire)")
-    .replace(
-      "{{calendar_context}}",
-      vars.calendar_context || "(aucune fête suivie)",
-    );
+    .replace("{{today}}", vars.today || "mardi 29 septembre 2026");
   // Eval harness has no tools: force text-only answers.
   system +=
     "\n\n[Session d'évaluation : aucun outil n'est disponible. N'appelle jamais d'outil, réponds uniquement en texte.]";

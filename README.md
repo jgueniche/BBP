@@ -2,11 +2,11 @@
 
 **Tes recettes, à plusieurs mains.**
 
-L'app de cuisine collaborative et inclusive : importe tes recettes depuis Instagram, TikTok ou n'importe quel site, adapte-les à chaque table (casher, halal, vegan, sans gluten…), partage-les dans la communauté, avec ton foyer et tes invités. Avec Copine, ta copine en cuisine (assistante IA).
+Le réseau social de la cuisine : suis tes copines et tes créatrices préférées, garde toutes les recettes vues sur Instagram, TikTok ou n'importe quel site, et cuisine ensemble quelle que soit la table (végétarien, halal, sans gluten, allergies…). Avec Copine, ta copine en cuisine (assistante IA).
 
 - **Source de vérité** : [`BRIEF.md`](./BRIEF.md)
 - **Guide opérationnel** : [`CLAUDE.md`](./CLAUDE.md)
-- **Pourquoi ce pivot** (audit, benchmark, régimes) : [`docs/PIVOT-2026.md`](./docs/PIVOT-2026.md)
+- **Feuille de route sociale** : [`docs/PLAN-SOCIAL-2026.md`](./docs/PLAN-SOCIAL-2026.md) · veille : [`docs/BENCHMARK-SOCIAL-2026.md`](./docs/BENCHMARK-SOCIAL-2026.md) · pivot initial : [`docs/PIVOT-2026.md`](./docs/PIVOT-2026.md)
 - **État du projet** : [`docs/STATE.md`](./docs/STATE.md) · **Décisions** : [`docs/DECISIONS.md`](./docs/DECISIONS.md)
 - Ancien produit (BBP) : [`docs/archive/BRIEF-BBP-v1.md`](./docs/archive/BRIEF-BBP-v1.md)
 
