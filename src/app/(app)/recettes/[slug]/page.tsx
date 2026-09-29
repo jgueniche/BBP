@@ -1,7 +1,9 @@
-import { ChefHat, Clock, ExternalLink, Timer, Users } from "lucide-react";
+import { BadgeCheck, ChefHat, Clock, Timer, Users } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { CreatorCredit } from "@/components/creators/creator-credit";
+import { OfficialPlayer } from "@/components/creators/official-player";
 import { CommentsSection } from "@/components/recipes/comments-section";
 import { CookedButton } from "@/components/recipes/cooked-button";
 import { CookedGallery } from "@/components/recipes/cooked-gallery";
@@ -12,6 +14,10 @@ import { Button } from "@/components/ui/button";
 import { DietFactChips } from "@/components/diets/diet-facts";
 import { ForYouPanel } from "@/components/diets/for-you-panel";
 import { fr } from "@/i18n/fr";
+import { creditView } from "@/lib/creators/credit";
+import { embedFor } from "@/lib/creators/embed";
+import { creatorPath } from "@/lib/creators/identity";
+import { checkImport, loadCreatorsByIds } from "@/lib/creators/server";
 import { loadFoodRules } from "@/lib/diets/preferences";
 import { loadRecipeIngredients } from "@/lib/diets/recipes";
 import { evaluateRecipe, recipeDietFacts } from "@/lib/diets/verdict";
@@ -120,20 +126,44 @@ export default async function RecipePage({
     loadRecipeIngredients(supabase, [recipe.id]),
     user ? loadFoodRules(supabase, user.id) : Promise.resolve(null),
   ]);
-  const [cooked, chain, communityVersions, toCookRes] = await Promise.all([
-    loadCooked(supabase, recipe.id, user?.id ?? null),
-    loadCreditChain(supabase, recipe.parent_recipe_id),
-    loadCommunityVersions(supabase, recipe.id),
-    user
-      ? supabase
-          .from("to_cook")
-          .select("id")
-          .eq("user_id", user.id)
-          .eq("recipe_id", recipe.id)
-          .maybeSingle()
-      : Promise.resolve({ data: null }),
-  ]);
+  const [cooked, chain, communityVersions, toCookRes, creators, importCheck] =
+    await Promise.all([
+      loadCooked(supabase, recipe.id, user?.id ?? null),
+      loadCreditChain(supabase, recipe.parent_recipe_id),
+      loadCommunityVersions(supabase, recipe.id),
+      user
+        ? supabase
+            .from("to_cook")
+            .select("id")
+            .eq("user_id", user.id)
+            .eq("recipe_id", recipe.id)
+            .maybeSingle()
+        : Promise.resolve({ data: null }),
+      loadCreatorsByIds(supabase, recipe.creator_id ? [recipe.creator_id] : []),
+      recipe.source_url && !recipe.withdrawn_at
+        ? checkImport(supabase, recipe.source_url, null)
+        : Promise.resolve(null),
+    ]);
   const credit = creditLine(chain);
+  const creator = recipe.creator_id ? creators.get(recipe.creator_id) : null;
+  const sourceCredit = recipe.source_url
+    ? creditView(
+        { sourceUrl: recipe.source_url, sourceAuthor: recipe.source_author },
+        creator
+          ? {
+              platform: creator.platform,
+              handle: creator.handle,
+              verified: creator.claimedBy !== null,
+            }
+          : null,
+      )
+    : null;
+  const embed = recipe.withdrawn_at ? null : embedFor(recipe.source_url);
+  // Her official version, when this recipe is someone else's copy of it.
+  const official =
+    importCheck?.official && importCheck.official.slug !== recipe.slug
+      ? importCheck.official
+      : null;
   const forEngine = engineIngredients.get(recipe.id) ?? [];
   const verdict = evaluateRecipe(forEngine, rules);
   const facts = recipeDietFacts(forEngine);
@@ -234,21 +264,51 @@ export default async function RecipePage({
             ))}
           </div>
         )}
-        {recipe.source_url && (
-          <p className="flex flex-wrap items-center gap-1.5 text-xs text-ink-50">
-            {t.importedFrom} {recipe.source_author ?? "—"}
-            <a
-              href={recipe.source_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-0.5 font-medium underline underline-offset-2"
+        {sourceCredit && (
+          <CreatorCredit view={sourceCredit} recipeId={recipe.id} />
+        )}
+        {creator && !creator.claimedBy && (
+          <p className="text-[11px] text-ink-50">
+            <Link
+              href={`${creatorPath(creator.platform, creator.handle)}?retrait=${recipe.id}#retrait`}
+              className="underline underline-offset-2 hover:text-ink"
             >
-              {t.viewOriginal}
-              <ExternalLink size={11} strokeWidth={2} aria-hidden />
-            </a>
+              {fr.creators.credit.requestRemoval.replace(
+                "{creator}",
+                creator.label,
+              )}
+            </Link>
           </p>
         )}
       </header>
+
+      {recipe.withdrawn_at && (
+        <p className="rounded-lg bg-neutral-soft px-4 py-3 text-sm text-ink-70">
+          {creator
+            ? fr.creators.credit.withdrawn.replace("{creator}", creator.label)
+            : fr.creators.credit.withdrawnAnonymous}
+        </p>
+      )}
+
+      {official && (
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg bg-lilas px-4 py-3 text-sm">
+          <p className="flex items-center gap-1.5 text-ink">
+            <BadgeCheck size={16} strokeWidth={2} aria-hidden />
+            {fr.creators.credit.official.replace(
+              "{creator}",
+              creator?.label ?? t.theCreator,
+            )}
+          </p>
+          <Link
+            href={`/recettes/${official.slug}`}
+            className="font-semibold underline underline-offset-2"
+          >
+            {fr.creators.credit.officialCta}
+          </Link>
+        </div>
+      )}
+
+      {embed && <OfficialPlayer embed={embed} title={recipe.title} />}
 
       <DietFactChips facts={facts} />
 

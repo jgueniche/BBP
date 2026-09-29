@@ -3,6 +3,7 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/db/types";
+import { loadCreatorsByIds } from "@/lib/creators/server";
 import { cookSummary } from "@/lib/journal/journal";
 import { loadCookCounts } from "@/lib/journal/server";
 import {
@@ -177,14 +178,18 @@ export async function loadCreditChain(
   supabase: Supabase,
   parentId: string | null,
 ): Promise<VersionLink[]> {
-  const chain: Array<VersionLink & { authorId: string | null }> = [];
+  const chain: Array<
+    VersionLink & { authorId: string | null; creatorId: string | null }
+  > = [];
   let next = parentId;
   const seen = new Set<string>();
   while (next && chain.length < MAX_CHAIN && !seen.has(next)) {
     seen.add(next);
     const { data } = await supabase
       .from("recipes")
-      .select("id, title, slug, author_id, source_author, parent_recipe_id")
+      .select(
+        "id, title, slug, author_id, source_author, creator_id, parent_recipe_id",
+      )
       .eq("id", next)
       .maybeSingle();
     if (!data) break;
@@ -194,16 +199,26 @@ export async function loadCreditChain(
       authorName: null,
       sourceAuthor: data.source_author,
       authorId: data.author_id,
+      creatorId: data.creator_id,
     });
     next = data.parent_recipe_id;
   }
-  const byId = await names(
-    supabase,
-    chain.map((c) => c.authorId).filter((id): id is string => id !== null),
-  );
-  return chain.map(({ authorId, ...link }) => ({
+  const [byId, creators] = await Promise.all([
+    names(
+      supabase,
+      chain.map((c) => c.authorId).filter((id): id is string => id !== null),
+    ),
+    loadCreatorsByIds(
+      supabase,
+      chain.map((c) => c.creatorId).filter((id): id is string => id !== null),
+    ),
+  ]);
+  // The creator's @ (or site) rather than the credit typed at import.
+  return chain.map(({ authorId, creatorId, ...link }) => ({
     ...link,
     authorName: authorId ? (byId.get(authorId) ?? null) : null,
+    sourceAuthor:
+      (creatorId ? creators.get(creatorId)?.label : null) ?? link.sourceAuthor,
   }));
 }
 
