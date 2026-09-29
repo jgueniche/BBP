@@ -1,92 +1,156 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* BBP palette (brief §2.2) — raw values live here so dark mode can flip them.
-   "Pro & chaleureux" theme: brand hues unchanged, surfaces move from sticker
-   (2px ink borders, hard shadows) to hairlines, soft shadows and a warm shell. */
+/* Copine en cuisine palette (Claude Design, v1): white ground, soft pastel
+   panels, one raspberry accent. Legacy BBP token names (ink, paper,
+   boutargue…) are kept as aliases so existing utilities pick up the palette. */
 :root {
-  --ink: #0b0b0b;
-  --paper: #fbfaf6;
-  --boutargue: #f26a1b;
-  --boutargue-deep: #c24f0e;
-  --boutargue-soft: #ffd9bf;
-  --boutargue-tint: #fdeee3;
-  --ink-70: #3d3d3d;
-  --ink-50: #6b6b6b;
-  --ink-30: #b8b8b8;
-  --ink-10: #ebeae5;
-  --ok: #2e7d4f;
-  --ok-soft: #e9f2ec;
-  --warn: #b54708;
-  --warn-soft: #f9ede3;
+  /* Brand */
+  --encre: #2b2230;
+  --framboise: #c0265e;
+  --framboise-deep: #9a1c4a;
+  --nacre: #f7f3f5;
+
+  /* Pastels: panel and secondary-button fills, never text. */
+  --rose: #fde7ef;
+  --lilas: #f1ebfd;
+  --menthe: #ddf3e7;
+  --beurre: #ffefc2;
+  --peche: #ffe3d6;
+  --ciel: #e4effb;
+
+  /* Legacy aliases (BBP names) mapped to the new palette. */
+  --ink: var(--encre);
+  --paper: #ffffff;
+  --boutargue: var(--framboise);
+  --boutargue-deep: var(--framboise-deep);
+  --boutargue-soft: #f6c6d8;
+  --boutargue-tint: var(--rose);
+  --ink-70: #4a3f4e;
+  --ink-50: #6f6272;
+  --ink-30: #bdb2bf;
+  --ink-10: #f1ecef;
+
+  /* States and compatibility: shape + icon + text, never colour alone. */
+  --ok: #2f6b4b;
+  --ok-soft: var(--menthe);
+  --warn: #8a5300;
+  --warn-soft: #fff1d6;
+  --neutral: #5c5160;
+  --neutral-soft: #f1eef2;
+  --verify: var(--encre);
+
+  /* Diets: one neutral style for every rule. */
+  --diet: #ffffff;
+  --diet-foreground: var(--encre);
+  --diet-border: #dcd1d7;
+
+  /* Kashrut category markers (kept until the multi-diet engine). */
   --halavi: #5b7db1;
   --bassari: #a63d2f;
   --parve: #7a7a7a;
 
-  /* Surfaces: warm shell behind white cards, hairline lines between them. */
-  --shell: #f3f1ea;
+  /* Surfaces: white everywhere, hairlines between blocks. */
+  --shell: #ffffff;
   --surface: #ffffff;
-  --surface-raised: #fffdf8;
-  --line: #e7e3d7;
-  --line-soft: #f0ede3;
+  --surface-raised: #ffffff;
+  --line: #eee6ea;
+  --line-soft: #f4eff2;
 
-  /* Soft elevation replaces the old hard sticker shadow. */
-  --shadow-soft: 0 1px 2px rgb(11 11 11 / 0.05);
-  --shadow-pop: 0 12px 32px -8px rgb(11 11 11 / 0.18);
+  --shadow-soft: 0 1px 2px rgb(43 34 48 / 0.04),
+    0 8px 24px -12px rgb(43 34 48 / 0.12);
+  --shadow-pop: 0 2px 4px rgb(43 34 48 / 0.05),
+    0 20px 44px -20px rgb(43 34 48 / 0.22);
 
-  /* Chart trend stroke: deep orange for contrast on light, pure orange on dark. */
-  --chart-trend: var(--boutargue-deep);
+  --chart-trend: var(--framboise-deep);
 
-  /* shadcn semantic tokens mapped to the BBP palette. */
+  /* shadcn semantic tokens. */
   --background: var(--shell);
-  --foreground: var(--ink);
+  --foreground: var(--encre);
   --card: var(--surface);
-  --card-foreground: var(--ink);
+  --card-foreground: var(--encre);
   --popover: var(--surface);
-  --popover-foreground: var(--ink);
-  --primary: var(--boutargue);
-  --primary-foreground: #0b0b0b;
-  --secondary: var(--ink-10);
-  --secondary-foreground: var(--ink);
-  --muted: var(--ink-10);
+  --popover-foreground: var(--encre);
+  --primary: var(--framboise);
+  --primary-foreground: #ffffff;
+  --secondary: var(--lilas);
+  --secondary-foreground: var(--encre);
+  --muted: var(--nacre);
   --muted-foreground: var(--ink-50);
-  --accent: var(--boutargue-tint);
-  --accent-foreground: #a34209;
-  --destructive: var(--warn);
+  --accent: var(--rose);
+  --accent-foreground: var(--framboise-deep);
+  --destructive: var(--framboise-deep);
   --border: var(--line);
-  --input: #d9d4c6;
-  --ring: var(--boutargue-deep);
+  --input: #dcd1d7;
+  --ring: var(--framboise);
   --radius: 0.875rem;
 }
 
-/* Dark mode (brief §2.4): ink/paper inverted, orange unchanged, surfaces deepen. */
+/* Dark mode: plum night surfaces, light rose accent, deep pastel panels. */
 @media (prefers-color-scheme: dark) {
   :root {
-    --ink: #fbfaf6;
-    --paper: #0b0b0b;
-    --boutargue-tint: rgb(242 106 27 / 0.16);
-    --ink-70: #cfcdc7;
-    --ink-50: #8f8d88;
-    --ink-30: #55534f;
-    --ink-10: #26241f;
-    --ok: #4caf7d;
-    --ok-soft: rgb(76 175 125 / 0.16);
-    --warn: #e08745;
-    --warn-soft: rgb(224 135 69 / 0.16);
-    --shell: #121110;
-    --surface: #1b1917;
-    --surface-raised: #171614;
-    --line: #2c2925;
-    --line-soft: #23211d;
-    --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.4);
-    --shadow-pop: 0 12px 32px -8px rgb(0 0 0 / 0.6);
-    --accent-foreground: #ffb98a;
-    --input: #3a3630;
-    --chart-trend: var(--boutargue);
+    --encre: #f6eef3;
+    --framboise: #f28db2;
+    --framboise-deep: #f7a3c2;
+    --nacre: #2a2230;
+
+    --rose: #3f2433;
+    --lilas: #3a2e45;
+    --menthe: #1f3a2e;
+    --beurre: #3a2f14;
+    --peche: #3f2a22;
+    --ciel: #1f2e40;
+
+    --paper: #1a1520;
+    --boutargue-soft: #5a2e44;
+    --ink-70: #d9cedb;
+    --ink-50: #c3b6c6;
+    --ink-30: #6a5e70;
+    --ink-10: #2a2230;
+
+    --ok: #9fd9b8;
+    --warn: #f5c98a;
+    --warn-soft: #3a2a12;
+    --neutral: #cfc3d2;
+    --neutral-soft: #2c2432;
+
+    --diet: #241d2a;
+    --diet-border: #4a3f52;
+
+    --shell: #1a1520;
+    --surface: #241d2a;
+    --surface-raised: #201926;
+    --line: #3a3040;
+    --line-soft: #2c2432;
+
+    --shadow-soft: 0 0 0 1px #3a3040;
+    --shadow-pop: 0 0 0 1px #4a3f52, 0 20px 44px -20px rgb(0 0 0 / 0.6);
+
+    --chart-trend: var(--framboise);
+    --primary-foreground: #2a0e1c;
+    --accent-foreground: #f7c6d8;
+    --input: #4a3f52;
   }
 }
 
 @theme inline {
+  --color-encre: var(--encre);
+  --color-framboise: var(--framboise);
+  --color-framboise-deep: var(--framboise-deep);
+  --color-nacre: var(--nacre);
+  --color-rose: var(--rose);
+  --color-lilas: var(--lilas);
+  --color-menthe: var(--menthe);
+  --color-beurre: var(--beurre);
+  --color-peche: var(--peche);
+  --color-ciel: var(--ciel);
+  --color-neutral: var(--neutral);
+  --color-neutral-soft: var(--neutral-soft);
+  --color-verify: var(--verify);
+  --color-diet: var(--diet);
+  --color-diet-foreground: var(--diet-foreground);
+  --color-diet-border: var(--diet-border);
+
   --color-ink: var(--ink);
   --color-paper: var(--paper);
   --color-boutargue: var(--boutargue);

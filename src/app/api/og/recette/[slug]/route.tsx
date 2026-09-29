@@ -49,7 +49,7 @@ export async function GET(
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        backgroundColor: "#F3F1EA",
+        backgroundColor: "#FDE7EF",
         padding: 48,
         fontFamily: "sans-serif",
       }}
@@ -60,7 +60,7 @@ export async function GET(
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
-          border: "2px solid #E7E3D7",
+          border: "2px solid #EEE6EA",
           borderRadius: 28,
           backgroundColor: "#FFFFFF",
           boxShadow: "0 24px 48px -16px rgba(11, 11, 11, 0.18)",
@@ -74,7 +74,7 @@ export async function GET(
             marginTop: 24,
             fontSize: 72,
             fontWeight: 800,
-            color: "#0B0B0B",
+            color: "#2B2230",
             lineHeight: 1.05,
           }}
         >
@@ -87,7 +87,7 @@ export async function GET(
             gap: 20,
             marginTop: 32,
             fontSize: 32,
-            color: "#3d3d3d",
+            color: "#4A3F4E",
           }}
         >
           {kashrutLabel && (
@@ -96,7 +96,7 @@ export async function GET(
                 display: "flex",
                 alignItems: "center",
                 gap: 12,
-                border: "2px solid #E7E3D7",
+                border: "2px solid #EEE6EA",
                 borderRadius: 999,
                 padding: "8px 24px",
                 fontWeight: 700,
@@ -125,11 +125,11 @@ export async function GET(
           marginTop: 28,
           fontSize: 34,
           fontWeight: 800,
-          color: "#0B0B0B",
+          color: "#2B2230",
         }}
       >
         <div style={{ display: "flex" }}>Copine en cuisine</div>
-        <div style={{ display: "flex", color: "#F26A1B" }}>
+        <div style={{ display: "flex", color: "#C0265E" }}>
           Tes recettes, à plusieurs mains.
         </div>
       </div>
