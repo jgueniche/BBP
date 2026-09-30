@@ -277,8 +277,17 @@ export function jsonLdToDraft(
     ingredients: parseIngredientList(ingredientLines).slice(0, 30),
     steps: dedupeSteps(steps).slice(0, 25),
     sourceUrl,
-    sourceAuthor: firstString(node.author),
+    sourceAuthor: authorName(node.author),
     method: "structured",
     reformulated: false,
   };
+}
+
+const PLACEHOLDER_AUTHORS =
+  /^(anonyme|anonymous|admin|administrat(eur|rice|or)|la r[ée]daction|r[ée]daction|unknown|inconnu|auteur|author)$/i;
+
+/** The author a site names, unless it is a placeholder (« Anonyme »). */
+function authorName(value: JsonValue | undefined): string | null {
+  const name = firstString(value);
+  return name && !PLACEHOLDER_AUTHORS.test(name.trim()) ? name : null;
 }

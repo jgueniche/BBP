@@ -84,6 +84,17 @@ describe("import jobs", () => {
     });
   });
 
+  it("reads a result stored as a JSON string", () => {
+    const ready = outcomeToFinish({ kind: "draft", draft, via: null });
+    expect(
+      jobView(row(ready.status, JSON.stringify(ready.result))).state,
+    ).toMatchObject({ status: "ready", draft: { title: "Gratin" } });
+    expect(jobView(row("ready", "{not json")).state).toEqual({
+      status: "failed",
+      code: "no_recipe",
+    });
+  });
+
   it("never trusts a malformed result", () => {
     expect(jobView(row("ready", { draft: { title: "" } })).state).toEqual({
       status: "failed",

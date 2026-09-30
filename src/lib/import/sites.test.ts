@@ -260,6 +260,7 @@ describe("readRecipePage (French sites)", () => {
       ["sel", 0.5],
     ]);
     expect(draft.steps).toHaveLength(3);
+    expect(draft.sourceAuthor).toBeNull(); // « Anonyme » is no credit
   });
 
   it("reads a 750g-shaped page (prep and total only)", () => {

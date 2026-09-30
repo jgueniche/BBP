@@ -209,6 +209,19 @@ function failCode(error: string | null): FailCode {
     : "fetch_failed";
 }
 
+/**
+ * The job's JSON result. Some REST layers hand a JSON argument to a jsonb
+ * parameter as a JSON string (the local bench does): read both forms.
+ */
+function resultValue(result: unknown): unknown {
+  if (typeof result !== "string") return result ?? {};
+  try {
+    return JSON.parse(result) as unknown;
+  } catch {
+    return {};
+  }
+}
+
 /** A job row as the member sees it; an unreadable result reads as a failure. */
 export function jobView(
   row: JobRow,
@@ -222,7 +235,7 @@ export function jobView(
     createdAt: row.created_at,
     sourceUrl: row.source_url,
   } as const;
-  const parsed = resultSchema.safeParse(row.result ?? {});
+  const parsed = resultSchema.safeParse(resultValue(row.result));
   const result = parsed.success ? parsed.data : {};
   switch (row.status) {
     case "queued":

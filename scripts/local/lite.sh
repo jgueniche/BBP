@@ -65,21 +65,33 @@ wait_for() {
   return 1
 }
 
+# Whatever listens on a port (lite forks: its pid file is not enough).
+stop_port() {
+  local pids
+  pids="$(lsof -tiTCP:"$1" -sTCP:LISTEN 2>/dev/null || true)"
+  [[ -n "$pids" ]] && kill $pids 2>/dev/null || true
+  for _ in $(seq 1 20); do
+    lsof -tiTCP:"$1" -sTCP:LISTEN >/dev/null 2>&1 || return 0
+    sleep 0.25
+  done
+}
+
 stop_all() {
   for pidfile in "$BENCH"/lite.pid "$BENCH"/proxy.pid; do
     [[ -f "$pidfile" ]] && kill "$(cat "$pidfile")" 2>/dev/null || true
     rm -f "$pidfile"
   done
+  stop_port "$API_PORT"
+  stop_port "$PROXY_PORT"
 }
 
 case "$CMD" in
   bootstrap)
     write_config
+    stop_all
     run_lite > "$BENCH/lite-bootstrap.log" 2>&1 &
-    pid=$!
     wait_for "$API_PORT"
-    kill "$pid" 2>/dev/null || true
-    wait "$pid" 2>/dev/null || true
+    stop_port "$API_PORT"
     ;;
   start)
     stop_all
