@@ -2,13 +2,12 @@
 
 import { z } from "zod";
 
-import { importRecipeWithAi } from "@/ai/agents/recipe-importer";
+import { extractRecipe } from "@/ai/agents/recipe-importer";
 import { pickModel } from "@/ai/provider";
 import {
   importFromImages,
   importFromText,
   importFromUrl,
-  type ExtractInput,
   type ImportDraft,
   type ImportOutcome,
   type MyCopy,
@@ -70,33 +69,13 @@ async function requireUser() {
   return { supabase, user };
 }
 
-// Until the importer prompt 2.0.0, the AI structures text and one image.
-async function extract(input: ExtractInput): Promise<ImportDraft | null> {
-  if (input.kind === "text") {
-    return importRecipeWithAi({
-      text: input.text,
-      sourceUrl: input.sourceUrl,
-      sourceAuthor: input.sourceAuthor,
-    });
-  }
-  if (input.kind === "images") {
-    const first = input.images[0];
-    return first
-      ? importRecipeWithAi({
-          text: input.note ?? "",
-          sourceUrl: input.sourceUrl,
-          sourceAuthor: input.sourceAuthor,
-          imageBase64: first.base64,
-          imageMediaType: first.mediaType,
-        })
-      : null;
-  }
-  return null;
-}
-
 async function deps() {
   const { supabase, user } = await requireUser();
-  return pipelineDeps(supabase, user.id, pickModel("chat") ? extract : null);
+  return pipelineDeps(
+    supabase,
+    user.id,
+    pickModel("chat") ? extractRecipe : null,
+  );
 }
 
 function toResult(outcome: ImportOutcome): ImportResult {
