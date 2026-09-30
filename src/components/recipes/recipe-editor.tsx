@@ -75,6 +75,10 @@ export type EditorInitial = {
   withdrawn: boolean;
   ingredients: EditorIngredient[];
   steps: EditorStep[];
+  /** The import job this draft comes from, if any. */
+  importJobId?: string | null;
+  /** False when an imported draft still uses the original's wording. */
+  reformulated?: boolean | null;
 };
 
 export const emptyEditorInitial: EditorInitial = {
@@ -214,6 +218,7 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
         icon: state.icon.trim() || null,
         sourceUrl: state.sourceUrl,
         sourceAuthor: state.sourceAuthor.trim() || null,
+        importJobId: state.id ? null : (state.importJobId ?? null),
         ingredients: state.ingredients
           .filter((ing) => ing.label.trim().length > 0)
           .map((ing) => {
@@ -241,6 +246,12 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
       };
       const result = await saveRecipe(payload);
       if (!result.ok) {
+        if (result.code === "duplicate") {
+          // Already in my book: my copy opens instead of a new one.
+          toast(t.importPage.duplicate.replace("{title}", result.title));
+          router.push(`/recettes/${result.slug}`);
+          return;
+        }
         const refusal =
           result.code === "withdrawn"
             ? fr.creators.import.withdrawn
@@ -590,6 +601,11 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
         <legend className="mb-1 font-display text-base font-semibold">
           {t.steps}
         </legend>
+        {state.reformulated === false && (
+          <p className="rounded-lg bg-beurre px-3 py-2 text-xs text-ink-70">
+            {t.importPage.reformulateHint}
+          </p>
+        )}
         <datalist id="recipe-sections">
           {knownSections.map((section) => (
             <option key={section} value={section} />

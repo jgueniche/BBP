@@ -4,11 +4,14 @@ import { fitWithin } from "./photos";
  * Re-encode a photo in the browser before upload: resized to 1 600 px and
  * redrawn on a canvas, so EXIF metadata (geolocation included) is dropped.
  */
-export async function prepareUploadImage(file: File): Promise<Blob> {
+export async function prepareUploadImage(
+  file: File,
+  maxSide?: number,
+): Promise<Blob> {
   const bitmap = await createImageBitmap(file, {
     imageOrientation: "from-image",
   });
-  const size = fitWithin(bitmap.width, bitmap.height);
+  const size = fitWithin(bitmap.width, bitmap.height, maxSide);
   const canvas = document.createElement("canvas");
   canvas.width = size.width;
   canvas.height = size.height;

@@ -6,6 +6,8 @@ import { z } from "zod";
 import { generateProteinVersion as generateProteinVersionAi } from "@/ai/agents/protein-version";
 import { creatorFromSource, creatorLabel } from "@/lib/creators/identity";
 import { checkImport, resolveCreatorId } from "@/lib/creators/server";
+import { findMyCopy } from "@/lib/import/server";
+import { sourceKeyOf } from "@/lib/import/source-key";
 import { computeRecipeNutrition } from "@/lib/nutrition/recipe";
 import { ALL_CUISINES, CATEGORIES } from "@/lib/recipes/cuisines";
 import { isReservedRecipeSlug } from "@/lib/recipes/slugs";
@@ -77,6 +79,8 @@ const recipeSchema = z.object({
   sourceAuthor: z.string().max(120).nullable(),
   ingredients: z.array(ingredientSchema).min(1).max(30),
   steps: z.array(stepSchema).min(1).max(25),
+  /** The import job the draft came from (« Mes imports » then shows it saved). */
+  importJobId: z.uuid().nullable().optional(),
 });
 
 export type RecipeInput = z.infer<typeof recipeSchema>;
@@ -137,6 +141,13 @@ export type SaveRecipeResult =
       ok: false;
       code: "withdrawn" | "blocked";
       creator: string | null;
+    }
+  | {
+      /** This post is already in my book: my copy, not another one. */
+      ok: false;
+      code: "duplicate";
+      slug: string;
+      title: string;
     };
 
 export async function saveRecipe(raw: RecipeInput): Promise<SaveRecipeResult> {
@@ -158,6 +169,17 @@ export async function saveRecipe(raw: RecipeInput): Promise<SaveRecipeResult> {
         creator: identity
           ? creatorLabel(identity.platform, identity.handle)
           : null,
+      };
+    }
+    // One copy of a post per member (the database holds it too).
+    const key = sourceKeyOf(input.sourceUrl);
+    const copy = key ? await findMyCopy(supabase, user.id, key) : null;
+    if (copy && !copy.saved) {
+      return {
+        ok: false,
+        code: "duplicate",
+        slug: copy.slug,
+        title: copy.title,
       };
     }
     if (identity) creatorId = await resolveCreatorId(supabase, identity);
@@ -240,8 +262,27 @@ export async function saveRecipe(raw: RecipeInput): Promise<SaveRecipeResult> {
       })
       .select("id")
       .single();
+    if (error?.code === "23505" && input.sourceUrl) {
+      // Saved twice at once: the other save won, open it.
+      const key = sourceKeyOf(input.sourceUrl);
+      const copy = key ? await findMyCopy(supabase, user.id, key) : null;
+      if (copy && !copy.saved) {
+        return {
+          ok: false,
+          code: "duplicate",
+          slug: copy.slug,
+          title: copy.title,
+        };
+      }
+    }
     if (error) throw new Error(error.message);
     recipeId = created.id;
+    if (input.importJobId) {
+      await supabase.rpc("mark_import_saved", {
+        p_job: input.importJobId,
+        p_recipe: created.id,
+      });
+    }
     // An import lands in « À cuisiner » until it is cooked.
     if (input.sourceUrl) {
       const { error: queueError } = await supabase

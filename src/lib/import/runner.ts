@@ -7,6 +7,7 @@ import { PROMPT_VERSION } from "@/ai/prompts/recipe-importer";
 import { pickModel } from "@/ai/provider";
 import type { Database } from "@/db/types";
 
+import { CAPTURE_BUCKET } from "./captures";
 import { outcomeToFinish } from "./jobs";
 import {
   importFromImages,
@@ -17,8 +18,6 @@ import {
 import { pipelineDeps } from "./server";
 
 type Supabase = SupabaseClient<Database>;
-
-export const CAPTURE_BUCKET = "import-captures";
 
 const MEDIA_TYPES: Record<string, string> = {
   jpg: "image/jpeg",
