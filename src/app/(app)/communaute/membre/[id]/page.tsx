@@ -17,6 +17,7 @@ import { fr } from "@/i18n/fr";
 import { creatorPath } from "@/lib/creators/identity";
 import { loadClaimedCreators } from "@/lib/creators/server";
 import { loadFoodRules } from "@/lib/diets/preferences";
+import { coverSrc } from "@/lib/recipes/photos";
 import { verdictStatuses } from "@/lib/diets/recipes";
 import { loadFeedPosts } from "@/lib/social/feed";
 import { isUuid, profileHref } from "@/lib/social/handles";
@@ -266,7 +267,7 @@ async function RecipesTab({
   const { data: recipes } = await supabase
     .from("recipes")
     .select(
-      "id, title, slug, icon, origin, prep_min, cook_min, version_kind, author_id",
+      "id, title, slug, icon, origin, prep_min, cook_min, version_kind, author_id, photo_paths",
     )
     .eq("author_id", memberId)
     .eq("visibility", "community")
@@ -288,6 +289,7 @@ async function RecipesTab({
         <li key={recipe.id}>
           <RecipeCard
             recipe={recipe as RecipeCardData}
+            photo={coverSrc(recipe.photo_paths?.[0], { thumb: true })}
             verdict={statuses.get(recipe.id) ?? null}
           />
         </li>

@@ -28,6 +28,7 @@ import {
   loadCreditChain,
   loadTips,
 } from "@/lib/recipes/social";
+import { coverSrc } from "@/lib/recipes/photos";
 import { creditLine } from "@/lib/recipes/versions";
 import type { Totals } from "@/lib/nutrition/items";
 import { profileHref } from "@/lib/social/handles";
@@ -199,8 +200,18 @@ export default async function RecipePage({
   }
   let stepNumber = 0;
 
+  const coverUrl = coverSrc(recipe.photo_paths[0]);
+
   return (
     <article className="flex flex-col gap-5">
+      {coverUrl && (
+        // eslint-disable-next-line @next/next/no-img-element -- signed storage address
+        <img
+          src={coverUrl}
+          alt={fr.recettes.fields.coverAlt.replace("{title}", recipe.title)}
+          className="aspect-[4/3] w-full rounded-lg border object-cover sm:aspect-[16/9]"
+        />
+      )}
       <header className="flex flex-col gap-2">
         <div className="flex items-start gap-3">
           {recipe.icon && (

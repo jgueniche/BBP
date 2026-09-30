@@ -6,7 +6,9 @@ import { z } from "zod";
 
 import { runModeration } from "@/ai/agents/moderator";
 import { foodRulesInputSchema } from "@/lib/diets/preferences";
+import { CAPTURE_BUCKET } from "@/lib/import/captures";
 import { readPushPrefs, type PushKind } from "@/lib/notifications/push-rules";
+import { RECIPE_PHOTO_BUCKET } from "@/lib/recipes/photos";
 import { AVATAR_BUCKET, isOwnAvatarPath } from "@/lib/social/avatars";
 import { POST_PHOTO_BUCKET } from "@/lib/social/photos";
 import { parseProfileInput } from "@/lib/social/profile";
@@ -289,6 +291,18 @@ export async function deleteAccountData() {
       .remove(photos.map((photo) => `${user.id}/${photo.name}`));
   }
   await removeOtherAvatars(supabase, user.id, null);
+  // Recipe covers and leftover import captures: her private folders.
+  for (const bucket of [RECIPE_PHOTO_BUCKET, CAPTURE_BUCKET]) {
+    const { data: files } = await supabase.storage
+      .from(bucket)
+      .list(user.id, { limit: 1000 });
+    if (files && files.length > 0) {
+      await supabase.storage
+        .from(bucket)
+        .remove(files.map((file) => `${user.id}/${file.name}`));
+    }
+  }
+  await supabase.rpc("forget_import_jobs");
   // Creator claims go; her creator profiles become unclaimed (ADR-035).
   await supabase.rpc("forget_creator_claims");
   await supabase.from("post_comments").delete().eq("author_id", user.id);

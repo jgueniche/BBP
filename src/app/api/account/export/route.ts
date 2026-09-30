@@ -35,6 +35,7 @@ export async function GET() {
     blocks,
     claims,
     links,
+    importJobs,
   ] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
     supabase.from("user_settings").select("*").maybeSingle(),
@@ -68,6 +69,13 @@ export async function GET() {
       .select("id, creator_id, code, status, reason, created_at, decided_at")
       .eq("user_id", user.id),
     loadCreatorLinks(supabase, { memberIds: [user.id] }),
+    // Imports of the last 30 days (older ones are deleted).
+    supabase
+      .from("import_jobs")
+      .select(
+        "id, kind, status, source_url, credit, result, error, recipe_id, created_at, finished_at",
+      )
+      .eq("user_id", user.id),
   ]);
   // Her verified creator profiles and the posts she withdrew from Copine.
   const creatorIds = links.creatorsOf.get(user.id) ?? [];
@@ -110,6 +118,7 @@ export async function GET() {
       imports_blocked: creator.importsBlocked,
     })),
     creator_withdrawals: withdrawals.data,
+    import_jobs: importJobs.data,
   };
 
   return new NextResponse(JSON.stringify(payload, null, 2), {

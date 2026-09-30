@@ -8,6 +8,7 @@ import {
 import { EmptyState } from "@/components/ui/empty-state";
 import { fr } from "@/i18n/fr";
 import { loadFoodRules } from "@/lib/diets/preferences";
+import { coverSrc } from "@/lib/recipes/photos";
 import { verdictStatuses } from "@/lib/diets/recipes";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
@@ -57,7 +58,7 @@ export default async function CollectionPage({
       ? await supabase
           .from("recipes")
           .select(
-            "id, title, slug, icon, origin, prep_min, cook_min, version_kind",
+            "id, title, slug, icon, origin, prep_min, cook_min, version_kind, photo_paths",
           )
           .in("id", recipeIds)
       : { data: [] };
@@ -114,6 +115,7 @@ export default async function CollectionPage({
             <li key={recipe.id}>
               <RecipeCard
                 recipe={recipe as RecipeCardData}
+                photo={coverSrc(recipe.photo_paths?.[0], { thumb: true })}
                 verdict={statuses.get(recipe.id) ?? null}
               />
             </li>

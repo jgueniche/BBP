@@ -217,6 +217,15 @@ export const fr = {
     editorTitleEdit: "Modifier la recette",
     fields: {
       title: "Titre",
+      cover: "Photo de couverture",
+      coverAdd: "Ajouter ta photo",
+      coverChange: "Changer",
+      coverRemove: "Retirer la photo",
+      coverUploading: "Envoi de la photo…",
+      coverHint:
+        "Ta propre photo du plat, jamais celle d'une créatrice. Sa géolocalisation est retirée.",
+      coverAlt: "Photo de couverture : {title}",
+      coverError: "La photo n'a pas pu être envoyée. Réessaie.",
       description: "Description (une phrase)",
       origin: "Cuisine",
       category: "Catégorie",

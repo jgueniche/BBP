@@ -27,6 +27,7 @@ export function RecipeCard({
   author,
   verdict,
   tag,
+  photo = null,
   className,
 }: {
   recipe: RecipeCardData;
@@ -36,6 +37,8 @@ export function RecipeCard({
   verdict?: VerdictStatus | null;
   /** A short word about the card in a list (« Importée »). */
   tag?: string | null;
+  /** Signed address of her cover's thumbnail, when there is one. */
+  photo?: string | null;
   className?: string;
 }) {
   return (
@@ -46,20 +49,30 @@ export function RecipeCard({
         className,
       )}
     >
-      <span
-        className={cn(
-          "flex size-14 shrink-0 items-center justify-center rounded-[10px] text-ink-70",
-          PASTEL_BG[pastelFor(recipe.slug)],
-        )}
-      >
-        {recipe.icon ? (
-          <span className="text-3xl leading-none" aria-hidden>
-            {recipe.icon}
-          </span>
-        ) : (
-          <IlluCasserole size={40} />
-        )}
-      </span>
+      {photo ? (
+        // eslint-disable-next-line @next/next/no-img-element -- signed storage address
+        <img
+          src={photo}
+          alt=""
+          loading="lazy"
+          className="size-14 shrink-0 rounded-[10px] border object-cover"
+        />
+      ) : (
+        <span
+          className={cn(
+            "flex size-14 shrink-0 items-center justify-center rounded-[10px] text-ink-70",
+            PASTEL_BG[pastelFor(recipe.slug)],
+          )}
+        >
+          {recipe.icon ? (
+            <span className="text-3xl leading-none" aria-hidden>
+              {recipe.icon}
+            </span>
+          ) : (
+            <IlluCasserole size={40} />
+          )}
+        </span>
+      )}
       <span className="min-w-0 flex-1">
         <span className="block truncate font-display text-base font-semibold">
           {recipe.title}

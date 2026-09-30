@@ -11,6 +11,7 @@ import { recipeDietFacts, type DietFacts } from "@/lib/diets/verdict";
 import type { Totals } from "@/lib/nutrition/items";
 import { recipeJsonLd, type RecipeForSeo } from "@/lib/seo/recipe-jsonld";
 import { siteUrl } from "@/lib/site";
+import { coverSrc } from "@/lib/recipes/photos";
 import { createAnonClient } from "@/lib/supabase/anon";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
@@ -38,13 +39,16 @@ export async function generateStaticParams(): Promise<{ slug: string }[]> {
 
 async function loadRecipe(
   slug: string,
-): Promise<(RecipeForSeo & { id: string; facts: DietFacts }) | null> {
+): Promise<
+  | (RecipeForSeo & { id: string; facts: DietFacts; coverUrl: string | null })
+  | null
+> {
   if (!isSupabaseConfigured) return null;
   const supabase = createAnonClient();
   const { data: recipe } = await supabase
     .from("recipes")
     .select(
-      "id, title, description, icon, slug, origin, category, prep_min, cook_min, servings, source_author, source_url, tags, nutrition_per_serving, created_at, updated_at",
+      "id, title, description, icon, slug, origin, category, prep_min, cook_min, servings, source_author, source_url, tags, nutrition_per_serving, created_at, updated_at, photo_paths",
     )
     .eq("slug", slug)
     .eq("visibility", "community")
@@ -81,9 +85,12 @@ async function loadRecipe(
     })),
   );
 
+  const coverUrl = coverSrc(recipe.photo_paths[0]);
+
   return {
     id: recipe.id,
     facts,
+    coverUrl,
     slug: recipe.slug,
     title: recipe.title,
     description: recipe.description,
@@ -202,6 +209,14 @@ export default async function PublicRecipePage({
       />
 
       <article className="flex flex-col gap-4">
+        {recipe.coverUrl && (
+          // eslint-disable-next-line @next/next/no-img-element -- signed storage address
+          <img
+            src={recipe.coverUrl}
+            alt={fr.recettes.fields.coverAlt.replace("{title}", recipe.title)}
+            className="aspect-[16/9] w-full rounded-lg border object-cover"
+          />
+        )}
         <header className="rounded-lg border bg-card p-6 shadow-soft">
           <p className="text-xs font-semibold tracking-wide text-ink-50 uppercase">
             {fr.app.name}

@@ -18,6 +18,7 @@ import {
 } from "@/lib/collections/colors";
 import { loadFoodRules } from "@/lib/diets/preferences";
 import { loadRecipeIngredients, verdictStatuses } from "@/lib/diets/recipes";
+import { coverSrc } from "@/lib/recipes/photos";
 import { DIETS, type Diet } from "@/lib/diets/types";
 import { evaluateRecipe } from "@/lib/diets/verdict";
 import { formatCookedDay } from "@/lib/journal/journal";
@@ -40,7 +41,7 @@ type Filters = {
 };
 
 const CARD_SELECT =
-  "id, title, slug, icon, origin, tags, prep_min, cook_min, version_kind, visibility, author_id";
+  "id, title, slug, icon, origin, tags, prep_min, cook_min, version_kind, visibility, author_id, photo_paths";
 
 const STATUS_ORDER = {
   compatible: 0,
@@ -349,6 +350,7 @@ async function DiscoverTab({ filters }: { filters: Filters }) {
             <li key={recipe.id}>
               <RecipeCard
                 recipe={recipe as RecipeCardData}
+                photo={coverSrc(recipe.photo_paths?.[0], { thumb: true })}
                 likes={likesById.get(recipe.id) ?? 0}
                 author={authorById.get(recipe.author_id ?? "") ?? null}
                 verdict={statuses.get(recipe.id) ?? null}
@@ -435,6 +437,7 @@ async function ToCookTab({ userId }: { userId: string | null }) {
             <li key={recipe.id} className="relative">
               <RecipeCard
                 recipe={recipe as RecipeCardData}
+                photo={coverSrc(recipe.photo_paths?.[0], { thumb: true })}
                 verdict={statuses.get(recipe.id) ?? null}
                 tag={item.source === "import" ? t.toCook.fromImport : null}
                 className="pr-10"
@@ -534,6 +537,7 @@ async function BookTab({ userId }: { userId: string | null }) {
               <li key={recipe.id}>
                 <RecipeCard
                   recipe={recipe as RecipeCardData}
+                  photo={coverSrc(recipe.photo_paths?.[0], { thumb: true })}
                   verdict={statuses.get(recipe.id) ?? null}
                 />
               </li>
@@ -551,6 +555,7 @@ async function BookTab({ userId }: { userId: string | null }) {
               <li key={recipe.id}>
                 <RecipeCard
                   recipe={recipe as RecipeCardData}
+                  photo={coverSrc(recipe.photo_paths?.[0], { thumb: true })}
                   verdict={statuses.get(recipe.id) ?? null}
                 />
               </li>
