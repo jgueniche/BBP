@@ -62,10 +62,10 @@ Le réseau social de la cuisine ne naîtra pas d'un fil, mais d'un carnet : **l'
 
 ---
 ## 4. Périmètre fonctionnel
-| Module | État (fin session 22) | Cible |
+| Module | État (fin session 23) | Cible |
 |---|---|---|
-| Import de recettes | Sites (JSON-LD), TikTok (oEmbed), texte, photo (vision), partage Android ; chaque import rattaché à sa créatrice, refusé si elle a retiré la publication ou refusé les imports, version officielle proposée à la place | Sites FR en priorité, YouTube, Pinterest, captures multiples, file de jobs et quotas, reformulation, doublons (S23) ; partage iPhone via la coque native (S24) |
-| Recettes | Fiche, éditeur, carnet, fork, notes, mode cuisine, variante végétarienne IA, cuisines du monde, verdict « Pour toi », pastilles « toutes les tables », « J'ai cuisiné » (journal privé ou partage avec photos), liste « À cuisiner » remplie par les imports, astuces votées, versions créditées en chaîne, étiquettes libres et catégories ; ~200 recettes de départ | Photos de couverture des recettes, import v2 (S23) |
+| Import de recettes | Sites FR en priorité (JSON-LD, microdata, lecture sûre des redirections), YouTube (description par l'API), Pinterest (site d'origine crédité), TikTok (oEmbed seul), Instagram (légende ou captures), texte, jusqu'à 6 captures, partage Android ; file de jobs avec quotas, étapes reformulées et contrôlées, une copie par publication (« Ouvrir ma copie ») ; chaque import rattaché à sa créatrice, refusé si elle a retiré la publication ou refusé les imports, version officielle proposée à la place | Partage iPhone via la coque native (S24) ; évals de l'importeur |
+| Recettes | Fiche, éditeur, carnet, fork, notes, mode cuisine, variante végétarienne IA, cuisines du monde, verdict « Pour toi », pastilles « toutes les tables », « J'ai cuisiné » (journal privé ou partage avec photos), liste « À cuisiner » remplie par les imports, astuces votées, versions créditées en chaîne, étiquettes libres et catégories, photo de couverture (la sienne, visible comme la recette) ; ~200 recettes de départ | Plusieurs photos par recette |
 | Régimes | Préférences simples + verdict par recette (§5) | Foyer et invités (S26-S27) ; IA pour les ingrédients inconnus |
 | Réseau social | Fil sans algorithme, actus / « j'ai cuisiné » / recettes, photos (sans géolocalisation), réactions J'adore · Bravo · Miam, commentaires, groupes, modération 2 étages ; profils publics (@pseudo, photo, bio), abonnements aux listes privées, fil « Mes copines » et suggestions, notifications sobres (dans l'app, push rare) ; créatrices : crédit « d'après @X » et lecteur officiel au toucher, clics comptés sans membre, profil revendicable (code en bio ou sur le site), espace avec statistiques par publication, retrait et refus des imports, badge « Créatrice vérifiée », file de l'équipe | Clubs, défis, récap annuel (S28) ; revenus des créatrices (P2) |
 | Carnets partagés | Membres éditeur/lecteur, invitation par lien | Activité, commentaires, temps réel |
@@ -139,7 +139,7 @@ Gratuit au lancement. Ensuite : imports IA limités en gratuit et abonnement pou
 | 20 | ✅ La recette sociale | « J'ai cuisiné » attaché à la recette, astuces votées, versions avec crédit, étiquettes libres et catégories, photos dans les posts (sans géolocalisation) |
 | 21 | ✅ Profils & journal | Profils publics, abonnements, journal, liste « À cuisiner », fil des copines, notifications sobres |
 | 22 | ✅ Créatrices | Profils revendicables, statistiques, badge, « d'après @X », retrait sur demande |
-| 23 | Import v2 | Sites FR en priorité, YouTube, Pinterest, captures ; prudence sur TikTok |
+| 23 | ✅ Import v2 | Sites FR en priorité, YouTube, Pinterest, captures ; prudence sur TikTok |
 | 24 | App iPhone & Android | Coque Capacitor + extension de partage, notifications |
 | 25 | Production & conformité | DSA, AI Act, RGPD, modération, CGU, stores → **bêta privée** |
 | 26 | Foyer | Planning et courses partagés en temps réel |

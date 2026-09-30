@@ -34,4 +34,33 @@ scripts/local/lite.sh stop
 - Le proxy CORS existe parce que lite refuse l'en-tête `Authorization` au preflight du navigateur.
 - Le stockage de lite est expérimental (`EXPERIMENTAL_STORAGE=1`) ; les fichiers vont dans `.local-bench/lite/supabase/.temp/storage`, les policies de `storage.objects` s'appliquent.
 - Playwright : lancer Chromium avec `executablePath: "/opt/pw-browsers/chromium"`.
-- Dans un conteneur qui sort par un proxy, lancer Next avec `NODE_USE_ENV_PROXY=1` pour que ses appels sortants (oEmbed, sites de recettes) passent.
+- Dans un conteneur qui sort par un proxy : la lecture des pages d'import (`src/lib/import/net/transport.ts`) passe d'elle-même par `HTTPS_PROXY` (tunnel CONNECT, le nom est vérifié avant ; ignoré sur Vercel) ; les autres appels sortants de Next (`fetch` global) demandent `NODE_USE_ENV_PROXY=1`.
+
+## Comptes de test
+
+```bash
+node scripts/local/seed-accounts.mjs lea sarah nadia   # lea@test.local… mot de passe « motdepasse-local-123 », onboardées
+```
+
+## Contrôles de bout en bout (import v2)
+
+```bash
+node scripts/local/checks/import-v2.mjs                 # app sur :3000, comptes lea, sarah, nadia
+ONLY="pinterest" node scripts/local/checks/import-v2.mjs  # seulement les contrôles dont le nom contient ce texte
+```
+
+27 contrôles Playwright contre l'app locale, les sites de recettes et les plateformes en direct (Marmiton, 750g, Cuisine AZ, Journal des Femmes, Ptitchef, Hervé Cuisine, Elle à table, TikTok, Instagram, YouTube, Pinterest). Le script efface d'abord les imports et recettes des comptes `@test.local` ; `ONLY` ne reconstruit pas l'état laissé par les autres contrôles. La photo de couverture vient de `COVER_FILE` (par défaut `.local-bench/cover.jpg`, un JPEG quelconque).
+
+## Clé de publication
+
+```bash
+node scripts/local/check-source-key.mjs | su postgres -c "psql -X -At -d copine_rls"
+```
+
+Vérifie que `public.recipe_source_key` (SQL) et `src/lib/import/source-key.ts` donnent la même clé sur les cas partagés (`source-key.cases.json`).
+
+## Limites connues de lite
+
+- Les arguments `jsonb` des fonctions RPC arrivent en chaîne JSON (d'où les lectures tolérantes dans `jobs.ts` et les requêtes du script de contrôles).
+- Pas de signature d'URL de stockage : les couvertures passent de toute façon par la route de l'app.
+- Après une migration, redémarrer lite pour qu'il relise le schéma.
