@@ -1,6 +1,10 @@
 # STATE.md — État du projet Copine en cuisine (ex-BBP)
 
-Dernière mise à jour : 29/09/2026 · Sessions 1 à 22 + charte Claude Design (tokens)
+Dernière mise à jour : 30/09/2026 · Sessions 1 à 22 + charte Claude Design (tokens)
+
+## Déploiement (30/09/2026)
+- **PR #10 (session 21) puis #11 (session 22) mergées le 30/09** (`9953406` puis `db98b2b`) et en ligne sur Vercel (bbp-mu.vercel.app) : le code des sessions 21 et 22 tourne en prod.
+- **Prod** : migrations appliquées jusqu'à `202609291500`. Rattrapages post-merge vérifiés le 30/09 : aucun post « j'ai cuisiné » ni import en prod entre les migrations et le déploiement, rien à rejouer.
 
 ## Fait — Session 22 (Créatrices — ADR-035)
 - **Plan validé par Jeremy** (29/09), tel quel : retrait = copies publiques repassées en privé et marquées, chaque copie reste dans le carnet de sa propriétaire ; migration de la session appliquée en prod en fin de session.
@@ -264,11 +268,10 @@ Limites : la base Supabase de BBP n'est pas exposée au connecteur MCP de cette 
 - Tokens design de base dans `globals.css` (`@theme` : ink, paper, boutargue…) — la charte complète est en session 2.
 
 ## En cours
-- Rien.
+- Session 23 — Import v2 : plan soumis à Jeremy.
 
 ## Reste à faire (actions côté Jeremy)
-- **Migrations** : toutes les migrations du dépôt sont appliquées en prod (29/09, jusqu'à `202609291500`). Le connecteur Supabase des sessions Claude ne voit toujours pas le projet de l'app (seulement « Alpha Report » et « ShiftX ») : les sessions passent par le jeton de l'API Management de l'environnement, et le garde-fou de session peut bloquer les lectures directes de la prod (constaté le 29/09). Les réglages casher d'avant la session 19 ne sont pas repris : les réactiver dans Moi (2 gestes, avec consentement).
-- **Sessions 21 et 22, au merge des PR** (#10 d'abord, puis celle de S22 empilée dessus) : le schéma est déjà en prod, le code suit. Les « j'ai cuisiné » publiés entre la migration et le déploiement n'ont pas d'entrée de journal : rejouer une fois le bloc « Existing « j'ai cuisiné » posts » de `202609291400` (idempotent).
+- **Migrations** : toutes les migrations du dépôt sont appliquées en prod (29/09, jusqu'à `202609291500`) et le code correspondant est en ligne depuis le merge des PR #10 et #11 (30/09). Le connecteur Supabase des sessions Claude ne voit toujours pas le projet de l'app (seulement « Alpha Report » et « ShiftX ») : les sessions passent par le jeton de l'API Management de l'environnement, et le garde-fou de session peut bloquer les lectures directes de la prod (constaté le 29/09). Les réglages casher d'avant la session 19 ne sont pas repris : les réactiver dans Moi (2 gestes, avec consentement).
 - **Push** : poser `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` et `SUPABASE_SERVICE_ROLE_KEY` sur Vercel pour que les notifications sonnent (sinon elles restent dans l'app).
 - **Session Claude Design** : brief prêt dans `docs/CLAUDE-DESIGN-BRIEF.md` (en précisant : typographie classe, épurée, élégante ; Cormorant Garamond en place provisoirement).
 - **Relancer `pnpm eval:coach`** avec la clé Gemini pour valider la voix de Copine, prompt 2.1.0 (DoD : persona ≥ 95 %, garde-fous 100 %).
