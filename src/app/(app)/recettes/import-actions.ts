@@ -11,10 +11,10 @@ import {
 } from "@/lib/creators/identity";
 import { checkImport } from "@/lib/creators/server";
 import { detectPlatform } from "@/lib/import/detect";
-import { fetchHtml, fetchOembed } from "@/lib/import/fetch";
+import { fetchOembed, fetchPage } from "@/lib/import/fetch";
 import { heuristicDraftFromText } from "@/lib/import/heuristic";
-import { extractRecipeJsonLd, jsonLdToDraft } from "@/lib/import/jsonld";
 import type { RecipeDraft } from "@/lib/import/types";
+import { draftIsUsable, readRecipePage } from "@/lib/import/web";
 import { createClient } from "@/lib/supabase/server";
 
 export type ImportDraft = RecipeDraft & { icon: string | null };
@@ -77,23 +77,6 @@ async function creatorGate(
   return null;
 }
 
-function draftIsUsable(draft: RecipeDraft): boolean {
-  return draft.ingredients.length >= 2 && draft.steps.length >= 1;
-}
-
-/** Crude tag-stripping for pages without JSON-LD, before AI extraction. */
-function htmlToText(html: string): string {
-  return html
-    .replace(/<script[\s\S]*?<\/script>/gi, " ")
-    .replace(/<style[\s\S]*?<\/style>/gi, " ")
-    .replace(/<(br|\/p|\/li|\/h\d|\/div)[^>]*>/gi, "\n")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/[ \t]+/g, " ")
-    .replace(/\n\s*\n+/g, "\n")
-    .trim();
-}
-
 async function draftFromText(
   text: string,
   sourceUrl: string | null,
@@ -121,19 +104,11 @@ export async function importRecipeFromUrl(
   }
 
   if (platform === "web") {
-    const html = await fetchHtml(url);
-    if (!html) return { ok: false, code: "fetch_failed" };
-    const node = extractRecipeJsonLd(html);
-    if (node) {
-      const draft = jsonLdToDraft(node, url);
-      if (draftIsUsable(draft))
-        return { ok: true, draft: { ...draft, icon: null } };
-    }
-    const draft = await draftFromText(
-      htmlToText(html).slice(0, 20_000),
-      url,
-      null,
-    );
+    const page = await fetchPage(url);
+    if (!page?.ok) return { ok: false, code: "fetch_failed" };
+    const read = readRecipePage(page.text, page.url);
+    if (read.draft) return { ok: true, draft: { ...read.draft, icon: null } };
+    const draft = await draftFromText(read.text, read.sourceUrl, null);
     return draft ? { ok: true, draft } : { ok: false, code: "no_recipe" };
   }
 

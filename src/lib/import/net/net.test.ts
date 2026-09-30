@@ -142,10 +142,12 @@ describe("charset", () => {
 
   it("decodes Latin-1 pages without garbling accents", () => {
     expect(decodeText(latin1, "text/html; charset=iso-8859-1")).toBe("crème");
-    expect(decodeText(new TextEncoder().encode("﻿crème"), "text/html")).toBe(
-      "crème",
+    expect(
+      decodeText(new TextEncoder().encode("\ufeffcrème"), "text/html"),
+    ).toBe("crème");
+    expect(decodeText(latin1, "text/html; charset=nonsense-9")).toBe(
+      "cr\ufffdme",
     );
-    expect(decodeText(latin1, "text/html; charset=nonsense-9")).toBe("cr�me");
   });
 });
 

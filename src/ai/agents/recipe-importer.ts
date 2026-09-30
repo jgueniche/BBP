@@ -89,6 +89,8 @@ export async function importRecipeWithAi(input: {
       prepMin: object.prep_min,
       cookMin: object.cook_min,
       tags: object.tags.map((t) => t.toLowerCase()),
+      category: null,
+      cuisine: null,
       ingredients: object.ingredients.map((ingredient) => ({
         label: ingredient.label,
         grams: ingredient.grams,
@@ -102,6 +104,7 @@ export async function importRecipeWithAi(input: {
       sourceUrl: input.sourceUrl,
       sourceAuthor: input.sourceAuthor,
       method: "ai",
+      reformulated: false,
       icon: object.icon,
     };
   } catch (error) {
