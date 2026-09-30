@@ -217,6 +217,15 @@ export const fr = {
     editorTitleEdit: "Modifier la recette",
     fields: {
       title: "Titre",
+      cover: "Photo de couverture",
+      coverAdd: "Ajouter ta photo",
+      coverChange: "Changer",
+      coverRemove: "Retirer la photo",
+      coverUploading: "Envoi de la photo…",
+      coverHint:
+        "Ta propre photo du plat, jamais celle d'une créatrice. Sa géolocalisation est retirée.",
+      coverAlt: "Photo de couverture : {title}",
+      coverError: "La photo n'a pas pu être envoyée. Réessaie.",
       description: "Description (une phrase)",
       origin: "Cuisine",
       category: "Catégorie",
@@ -323,18 +332,39 @@ export const fr = {
     importPage: {
       title: "Importer une recette",
       intro:
-        "Colle un lien Instagram, TikTok, YouTube ou n'importe quel site de cuisine — on garde toujours le crédit de l'auteur.",
-      urlTab: "Depuis un lien",
-      textTab: "Coller un texte",
-      photoTab: "Depuis une photo",
-      urlPlaceholder: "https://www.instagram.com/p/…",
+        "Un lien Instagram, TikTok, YouTube, Pinterest ou d'un site de cuisine, un texte ou des captures : on en fait une fiche claire, et le crédit reste à son autrice.",
+      urlTab: "Lien",
+      textTab: "Texte",
+      capturesTab: "Captures",
+      pasteText: "Coller le texte",
+      urlLabel: "Lien de la recette",
+      textLabel: "Texte de la recette",
+      urlPlaceholder:
+        "https://www.marmiton.org/… ou un lien Insta, TikTok, Pinterest",
       textPlaceholder:
         "Colle ici la recette : légende du post, description de la vidéo, texte recopié…",
-      photoCta: "Choisir une photo",
+      capturesIntro:
+        "Jusqu'à 6 captures d'une même recette (légende, carrousel) ou photos d'une recette écrite. On les lit, puis on les efface.",
+      capturesPick: "Choisir les images",
+      capturesCount: "{n} images sur 6",
+      capturesCountOne: "1 image sur 6",
+      capturesRemove: "Retirer cette image",
+      capturesSourceUrl: "Lien de la publication (facultatif)",
+      capturesSourceHint:
+        "Avec le lien et le @, la recette garde son crédit et sa créatrice est respectée.",
+      capturesNeedAi:
+        "La lecture des captures arrive dès que l'IA est configurée. En attendant, colle le texte de la recette.",
+      uploading: "Envoi des images…",
       submit: "Importer",
       analyzing: "Lecture de la recette…",
+      pendingLong: "Encore un instant, la page est longue.",
+      pendingTooLong:
+        "Ça prend plus de temps que prévu. Ton import continue : retrouve-le dans « Mes imports ».",
       needCaption:
-        "Je n'ai pas pu lire la légende automatiquement. Colle-la ici et je m'occupe du reste.",
+        "Je n'ai pas pu lire la recette automatiquement. Colle la légende ou la description ici, ou ajoute des captures, et je m'occupe du reste.",
+      needCaptionInstagram:
+        "Instagram ne donne plus la légende des publications. Colle-la ici, ou ajoute des captures du post : on garde le lien et le crédit.",
+      answer: "Continuer",
       invalidUrl: "Ce lien ne ressemble pas à une adresse valide.",
       fetchFailed:
         "Impossible de charger cette page. Réessaie ou colle le texte.",
@@ -342,8 +372,53 @@ export const fr = {
         "Je n'ai pas trouvé de recette là-dedans. Essaie en collant le texte de la recette.",
       review:
         "Vérifie et ajuste avant d'enregistrer — surtout les quantités en grammes.",
+      reformulateHint:
+        "Les étapes reprennent le texte d'origine : reformule-les avec tes mots avant de partager la recette.",
       credit: "Crédit auteur",
       again: "Importer autre chose",
+      notFound: "Cette page n'existe plus. Vérifie le lien ou colle le texte.",
+      notAPost:
+        "Ce lien mène à un profil, pas à une publication. Ouvre la publication et partage son lien.",
+      needsAi:
+        "La lecture des captures arrive dès que l'IA est configurée. En attendant, colle le texte de la recette.",
+      timeout:
+        "Cet import n'a pas abouti. Réessaie, ou colle le texte de la recette.",
+      needSiteLink:
+        "Cette épingle ne donne pas le site de la recette. Ouvre-la dans Pinterest, touche « Visiter » et partage-nous la page : on l'importe, créditée à son site.",
+      viaPinterest:
+        "Recette importée depuis le site de l'épingle, créditée à ce site.",
+      duplicate: "Elle est déjà dans ton carnet : « {title} ».",
+      duplicateSaved: "Tu l'as déjà enregistrée : « {title} ».",
+      openMyCopy: "Ouvrir ma copie",
+      recipeLinks: "La recette écrite est aussi sur son site :",
+      importLink: "Importer depuis ce lien",
+      quotaLeft: "Il te reste {n} imports aujourd'hui.",
+      quotaDaily:
+        "Tu as importé 20 recettes aujourd'hui, c'est le maximum pour l'instant. Reviens demain !",
+      quotaCaptures:
+        "Tu as déjà lu 10 séries de captures aujourd'hui, c'est le maximum. Colle le texte, ou reviens demain.",
+      busy: "Tu as déjà 3 imports en cours : attends qu'ils se terminent.",
+      invalid: "Quelque chose ne va pas dans cet import. Réessaie.",
+      mine: {
+        title: "Mes imports",
+        hint: "Tes imports des 7 derniers jours : reprends-les quand tu veux.",
+        resume: "Reprendre",
+        open: "Ouvrir",
+        dismiss: "Retirer",
+        showAll: "Tout voir ({count})",
+        showLess: "Voir moins",
+        pasted: "Texte collé",
+        captures: "Captures",
+        status: {
+          pending: "En cours",
+          ready: "Prête à vérifier",
+          needs_input: "À compléter",
+          answered: "Déjà là",
+          failed: "Pas importée",
+          saved: "Enregistrée",
+          dismissed: "Retirée",
+        },
+      },
     },
     cook: {
       start: "Mode cuisine",

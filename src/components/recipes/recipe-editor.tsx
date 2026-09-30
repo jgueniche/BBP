@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, Link2, Plus, X } from "lucide-react";
+import { ExternalLink, ImagePlus, Link2, Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { fr } from "@/i18n/fr";
 import { CUISINE_GROUPS } from "@/lib/recipes/cuisines";
+import { discardCover, uploadCover } from "@/lib/recipes/photo-upload";
 import { cn } from "@/lib/utils/cn";
 
 const t = fr.recettes;
@@ -75,6 +76,13 @@ export type EditorInitial = {
   withdrawn: boolean;
   ingredients: EditorIngredient[];
   steps: EditorStep[];
+  /** The import job this draft comes from, if any. */
+  importJobId?: string | null;
+  /** False when an imported draft still uses the original's wording. */
+  reformulated?: boolean | null;
+  /** Her own cover photo (storage path) and an address to show it. */
+  photoPath?: string | null;
+  photoUrl?: string | null;
 };
 
 export const emptyEditorInitial: EditorInitial = {
@@ -103,6 +111,95 @@ export const emptyEditorInitial: EditorInitial = {
 const selectClass =
   "rounded-[10px] border bg-card px-3 py-2 text-sm font-medium";
 const smallInputClass = "rounded-[10px] border bg-card px-2 py-2 text-sm";
+
+/** Her own photo of the dish, re-encoded before it leaves the phone. */
+function CoverField({
+  path,
+  url,
+  title,
+  onChange,
+}: {
+  path: string | null;
+  url: string | null;
+  title: string;
+  onChange: (cover: { path: string | null; url: string | null }) => void;
+}) {
+  const [uploading, setUploading] = useState(false);
+  // A photo uploaded in this visit and replaced goes at once.
+  const fresh = useRef<string | null>(null);
+
+  async function pick(file: File | undefined) {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const next = await uploadCover(file);
+      if (fresh.current) void discardCover(fresh.current);
+      fresh.current = next;
+      onChange({ path: next, url: URL.createObjectURL(file) });
+    } catch {
+      toast(f.coverError);
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  const input = (
+    <input
+      type="file"
+      accept="image/jpeg,image/png,image/webp,image/heic"
+      className="sr-only"
+      disabled={uploading}
+      onChange={(event) => {
+        void pick(event.target.files?.[0]);
+        event.target.value = "";
+      }}
+    />
+  );
+
+  return (
+    <fieldset className="flex flex-col gap-2">
+      <legend className="mb-1 text-sm font-medium">{f.cover}</legend>
+      {path && url ? (
+        <div className="flex flex-col gap-2">
+          {/* eslint-disable-next-line @next/next/no-img-element -- signed storage address */}
+          <img
+            src={url}
+            alt={f.coverAlt.replace("{title}", title)}
+            className="aspect-[4/3] w-full max-w-sm rounded-lg border object-cover"
+          />
+          <div className="flex flex-wrap gap-2">
+            <label className="cursor-pointer rounded-[10px] border bg-card px-3 py-1.5 text-sm font-medium">
+              {uploading ? f.coverUploading : f.coverChange}
+              {input}
+            </label>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              disabled={uploading}
+              onClick={() => {
+                if (fresh.current === path) {
+                  void discardCover(path);
+                  fresh.current = null;
+                }
+                onChange({ path: null, url: null });
+              }}
+            >
+              {f.coverRemove}
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-ink-30/70 p-5 text-sm font-medium text-ink-70">
+          <ImagePlus size={18} strokeWidth={2} aria-hidden />
+          {uploading ? f.coverUploading : f.coverAdd}
+          {input}
+        </label>
+      )}
+      <p className="text-[11px] text-ink-50">{f.coverHint}</p>
+    </fieldset>
+  );
+}
 
 export function RecipeEditor({ initial }: { initial: EditorInitial }) {
   const router = useRouter();
@@ -214,6 +311,8 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
         icon: state.icon.trim() || null,
         sourceUrl: state.sourceUrl,
         sourceAuthor: state.sourceAuthor.trim() || null,
+        importJobId: state.id ? null : (state.importJobId ?? null),
+        photoPath: state.photoPath ?? null,
         ingredients: state.ingredients
           .filter((ing) => ing.label.trim().length > 0)
           .map((ing) => {
@@ -241,6 +340,12 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
       };
       const result = await saveRecipe(payload);
       if (!result.ok) {
+        if (result.code === "duplicate") {
+          // Already in my book: my copy opens instead of a new one.
+          toast(t.importPage.duplicate.replace("{title}", result.title));
+          router.push(`/recettes/${result.slug}`);
+          return;
+        }
         const refusal =
           result.code === "withdrawn"
             ? fr.creators.import.withdrawn
@@ -312,6 +417,19 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
           </button>
         ))}
       </div>
+
+      <CoverField
+        path={state.photoPath ?? null}
+        url={state.photoUrl ?? null}
+        title={state.title}
+        onChange={(cover) =>
+          setState((current) => ({
+            ...current,
+            photoPath: cover.path,
+            photoUrl: cover.url,
+          }))
+        }
+      />
 
       <label className="flex flex-col gap-1.5 text-sm font-medium">
         {f.description}
@@ -590,6 +708,11 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
         <legend className="mb-1 font-display text-base font-semibold">
           {t.steps}
         </legend>
+        {state.reformulated === false && (
+          <p className="rounded-lg bg-beurre px-3 py-2 text-xs text-ink-70">
+            {t.importPage.reformulateHint}
+          </p>
+        )}
         <datalist id="recipe-sections">
           {knownSections.map((section) => (
             <option key={section} value={section} />

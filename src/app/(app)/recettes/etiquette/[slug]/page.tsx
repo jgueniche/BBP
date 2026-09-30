@@ -9,6 +9,7 @@ import {
 import { EmptyState } from "@/components/ui/empty-state";
 import { fr } from "@/i18n/fr";
 import { loadFoodRules } from "@/lib/diets/preferences";
+import { coverSrc } from "@/lib/recipes/photos";
 import { verdictStatuses } from "@/lib/diets/recipes";
 import { loadTagRegistry } from "@/lib/recipes/tags";
 import { slugsCoveredBy } from "@/lib/social/tags";
@@ -55,7 +56,7 @@ export default async function TagPage({
   const { data: recipes } = await supabase
     .from("recipes")
     .select(
-      "id, title, slug, icon, origin, tags, prep_min, cook_min, version_kind, author_id",
+      "id, title, slug, icon, origin, tags, prep_min, cook_min, version_kind, author_id, photo_paths",
     )
     .eq("status", "published")
     .overlaps("tags", covered)
@@ -109,6 +110,7 @@ export default async function TagPage({
             <li key={recipe.id}>
               <RecipeCard
                 recipe={recipe as RecipeCardData}
+                photo={coverSrc(recipe.photo_paths?.[0], { thumb: true })}
                 verdict={statuses.get(recipe.id) ?? null}
               />
             </li>

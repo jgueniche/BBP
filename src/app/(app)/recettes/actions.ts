@@ -6,6 +6,13 @@ import { z } from "zod";
 import { generateProteinVersion as generateProteinVersionAi } from "@/ai/agents/protein-version";
 import { creatorFromSource, creatorLabel } from "@/lib/creators/identity";
 import { checkImport, resolveCreatorId } from "@/lib/creators/server";
+import { findMyCopy } from "@/lib/import/server";
+import { sourceKeyOf } from "@/lib/import/source-key";
+import {
+  RECIPE_PHOTO_BUCKET,
+  isOwnCoverPath,
+  thumbPathOf,
+} from "@/lib/recipes/photos";
 import { computeRecipeNutrition } from "@/lib/nutrition/recipe";
 import { ALL_CUISINES, CATEGORIES } from "@/lib/recipes/cuisines";
 import { isReservedRecipeSlug } from "@/lib/recipes/slugs";
@@ -77,6 +84,10 @@ const recipeSchema = z.object({
   sourceAuthor: z.string().max(120).nullable(),
   ingredients: z.array(ingredientSchema).min(1).max(30),
   steps: z.array(stepSchema).min(1).max(25),
+  /** The import job the draft came from (« Mes imports » then shows it saved). */
+  importJobId: z.uuid().nullable().optional(),
+  /** Her own cover photo (null: none; absent: unchanged). */
+  photoPath: z.string().max(120).nullable().optional(),
 });
 
 export type RecipeInput = z.infer<typeof recipeSchema>;
@@ -137,11 +148,39 @@ export type SaveRecipeResult =
       ok: false;
       code: "withdrawn" | "blocked";
       creator: string | null;
+    }
+  | {
+      /** This post is already in my book: my copy, not another one. */
+      ok: false;
+      code: "duplicate";
+      slug: string;
+      title: string;
     };
+
+async function removeCovers(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  paths: string[],
+) {
+  const own = paths.filter((path) => isOwnCoverPath(path, userId));
+  if (own.length === 0) return;
+  await supabase.storage
+    .from(RECIPE_PHOTO_BUCKET)
+    .remove(own.flatMap((path) => [path, thumbPathOf(path)]));
+}
 
 export async function saveRecipe(raw: RecipeInput): Promise<SaveRecipeResult> {
   const input = recipeSchema.parse(raw);
   const { supabase, user } = await requireUser();
+  if (input.photoPath && !isOwnCoverPath(input.photoPath, user.id)) {
+    throw new Error("Not your photo");
+  }
+  const photoPaths =
+    input.photoPath === undefined
+      ? undefined
+      : input.photoPath
+        ? [input.photoPath]
+        : [];
 
   // A new import is tied to its creator, unless she said no (ADR-035).
   let creatorId: string | null = null;
@@ -158,6 +197,17 @@ export async function saveRecipe(raw: RecipeInput): Promise<SaveRecipeResult> {
         creator: identity
           ? creatorLabel(identity.platform, identity.handle)
           : null,
+      };
+    }
+    // One copy of a post per member (the database holds it too).
+    const key = sourceKeyOf(input.sourceUrl);
+    const copy = key ? await findMyCopy(supabase, user.id, key) : null;
+    if (copy && !copy.saved) {
+      return {
+        ok: false,
+        code: "duplicate",
+        slug: copy.slug,
+        title: copy.title,
       };
     }
     if (identity) creatorId = await resolveCreatorId(supabase, identity);
@@ -177,7 +227,9 @@ export async function saveRecipe(raw: RecipeInput): Promise<SaveRecipeResult> {
   if (recipeId) {
     const { data: existing } = await supabase
       .from("recipes")
-      .select("slug, author_id, source_url, source_author, withdrawn_at")
+      .select(
+        "slug, author_id, source_url, source_author, withdrawn_at, photo_paths",
+      )
       .eq("id", recipeId)
       .maybeSingle();
     if (!existing || existing.author_id !== user.id) {
@@ -206,9 +258,17 @@ export async function saveRecipe(raw: RecipeInput): Promise<SaveRecipeResult> {
           ? existing.source_author
           : input.sourceAuthor,
         nutrition_per_serving: nutrition,
+        ...(photoPaths === undefined ? {} : { photo_paths: photoPaths }),
       })
       .eq("id", recipeId);
     if (error) throw new Error(error.message);
+    if (photoPaths !== undefined) {
+      await removeCovers(
+        supabase,
+        user.id,
+        existing.photo_paths.filter((path) => !photoPaths.includes(path)),
+      );
+    }
     await supabase
       .from("recipe_ingredients")
       .delete()
@@ -237,11 +297,31 @@ export async function saveRecipe(raw: RecipeInput): Promise<SaveRecipeResult> {
         source_author: input.sourceAuthor,
         creator_id: creatorId,
         nutrition_per_serving: nutrition,
+        photo_paths: photoPaths ?? [],
       })
       .select("id")
       .single();
+    if (error?.code === "23505" && input.sourceUrl) {
+      // Saved twice at once: the other save won, open it.
+      const key = sourceKeyOf(input.sourceUrl);
+      const copy = key ? await findMyCopy(supabase, user.id, key) : null;
+      if (copy && !copy.saved) {
+        return {
+          ok: false,
+          code: "duplicate",
+          slug: copy.slug,
+          title: copy.title,
+        };
+      }
+    }
     if (error) throw new Error(error.message);
     recipeId = created.id;
+    if (input.importJobId) {
+      await supabase.rpc("mark_import_saved", {
+        p_job: input.importJobId,
+        p_recipe: created.id,
+      });
+    }
     // An import lands in « À cuisiner » until it is cooked.
     if (input.sourceUrl) {
       const { error: queueError } = await supabase
@@ -283,8 +363,16 @@ export async function saveRecipe(raw: RecipeInput): Promise<SaveRecipeResult> {
 
 export async function deleteRecipe(id: string) {
   const recipeId = z.uuid().parse(id);
-  const { supabase } = await requireUser();
+  const { supabase, user } = await requireUser();
+  const { data: recipe } = await supabase
+    .from("recipes")
+    .select("photo_paths, author_id")
+    .eq("id", recipeId)
+    .maybeSingle();
   await supabase.from("recipes").delete().eq("id", recipeId);
+  if (recipe?.author_id === user.id) {
+    await removeCovers(supabase, user.id, recipe.photo_paths);
+  }
   revalidatePath("/recettes");
   return { ok: true as const };
 }

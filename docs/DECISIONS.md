@@ -1,5 +1,12 @@
 # DECISIONS.md — ADR courts (≤ 5 lignes chacun)
 
+## ADR-036 — Import v2 : jobs sous la session de la membre, une copie par publication, couverture à elle (30/09/2026)
+Chaque import est un job (`import_jobs`, écrit par des fonctions seules : quotas, politesse par site, bail, essais)
+exécuté juste après la réponse avec la session et la RLS de la membre, sans service role ni file externe. Pages lues
+avec chaque redirection et adresse revérifiées ; Pinterest lu par le site d'origine, TikTok par oEmbed seul ; étapes
+reformulées et contrôlées par programme. Une copie par publication et par membre ; captures lues puis effacées ;
+la couverture est sa photo, dans un bucket privé lisible comme la recette, jamais l'image d'une créatrice.
+
 ## ADR-035 — Créatrices : profil revendiqué, retrait qui privatise, clics anonymes (29/09/2026)
 Chaque import est rattaché à sa créatrice (compte ou domaine) et à sa publication (`source_key`, une clé par post quel
 que soit le lien). Retirer rend privées et marquées toutes les copies, sans les supprimer, et refuse les nouveaux

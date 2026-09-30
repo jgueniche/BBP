@@ -18,6 +18,8 @@ const eslintConfig = [
       "out/**",
       "build/**",
       "next-env.d.ts",
+      // Local test bench installs (scripts/local).
+      ".local-bench/**",
       // CommonJS files executed by promptfoo, outside the app bundle.
       "src/ai/evals/**/*.js",
     ],

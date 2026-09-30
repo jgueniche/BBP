@@ -23,6 +23,7 @@ import {
   loadCreatorTotals,
 } from "@/lib/creators/server";
 import { loadFoodRules } from "@/lib/diets/preferences";
+import { coverSrc } from "@/lib/recipes/photos";
 import { verdictStatuses } from "@/lib/diets/recipes";
 import { profileHref, isUuid } from "@/lib/social/handles";
 import { loadMembers } from "@/lib/social/members";
@@ -91,7 +92,7 @@ export default async function CreatorPage({
       supabase
         .from("recipes")
         .select(
-          "id, title, slug, icon, origin, prep_min, cook_min, version_kind, author_id",
+          "id, title, slug, icon, origin, prep_min, cook_min, version_kind, author_id, photo_paths",
         )
         .eq("creator_id", creator.id)
         .eq("visibility", "community")
@@ -212,6 +213,7 @@ export default async function CreatorPage({
               <li key={recipe.id}>
                 <RecipeCard
                   recipe={recipe as RecipeCardData}
+                  photo={coverSrc(recipe.photo_paths?.[0], { thumb: true })}
                   verdict={statuses.get(recipe.id) ?? null}
                   tag={
                     memberId !== null && recipe.author_id === memberId

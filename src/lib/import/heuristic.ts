@@ -1,4 +1,4 @@
-import { parseIngredientLine } from "./ingredients";
+import { parseIngredientLine, sectionHeader } from "./ingredients";
 import type { ImportedIngredient, ImportedStep, RecipeDraft } from "./types";
 
 const INGREDIENT_MARKER = /ingr[ée]dients?\s*:?\s*$/i;
@@ -29,6 +29,7 @@ export function heuristicDraftFromText(
   const ingredients: ImportedIngredient[] = [];
   const steps: ImportedStep[] = [];
   let mode: "intro" | "ingredients" | "steps" = "intro";
+  let section: string | null = null;
   let title = base.title ?? null;
   const descriptionParts: string[] = [];
 
@@ -39,6 +40,13 @@ export function heuristicDraftFromText(
     }
     if (STEP_MARKER.test(line)) {
       mode = "steps";
+      section = null;
+      continue;
+    }
+    // « Pour la pâte : » names the next ingredients.
+    const header = mode === "ingredients" ? sectionHeader(line) : null;
+    if (header) {
+      section = header;
       continue;
     }
     const bulleted = BULLET.test(line);
@@ -58,7 +66,7 @@ export function heuristicDraftFromText(
       continue;
     }
     if (mode === "ingredients" || (bulleted && QTY_START.test(stripped))) {
-      ingredients.push(parseIngredientLine(stripped));
+      ingredients.push(parseIngredientLine(stripped, section));
       continue;
     }
     if (mode === "intro") {
@@ -87,10 +95,13 @@ export function heuristicDraftFromText(
     prepMin: base.prepMin ?? (prepMatch ? parseInt(prepMatch[1], 10) : null),
     cookMin: base.cookMin ?? (cookMatch ? parseInt(cookMatch[1], 10) : null),
     tags: base.tags && base.tags.length > 0 ? base.tags : hashtags,
+    category: base.category ?? null,
+    cuisine: base.cuisine ?? null,
     ingredients,
     steps: steps.slice(0, 25),
     sourceUrl: base.sourceUrl ?? null,
     sourceAuthor: base.sourceAuthor ?? null,
     method: "heuristic",
+    reformulated: false,
   };
 }

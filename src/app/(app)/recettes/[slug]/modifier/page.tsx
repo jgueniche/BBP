@@ -5,6 +5,7 @@ import {
   type EditorInitial,
 } from "@/components/recipes/recipe-editor";
 import { fr } from "@/i18n/fr";
+import { coverSrc } from "@/lib/recipes/photos";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
@@ -55,6 +56,8 @@ export default async function EditRecipePage({
     for (const food of foods ?? []) foodNames.set(food.id, food.name_fr);
   }
 
+  const cover = recipe.photo_paths[0] ?? null;
+
   const initial: EditorInitial = {
     id: recipe.id,
     title: recipe.title,
@@ -72,6 +75,8 @@ export default async function EditRecipePage({
     sourceUrl: recipe.source_url,
     sourceAuthor: recipe.source_author ?? "",
     withdrawn: recipe.withdrawn_at !== null,
+    photoPath: cover,
+    photoUrl: coverSrc(cover),
     ingredients: (ingredients ?? []).map((ingredient) => ({
       label: ingredient.label_raw,
       grams: ingredient.grams === null ? "" : `${ingredient.grams}`,

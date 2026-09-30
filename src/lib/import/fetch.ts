@@ -1,90 +1,64 @@
 import "server-only";
 
-import { detectPlatform } from "./detect";
+import {
+  createTransport,
+  productionConfig,
+  type FetchedPage,
+  type FetchOptions,
+  type Transport,
+} from "./net/transport";
 
-const MAX_HTML_BYTES = 1_500_000;
+export type { FetchedPage, FetchOptions };
 
-/**
- * Fetch a public page's HTML with a timeout and a size cap. The URL must have
- * passed detectPlatform (public http(s) host) before calling this.
- */
-export async function fetchHtml(url: string): Promise<string | null> {
-  if (detectPlatform(url) === null) return null;
-  try {
-    const response = await fetch(url, {
-      signal: AbortSignal.timeout(10_000),
-      redirect: "follow",
-      headers: {
-        "user-agent":
-          "Mozilla/5.0 (compatible; CopineEnCuisine-RecipeImport/1.0)",
-        accept: "text/html,application/xhtml+xml",
-      },
-    });
-    if (!response.ok || !response.body) return null;
-    const reader = response.body.getReader();
-    const chunks: Uint8Array[] = [];
-    let total = 0;
-    for (;;) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      total += value.byteLength;
-      chunks.push(value);
-      if (total > MAX_HTML_BYTES) {
-        await reader.cancel();
-        break;
-      }
-    }
-    const merged = new Uint8Array(total);
-    let offset = 0;
-    for (const chunk of chunks) {
-      merged.set(chunk, offset);
-      offset += chunk.byteLength;
-    }
-    return new TextDecoder("utf-8", { fatal: false }).decode(merged);
-  } catch {
-    return null;
-  }
+let transport: Transport | null = null;
+
+function current(): Transport {
+  transport ??= createTransport(productionConfig());
+  return transport;
 }
 
-export type OembedInfo = {
-  title: string | null;
-  authorName: string | null;
-  /** The account page (« https://www.tiktok.com/@maya.cuisine »), when given. */
-  authorUrl: string | null;
-};
-
-/** Official oEmbed endpoints only (brief §9 — no authenticated scraping). */
-export async function fetchOembed(
+/**
+ * GET a public page: redirects re-checked one by one, the resolved address
+ * checked when connecting, size and time capped, read in its own charset.
+ */
+export function fetchPage(
   url: string,
-  platform: "instagram" | "tiktok" | "youtube",
-): Promise<OembedInfo | null> {
-  let endpoint: string | null = null;
-  if (platform === "tiktok") {
-    endpoint = `https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`;
-  } else if (platform === "youtube") {
-    endpoint = `https://www.youtube.com/oembed?format=json&url=${encodeURIComponent(url)}`;
-  } else {
-    const token = process.env.INSTAGRAM_OEMBED_TOKEN;
-    if (!token) return null;
-    endpoint = `https://graph.facebook.com/v21.0/instagram_oembed?url=${encodeURIComponent(url)}&access_token=${encodeURIComponent(token)}`;
-  }
+  options?: FetchOptions,
+): Promise<FetchedPage | null> {
+  return current().fetchPage(url, options);
+}
+
+/** A short link's target, from redirect headers only (no page is read). */
+export function resolveRedirects(
+  url: string,
+  options: Parameters<Transport["resolveRedirects"]>[1],
+): Promise<string | null> {
+  return current().resolveRedirects(url, options);
+}
+
+/** The page's HTML when it answered 2xx. */
+export async function fetchHtml(
+  url: string,
+  options?: FetchOptions,
+): Promise<string | null> {
+  const page = await fetchPage(url, options);
+  return page?.ok ? page.text : null;
+}
+
+/** A small JSON document from an official endpoint (oEmbed, APIs). */
+export async function fetchJson(
+  url: string,
+  options: FetchOptions = {},
+): Promise<unknown | null> {
+  const page = await fetchPage(url, {
+    accept: "application/json",
+    maxBytes: 400_000,
+    timeoutMs: 8_000,
+    ...options,
+  });
+  if (!page?.ok) return null;
   try {
-    const response = await fetch(endpoint, {
-      signal: AbortSignal.timeout(8_000),
-      headers: { accept: "application/json" },
-    });
-    if (!response.ok) return null;
-    const data = (await response.json()) as {
-      title?: unknown;
-      author_name?: unknown;
-      author_url?: unknown;
-    };
-    return {
-      title: typeof data.title === "string" ? data.title : null,
-      authorName:
-        typeof data.author_name === "string" ? data.author_name : null,
-      authorUrl: typeof data.author_url === "string" ? data.author_url : null,
-    };
+    return JSON.parse(page.text) as unknown;
   } catch {
     return null;
   }
