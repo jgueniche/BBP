@@ -344,6 +344,20 @@ export const fr = {
         "Vérifie et ajuste avant d'enregistrer — surtout les quantités en grammes.",
       credit: "Crédit auteur",
       again: "Importer autre chose",
+      notFound: "Cette page n'existe plus. Vérifie le lien ou colle le texte.",
+      notAPost:
+        "Ce lien mène à un profil, pas à une publication. Ouvre la publication et partage son lien.",
+      needsAi:
+        "La lecture des captures arrive dès que l'IA est configurée. En attendant, colle le texte de la recette.",
+      needSiteLink:
+        "Cette épingle ne donne pas le site de la recette. Ouvre-la dans Pinterest, touche « Visiter » et partage-nous la page : on l'importe, créditée à son site.",
+      viaPinterest:
+        "Recette importée depuis le site de l'épingle, créditée à ce site.",
+      duplicate: "Elle est déjà dans ton carnet : « {title} ».",
+      duplicateSaved: "Tu l'as déjà enregistrée : « {title} ».",
+      openMyCopy: "Ouvrir ma copie",
+      recipeLinks: "La recette écrite est aussi sur son site :",
+      importLink: "Importer depuis ce lien",
     },
     cook: {
       start: "Mode cuisine",

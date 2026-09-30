@@ -2,6 +2,7 @@
 
 import {
   BadgeCheck,
+  BookOpen,
   Camera,
   ClipboardPaste,
   ExternalLink,
@@ -38,7 +39,7 @@ const c = fr.creators.import;
 
 type Gate = Extract<
   ImportResult,
-  { ok: false; code: "withdrawn" | "blocked" | "official" }
+  { ok: false; code: "withdrawn" | "blocked" | "official" | "duplicate" }
 >;
 
 function isGate(result: ImportResult): result is Gate {
@@ -46,12 +47,53 @@ function isGate(result: ImportResult): result is Gate {
     !result.ok &&
     (result.code === "withdrawn" ||
       result.code === "blocked" ||
-      result.code === "official")
+      result.code === "official" ||
+      result.code === "duplicate")
+  );
+}
+
+/** Already in my book: my copy, not another one. */
+function DuplicateCard({
+  gate,
+  onReset,
+}: {
+  gate: Extract<Gate, { code: "duplicate" }>;
+  onReset: () => void;
+}) {
+  return (
+    <div className="flex flex-col gap-3 rounded-lg bg-menthe p-4">
+      <p className="flex items-start gap-2 text-sm text-ink">
+        <BookOpen
+          size={18}
+          strokeWidth={2}
+          className="mt-0.5 shrink-0"
+          aria-hidden
+        />
+        {(gate.recipe.saved ? t.duplicateSaved : t.duplicate).replace(
+          "{title}",
+          gate.recipe.title,
+        )}
+      </p>
+      <div className="flex flex-wrap gap-2">
+        <Button asChild size="sm">
+          <Link href={`/recettes/${gate.recipe.slug}`}>{t.openMyCopy}</Link>
+        </Button>
+        <Button size="sm" variant="ghost" onClick={onReset}>
+          {t.again}
+        </Button>
+      </div>
+    </div>
   );
 }
 
 /** The creator's wish, shown instead of the editor. */
-function GateCard({ gate, onReset }: { gate: Gate; onReset: () => void }) {
+function GateCard({
+  gate,
+  onReset,
+}: {
+  gate: Exclude<Gate, { code: "duplicate" }>;
+  onReset: () => void;
+}) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const who = gate.creator ?? fr.recettes.theCreator;
@@ -160,8 +202,12 @@ function draftToInitial(draft: ImportDraft): EditorInitial {
 
 const ERROR_MESSAGES = {
   invalid_url: t.invalidUrl,
+  not_a_post: t.notAPost,
   fetch_failed: t.fetchFailed,
+  not_found: t.notFound,
   no_recipe: t.noRecipe,
+  needs_ai: t.needsAi,
+  need_site_link: t.needSiteLink,
 } as const;
 
 export function ImportClient({
@@ -187,6 +233,7 @@ export function ImportClient({
   }>({ url: null, author: null, title: null });
   const [initial, setInitial] = useState<EditorInitial | null>(null);
   const [gate, setGate] = useState<Gate | null>(null);
+  const [links, setLinks] = useState<string[]>([]);
   const [creatorHandle, setCreatorHandle] = useState(initialCredit);
 
   async function runUrlImport(value: string) {
@@ -194,6 +241,7 @@ export function ImportClient({
     try {
       const result = await importRecipeFromUrl(value);
       if (result.ok) {
+        if (result.via === "pinterest") toast(t.viaPinterest);
         setInitial(draftToInitial(result.draft));
         return;
       }
@@ -203,10 +251,11 @@ export function ImportClient({
       }
       if (result.code === "need_caption") {
         setSource({
-          url: value,
-          author: result.sourceAuthor ?? null,
-          title: result.title ?? null,
+          url: result.sourceUrl ?? value,
+          author: result.sourceAuthor,
+          title: result.title,
         });
+        setLinks(result.links);
         const credit = result.sourceAuthor;
         setCreatorHandle((typed) => (credit?.startsWith("@") ? credit : typed));
         setNeedCaption(true);
@@ -283,7 +332,7 @@ export function ImportClient({
         setInitial(draftToInitial(result.draft));
         return;
       }
-      toast(t.noRecipe);
+      toast(result.code === "needs_ai" ? t.needsAi : t.noRecipe);
     } catch {
       toast(t.noRecipe);
     } finally {
@@ -292,16 +341,17 @@ export function ImportClient({
   }
 
   if (gate) {
-    return (
-      <GateCard
-        gate={gate}
-        onReset={() => {
-          setGate(null);
-          setMode("url");
-          setNeedCaption(false);
-          setSource({ url: null, author: null, title: null });
-        }}
-      />
+    const reset = () => {
+      setGate(null);
+      setMode("url");
+      setNeedCaption(false);
+      setLinks([]);
+      setSource({ url: null, author: null, title: null });
+    };
+    return gate.code === "duplicate" ? (
+      <DuplicateCard gate={gate} onReset={reset} />
+    ) : (
+      <GateCard gate={gate} onReset={reset} />
     );
   }
 
@@ -369,6 +419,31 @@ export function ImportClient({
             <p className="rounded-lg bg-ciel px-3 py-2 text-xs text-ink-70">
               {t.needCaption}
             </p>
+          )}
+          {links.length > 0 && (
+            <div className="flex flex-col gap-1 rounded-lg bg-menthe px-3 py-2 text-xs text-ink-70">
+              {t.recipeLinks}
+              {links.map((link) => (
+                <Button
+                  key={link}
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  className="self-start"
+                  disabled={pending}
+                  onClick={() => {
+                    setLinks([]);
+                    setNeedCaption(false);
+                    setMode("url");
+                    setUrl(link);
+                    void runUrlImport(link);
+                  }}
+                >
+                  {t.importLink} ·{" "}
+                  {new URL(link).hostname.replace(/^www\./, "")}
+                </Button>
+              ))}
+            </div>
           )}
           {source.url && (
             <label className="flex flex-col gap-1 text-sm font-semibold">

@@ -1,0 +1,54 @@
+[
+  [
+    "https://www.tiktok.com/@maya.cuisine/video/7312345678901234567",
+    "tiktok:7312345678901234567"
+  ],
+  [
+    "https://www.tiktok.com/@maya.cuisine/video/7312345678901234567?is_from_webapp=1&sender_device=pc",
+    "tiktok:7312345678901234567"
+  ],
+  [
+    "https://m.tiktok.com/v/7312345678901234567.html",
+    "web:m.tiktok.com/v/7312345678901234567.html"
+  ],
+  ["https://vm.tiktok.com/ZMhvqjqjq/", "web:vm.tiktok.com/ZMhvqjqjq"],
+  [
+    "https://www.tiktok.com/@maya.cuisine/photo/7312345678901234567",
+    "web:tiktok.com/@maya.cuisine/photo/7312345678901234567"
+  ],
+  ["https://www.instagram.com/p/C1aBcD2eFgH/", "instagram:C1aBcD2eFgH"],
+  [
+    "https://www.instagram.com/reel/C1aBcD2eFgH/?igsh=abc",
+    "instagram:C1aBcD2eFgH"
+  ],
+  ["https://instagram.com/reels/C1aBcD2eFgH", "instagram:C1aBcD2eFgH"],
+  ["https://www.instagram.com/maya.cuisine/", "web:instagram.com/maya.cuisine"],
+  ["https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=42s", "youtube:dQw4w9WgXcQ"],
+  [
+    "https://m.youtube.com/watch?feature=share&v=dQw4w9WgXcQ",
+    "youtube:dQw4w9WgXcQ"
+  ],
+  ["https://www.youtube.com/shorts/aB3dE5fG7hI?si=xyz", "youtube:aB3dE5fG7hI"],
+  ["https://youtu.be/dQw4w9WgXcQ?si=abc", "youtube:dQw4w9WgXcQ"],
+  ["https://www.youtube.com/@hervecuisine", "web:youtube.com/@hervecuisine"],
+  [
+    "https://www.marmiton.org/recettes/recette_crepes_27121.aspx?utm_source=x#top",
+    "web:marmiton.org/recettes/recette_crepes_27121.aspx"
+  ],
+  [
+    "https://WWW.Marmiton.org/Recettes/Recette_Crepes.aspx",
+    "web:marmiton.org/Recettes/Recette_Crepes.aspx"
+  ],
+  [
+    "https://hervecuisine.com/recette/tartine-avocat/",
+    "web:hervecuisine.com/recette/tartine-avocat"
+  ],
+  ["https://blog.example.fr", "web:blog.example.fr"],
+  ["http://blog.example.fr:8080/soupe/", "web:blog.example.fr/soupe"],
+  [
+    "https://www.pinterest.fr/pin/99360735500167749/",
+    "web:pinterest.fr/pin/99360735500167749"
+  ],
+  ["ftp://example.com/x", null],
+  ["not a url", null]
+]

@@ -63,36 +63,3 @@ export async function fetchJson(
     return null;
   }
 }
-
-export type OembedInfo = {
-  title: string | null;
-  authorName: string | null;
-  /** The account page (« https://www.tiktok.com/@maya.cuisine »), when given. */
-  authorUrl: string | null;
-};
-
-/** Official oEmbed endpoints only (brief §9 — no authenticated scraping). */
-export async function fetchOembed(
-  url: string,
-  platform: "instagram" | "tiktok" | "youtube",
-): Promise<OembedInfo | null> {
-  let endpoint: string;
-  if (platform === "tiktok") {
-    endpoint = `https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`;
-  } else if (platform === "youtube") {
-    endpoint = `https://www.youtube.com/oembed?format=json&url=${encodeURIComponent(url)}`;
-  } else {
-    const token = process.env.INSTAGRAM_OEMBED_TOKEN;
-    if (!token) return null;
-    endpoint = `https://graph.facebook.com/v21.0/instagram_oembed?url=${encodeURIComponent(url)}&access_token=${encodeURIComponent(token)}`;
-  }
-  const data = await fetchJson(endpoint);
-  if (!data || typeof data !== "object") return null;
-  const record = data as Record<string, unknown>;
-  const text = (value: unknown) => (typeof value === "string" ? value : null);
-  return {
-    title: text(record.title),
-    authorName: text(record.author_name),
-    authorUrl: text(record.author_url),
-  };
-}

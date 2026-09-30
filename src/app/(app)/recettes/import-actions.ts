@@ -3,30 +3,42 @@
 import { z } from "zod";
 
 import { importRecipeWithAi } from "@/ai/agents/recipe-importer";
+import { pickModel } from "@/ai/provider";
 import {
-  creatorFromSource,
-  creatorLabel,
-  handleFromUrl,
-  type CreatorIdentity,
-} from "@/lib/creators/identity";
-import { checkImport } from "@/lib/creators/server";
-import { detectPlatform } from "@/lib/import/detect";
-import { fetchOembed, fetchPage } from "@/lib/import/fetch";
-import { heuristicDraftFromText } from "@/lib/import/heuristic";
-import type { RecipeDraft } from "@/lib/import/types";
-import { draftIsUsable, readRecipePage } from "@/lib/import/web";
+  importFromImages,
+  importFromText,
+  importFromUrl,
+  type ExtractInput,
+  type ImportDraft,
+  type ImportOutcome,
+  type MyCopy,
+} from "@/lib/import/pipeline";
+import { pipelineDeps } from "@/lib/import/server";
 import { createClient } from "@/lib/supabase/server";
 
-export type ImportDraft = RecipeDraft & { icon: string | null };
+export type { ImportDraft };
 
 export type ImportResult =
-  | { ok: true; draft: ImportDraft }
+  | { ok: true; draft: ImportDraft; via: "pinterest" | null }
   | {
       ok: false;
-      code: "invalid_url" | "fetch_failed" | "no_recipe" | "need_caption";
-      /** Prefill for the paste-the-caption flow. */
-      sourceAuthor?: string | null;
-      title?: string | null;
+      code:
+        | "invalid_url"
+        | "not_a_post"
+        | "fetch_failed"
+        | "not_found"
+        | "no_recipe"
+        | "needs_ai"
+        | "need_site_link";
+    }
+  | {
+      /** Paste the caption (or add captures): prefilled with what we know. */
+      ok: false;
+      code: "need_caption";
+      sourceUrl: string | null;
+      sourceAuthor: string | null;
+      title: string | null;
+      links: string[];
     }
   | {
       /** The creator withdrew the post or refuses imports: go to her. */
@@ -41,6 +53,12 @@ export type ImportResult =
       code: "official";
       creator: string | null;
       recipe: { slug: string; title: string };
+    }
+  | {
+      /** Already in my book: open my copy rather than make another. */
+      ok: false;
+      code: "duplicate";
+      recipe: MyCopy;
     };
 
 async function requireUser() {
@@ -49,129 +67,93 @@ async function requireUser() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
-  return { supabase };
+  return { supabase, user };
 }
 
-type Supabase = Awaited<ReturnType<typeof createClient>>;
-
-/** The creator's wishes come before any copy (withdrawal, refusal, official). */
-async function creatorGate(
-  supabase: Supabase,
-  url: string,
-  identity: CreatorIdentity | null,
-): Promise<ImportResult | null> {
-  const check = await checkImport(supabase, url, identity);
-  if (check.mine) return null;
-  const creator = identity
-    ? creatorLabel(identity.platform, identity.handle)
-    : null;
-  if (check.withdrawn) {
-    return { ok: false, code: "withdrawn", creator, originalUrl: url };
+// Until the importer prompt 2.0.0, the AI structures text and one image.
+async function extract(input: ExtractInput): Promise<ImportDraft | null> {
+  if (input.kind === "text") {
+    return importRecipeWithAi({
+      text: input.text,
+      sourceUrl: input.sourceUrl,
+      sourceAuthor: input.sourceAuthor,
+    });
   }
-  if (check.blocked) {
-    return { ok: false, code: "blocked", creator, originalUrl: url };
-  }
-  if (check.official) {
-    return { ok: false, code: "official", creator, recipe: check.official };
+  if (input.kind === "images") {
+    const first = input.images[0];
+    return first
+      ? importRecipeWithAi({
+          text: input.note ?? "",
+          sourceUrl: input.sourceUrl,
+          sourceAuthor: input.sourceAuthor,
+          imageBase64: first.base64,
+          imageMediaType: first.mediaType,
+        })
+      : null;
   }
   return null;
 }
 
-async function draftFromText(
-  text: string,
-  sourceUrl: string | null,
-  sourceAuthor: string | null,
-): Promise<ImportDraft | null> {
-  const aiDraft = await importRecipeWithAi({ text, sourceUrl, sourceAuthor });
-  if (aiDraft) return aiDraft;
-  const heuristic = heuristicDraftFromText(text, { sourceUrl, sourceAuthor });
-  return draftIsUsable(heuristic) ? { ...heuristic, icon: null } : null;
+async function deps() {
+  const { supabase, user } = await requireUser();
+  return pipelineDeps(supabase, user.id, pickModel("chat") ? extract : null);
+}
+
+function toResult(outcome: ImportOutcome): ImportResult {
+  switch (outcome.kind) {
+    case "draft":
+      return { ok: true, draft: outcome.draft, via: outcome.via };
+    case "needs_input":
+      return outcome.ask === "site_link"
+        ? { ok: false, code: "need_site_link" }
+        : {
+            ok: false,
+            code: "need_caption",
+            sourceUrl: outcome.sourceUrl,
+            sourceAuthor: outcome.sourceAuthor,
+            title: outcome.title,
+            links: outcome.links,
+          };
+    case "gate":
+      return {
+        ok: false,
+        code: outcome.code,
+        creator: outcome.creator,
+        originalUrl: outcome.originalUrl,
+      };
+    case "official":
+      return {
+        ok: false,
+        code: "official",
+        creator: outcome.creator,
+        recipe: outcome.recipe,
+      };
+    case "duplicate":
+      return { ok: false, code: "duplicate", recipe: outcome.recipe };
+    case "failed":
+      return { ok: false, code: outcome.code };
+  }
 }
 
 export async function importRecipeFromUrl(
   rawUrl: string,
 ): Promise<ImportResult> {
-  const { supabase } = await requireUser();
   const url = z.string().max(500).parse(rawUrl).trim();
-  const platform = detectPlatform(url);
-  if (!platform) return { ok: false, code: "invalid_url" };
-
-  // A TikTok link or a site names its creator; others tell after oEmbed.
-  const fromLink = creatorFromSource({ sourceUrl: url, sourceAuthor: null });
-  if (fromLink) {
-    const early = await creatorGate(supabase, url, fromLink);
-    if (early) return early;
-  }
-
-  if (platform === "web") {
-    const page = await fetchPage(url);
-    if (!page?.ok) return { ok: false, code: "fetch_failed" };
-    const read = readRecipePage(page.text, page.url);
-    if (read.draft) return { ok: true, draft: { ...read.draft, icon: null } };
-    const draft = await draftFromText(read.text, read.sourceUrl, null);
-    return draft ? { ok: true, draft } : { ok: false, code: "no_recipe" };
-  }
-
-  // Social platforms: official oEmbed only (brief §9). The credit is the
-  // account's @handle when the platform gives its page, else its name.
-  const oembed = await fetchOembed(url, platform);
-  const handle = oembed?.authorUrl
-    ? handleFromUrl(platform, oembed.authorUrl)
-    : null;
-  const author = handle ? `@${handle}` : (oembed?.authorName ?? null);
-  if (!fromLink) {
-    const gate = await creatorGate(
-      supabase,
-      url,
-      creatorFromSource({ sourceUrl: url, sourceAuthor: author }),
-    );
-    if (gate) return gate;
-  }
-  const caption = oembed?.title ?? null;
-  if (!caption || caption.length < 40) {
-    // No usable caption via oEmbed (YouTube returns only the video title,
-    // Instagram needs a token) — ask the user to paste the description.
-    return {
-      ok: false,
-      code: "need_caption",
-      sourceAuthor: author,
-      title: caption,
-    };
-  }
-  const draft = await draftFromText(caption, url, author);
-  return draft
-    ? { ok: true, draft }
-    : { ok: false, code: "need_caption", sourceAuthor: author, title: caption };
+  return toResult(await importFromUrl(await deps(), url));
 }
 
 const textImportSchema = z.object({
   text: z.string().min(20).max(20_000),
   sourceUrl: z.string().max(500).nullable(),
   sourceAuthor: z.string().max(120).nullable(),
-  title: z.string().max(120).nullable(),
+  title: z.string().max(200).nullable(),
 });
 
 export async function importRecipeFromText(
   raw: z.infer<typeof textImportSchema>,
 ): Promise<ImportResult> {
-  const { supabase } = await requireUser();
   const input = textImportSchema.parse(raw);
-  const sourceUrl =
-    input.sourceUrl && detectPlatform(input.sourceUrl) ? input.sourceUrl : null;
-  if (sourceUrl) {
-    const gate = await creatorGate(
-      supabase,
-      sourceUrl,
-      creatorFromSource({ sourceUrl, sourceAuthor: input.sourceAuthor }),
-    );
-    if (gate) return gate;
-  }
-  const draft = await draftFromText(
-    input.title ? `${input.title}\n${input.text}` : input.text,
-    sourceUrl,
-    input.sourceAuthor,
-  );
-  return draft ? { ok: true, draft } : { ok: false, code: "no_recipe" };
+  return toResult(await importFromText(await deps(), input));
 }
 
 const photoImportSchema = z.object({
@@ -182,14 +164,13 @@ const photoImportSchema = z.object({
 export async function importRecipeFromPhoto(
   raw: z.infer<typeof photoImportSchema>,
 ): Promise<ImportResult> {
-  await requireUser();
   const input = photoImportSchema.parse(raw);
-  const draft = await importRecipeWithAi({
-    text: "",
-    sourceUrl: null,
-    sourceAuthor: null,
-    imageBase64: input.imageBase64,
-    imageMediaType: input.mediaType,
-  });
-  return draft ? { ok: true, draft } : { ok: false, code: "no_recipe" };
+  return toResult(
+    await importFromImages(await deps(), {
+      images: [{ base64: input.imageBase64, mediaType: input.mediaType }],
+      note: null,
+      sourceUrl: null,
+      sourceAuthor: null,
+    }),
+  );
 }
