@@ -13,7 +13,8 @@ function corsHeaders(req) {
     "access-control-allow-methods": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS",
     "access-control-allow-headers":
       req.headers["access-control-request-headers"] ?? "*",
-    "access-control-expose-headers": "content-range, content-type, x-client-info",
+    "access-control-expose-headers":
+      "content-range, content-type, x-client-info",
     "access-control-max-age": "600",
   };
 }

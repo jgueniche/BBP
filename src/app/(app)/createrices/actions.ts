@@ -18,6 +18,7 @@ import {
 } from "@/lib/creators/identity";
 import { loadCreatorLinks, resolveCreatorId } from "@/lib/creators/server";
 import { fetchHtml } from "@/lib/import/fetch";
+import { isOnSite } from "@/lib/import/net/address";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -144,7 +145,10 @@ export async function verifySiteClaim(
     return { ok: false, code: "error" };
   }
 
-  const html = await fetchHtml(siteHomeUrl(creator.handle));
+  // Only her own site counts: a redirect to another domain is not followed.
+  const html = await fetchHtml(siteHomeUrl(creator.handle), {
+    allowHost: (host) => isOnSite(host, creator.handle),
+  });
   if (!html) return { ok: false, code: "unreachable" };
   if (!pageHasClaimCode(html, claim.code))
     return { ok: false, code: "missing" };
