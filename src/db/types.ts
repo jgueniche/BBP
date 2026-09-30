@@ -1400,7 +1400,11 @@ export type Database = {
         Returns: boolean;
       };
       import_status: {
-        Args: { url: string; p_platform: string | null; p_handle: string | null };
+        Args: {
+          url: string;
+          p_platform: string | null;
+          p_handle: string | null;
+        };
         Returns: Json;
       };
       log_outbound_click: {
