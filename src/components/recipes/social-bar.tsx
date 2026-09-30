@@ -1,7 +1,15 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
-import { Bookmark, FolderPlus, Heart, Plus, Share2 } from "lucide-react";
+import {
+  Bookmark,
+  FolderPlus,
+  Heart,
+  ListChecks,
+  ListPlus,
+  Plus,
+  Share2,
+} from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -11,6 +19,7 @@ import {
   toggleRecipeInCollection,
   type CollectionForPicker,
 } from "@/app/(app)/recettes/collection-actions";
+import { toggleToCook } from "@/app/(app)/recettes/journal-actions";
 import { toggleLike, toggleSave } from "@/app/(app)/recettes/social-actions";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,18 +39,21 @@ export function SocialBar({
   initialLiked,
   initialSaved,
   initialLikes,
+  initialToCook,
   publicSlug = null,
 }: {
   recipeId: string;
   initialLiked: boolean;
   initialSaved: boolean;
   initialLikes: number;
+  initialToCook: boolean;
   publicSlug?: string | null;
 }) {
   const reducedMotion = useReducedMotion();
   const [liked, setLiked] = useState(initialLiked);
   const [likes, setLikes] = useState(initialLikes);
   const [saved, setSaved] = useState(initialSaved);
+  const [toCook, setToCook] = useState(initialToCook);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [collections, setCollections] = useState<CollectionForPicker[] | null>(
     null,
@@ -67,6 +79,17 @@ export function SocialBar({
       return;
     }
     toast(next ? t.social.saved : t.social.unsaved);
+  }
+
+  async function onToCook() {
+    const next = !toCook;
+    setToCook(next);
+    const result = await toggleToCook(recipeId);
+    if (!result.ok) {
+      setToCook(!next);
+      return;
+    }
+    toast(result.inList ? t.toCook.added : t.toCook.removed);
   }
 
   async function openPicker(open: boolean) {
@@ -101,7 +124,7 @@ export function SocialBar({
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <motion.button
         type="button"
         onClick={onLike}
@@ -139,6 +162,24 @@ export function SocialBar({
           aria-hidden
         />
         {t.tabs.book}
+      </button>
+
+      <button
+        type="button"
+        onClick={onToCook}
+        aria-label={t.toCook.addAria}
+        aria-pressed={toCook}
+        className={cn(
+          "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-bold shadow-soft",
+          toCook ? "bg-ink text-paper" : "bg-card",
+        )}
+      >
+        {toCook ? (
+          <ListChecks size={16} strokeWidth={2} aria-hidden />
+        ) : (
+          <ListPlus size={16} strokeWidth={2} aria-hidden />
+        )}
+        {t.toCook.add}
       </button>
 
       {publicSlug && (

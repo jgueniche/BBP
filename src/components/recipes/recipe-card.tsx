@@ -26,17 +26,25 @@ export function RecipeCard({
   likes,
   author,
   verdict,
+  tag,
+  className,
 }: {
   recipe: RecipeCardData;
   likes?: number;
   author?: string | null;
   /** The viewer's verdict, only when they set cooking rules. */
   verdict?: VerdictStatus | null;
+  /** A short word about the card in a list (« Importée »). */
+  tag?: string | null;
+  className?: string;
 }) {
   return (
     <Link
       href={`/recettes/${recipe.slug}`}
-      className="flex items-center gap-3 rounded-lg border bg-card p-3 shadow-soft transition-colors"
+      className={cn(
+        "flex items-center gap-3 rounded-lg border bg-card p-3 shadow-soft transition-colors",
+        className,
+      )}
     >
       <span
         className={cn(
@@ -57,6 +65,11 @@ export function RecipeCard({
           {recipe.title}
         </span>
         <span className="mt-1 flex flex-wrap items-center gap-1.5">
+          {tag && (
+            <span className="rounded-full bg-ciel px-1.5 py-0.5 text-[10px] font-semibold text-ink-70">
+              {tag}
+            </span>
+          )}
           {verdict && <VerdictPill status={verdict} size="sm" />}
           {recipe.version_kind === "proteine" && (
             <Badge className="scale-90">{t.versions.proteine}</Badge>

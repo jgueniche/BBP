@@ -10,6 +10,7 @@ export const fr = {
     coach: "Copine",
     coachSubtitle: "ta copine en cuisine",
     profil: "Moi",
+    notifications: "Notifications",
     groupCuisine: "Cuisine",
     groupEnsemble: "Ensemble",
   },
@@ -44,8 +45,18 @@ export const fr = {
       dialogTitle: "Tu as cuisiné cette recette",
       placeholder:
         "Un mot sur ta version : ce que tu as changé, comment c'était…",
+      dateLabel: "Quand ?",
+      keep: "Garder pour moi",
+      kept: "C'est noté dans ton journal.",
       publish: "Partager",
       published: "Bravo ! Ta version est partagée avec la communauté.",
+      shareHint:
+        "« Garder pour moi » l'inscrit dans ton journal, rien que pour toi. « Partager » la montre aussi à la communauté, avec tes photos.",
+      photosNeedShare: "Les photos accompagnent un partage.",
+      invalidDate: "Choisis une date passée.",
+      mine: "Tu l'as cuisinée {n} fois, la dernière le {date}.",
+      mineOne: "Tu l'as cuisinée le {date}.",
+      friends: "Tes copines l'ont cuisinée",
       count: "Cuisinée {n} fois",
       countOne: "Cuisinée 1 fois",
       gallery: "Leurs versions",
@@ -61,6 +72,39 @@ export const fr = {
       helpfulAria: "Cette astuce m'a été utile",
       ownTip: "Ton astuce",
       blocked: "Cette astuce enfreint la charte, elle n'a pas été publiée.",
+    },
+    toCook: {
+      title: "À cuisiner",
+      add: "À cuisiner",
+      addAria: "Ajouter à ma liste À cuisiner",
+      added: "Ajoutée à ta liste À cuisiner.",
+      removed: "Retirée de ta liste.",
+      queuedFromImport: "Importée ! Elle t'attend dans ta liste À cuisiner.",
+      intro:
+        "Les recettes que tu veux cuisiner. Tes imports arrivent ici tout seuls et partent dans ton journal quand tu les cuisines.",
+      empty: "Ta liste est vide.",
+      emptyHint:
+        "Importe une recette vue sur Insta ou TikTok, ou appuie sur « À cuisiner » sur une fiche.",
+      fromImport: "Importée",
+      remove: "Retirer de la liste",
+      journalLink: "Mon journal",
+      recent: "Récemment cuisinées",
+    },
+    journal: {
+      title: "Mon journal",
+      intro: "Tout ce que tu as cuisiné, rien que pour toi.",
+      empty: "Ton journal est vide.",
+      emptyHint:
+        "Quand tu cuisines une recette, appuie sur « J'ai cuisiné » : elle s'inscrit ici.",
+      shared: "Partagée",
+      gone: "Recette retirée",
+      delete: "Retirer du journal",
+      deleteConfirm:
+        "Retirer cette entrée de ton journal ? Si tu l'as partagée, la publication reste en ligne.",
+      deleted: "Entrée retirée.",
+      countOne: "1 recette",
+      count: "{n} recettes",
+      toCookLink: "Ma liste À cuisiner",
     },
     versionsTab: {
       title: "Versions de la communauté",
@@ -200,6 +244,7 @@ export const fr = {
     saveError: "La recette n'a pas pu être enregistrée, vérifie les champs.",
     tabs: {
       discover: "Découvrir",
+      toCook: "À cuisiner",
       book: "Mon carnet",
       collections: "Carnets",
     },
@@ -398,11 +443,24 @@ export const fr = {
     title: "Communauté",
     tabs: {
       all: "Tout le monde",
-      following: "Abonnements",
+      following: "Mes copines",
       groups: "Groupes",
     },
     empty: "Rien dans le fil pour l'instant. Partage la première actu !",
     emptyFollowing: "Suis quelques membres et leur cuisine remplira ce fil.",
+    myProfile: "Mon profil",
+    friends: {
+      cookedTitle: "Tes copines ont cuisiné",
+      by: "par",
+      suggestionsTitle: "Des membres à suivre",
+      suggestionsHint:
+        "Suis celles dont la cuisine te donne envie : leurs « J'ai cuisiné » rempliront ce fil.",
+      sharedOne: "1 recette en commun avec toi",
+      shared: "{n} recettes en commun avec toi",
+      recent: "Partage sa cuisine en ce moment",
+      noSuggestions:
+        "Pas encore de suggestion. Partage tes « J'ai cuisiné » : d'autres membres viendront.",
+    },
     composer: {
       placeholder: "Quoi de neuf en cuisine ?",
       kinds: {
@@ -470,6 +528,48 @@ export const fr = {
       posts: "Publications",
       noPosts: "Aucune publication visible.",
       anonymous: "Membre",
+      tabs: {
+        cooked: "Cuisiné",
+        recipes: "Recettes",
+        posts: "Publications",
+      },
+      followersOne: "abonné·e",
+      followers: "abonné·es",
+      followingOne: "abonnement",
+      following: "abonnements",
+      recipesOne: "recette",
+      recipes: "recettes",
+      cookedEmpty: "Pas encore de « J'ai cuisiné » partagé.",
+      recipesEmpty: "Aucune recette partagée pour l'instant.",
+      privateNotice: "Ce profil est privé : son nom et sa bio restent cachés.",
+      ownPrivateNotice:
+        "Ton profil est privé : les autres voient « Membre ». Rends-le visible dans Moi.",
+      editProfile: "Modifier mon profil",
+      myNetwork: "Mon réseau",
+      follow: "Suivre",
+      unfollow: "Ne plus suivre",
+      followsYou: "Te suit",
+      followFailed: "Impossible de suivre ce membre.",
+      menu: "Plus d'actions",
+      block: "Bloquer",
+      blockConfirm: "Bloquer ce membre ? Vous ne vous suivrez plus.",
+      blocked: "Membre bloqué.",
+      unblock: "Débloquer",
+      unblocked: "Membre débloqué.",
+      blockedNotice:
+        "Tu as bloqué ce membre : ses publications ne s'affichent plus pour toi.",
+    },
+    network: {
+      title: "Mon réseau",
+      hint: "Ces listes ne sont visibles que par toi.",
+      tabs: { following: "Abonnements", followers: "Abonné·es" },
+      followingEmpty:
+        "Tu ne suis personne pour l'instant. Les suggestions de « Mes copines » t'attendent.",
+      followersEmpty: "Personne ne te suit pour l'instant.",
+      followBack: "Suivre aussi",
+      remove: "Retirer",
+      removeConfirm: "Retirer cette personne de tes abonné·es ?",
+      removed: "C'est fait, elle ne te suit plus.",
     },
     charte: {
       title: "La charte de la communauté",
@@ -498,6 +598,16 @@ export const fr = {
       done: "C'est traité.",
       notAdmin: "Cette page est réservée à la modération.",
       tagsLink: "Étiquettes à relire",
+      indicatorLink: "Indicateur clé",
+      indicatorTitle: "Indicateur clé",
+      indicatorIntro:
+        "Part des recettes importées que la personne qui les a importées a cuisinées au moins une fois (journal).",
+      indicatorAll: "Depuis le début",
+      indicator30: "Importées ces 30 derniers jours",
+      indicatorValue: "{cooked} sur {imported}",
+      indicatorEmpty: "Aucune recette importée pour l'instant.",
+      indicatorNote:
+        "Chiffre agrégé : aucune donnée personnelle, aucun régime, aucune allergie.",
       tagsTitle: "Étiquettes à relire",
       tagsHint:
         "Rattache les synonymes à une étiquette de référence et range les étiquettes dans des catégories. Seules les étiquettes de référence sont proposées à la saisie.",
@@ -511,10 +621,61 @@ export const fr = {
     },
   },
   notifications: {
+    title: "Notifications",
+    intro: "Ce qui s'est passé autour de tes recettes et de tes publications.",
+    empty:
+      "Rien de neuf pour l'instant. Quand on cuisine tes recettes ou qu'on te suit, tu le verras ici.",
+    unread: "Nouveau",
+    earlier: "Plus tôt",
+    unreadCountOne: "1 notification non lue",
+    unreadCount: "{n} notifications non lues",
+    settings: "Réglages des notifications",
+    who: {
+      someone: "Quelqu'un",
+      pair: "{a} et {b}",
+      pairAnonymous: "{a} et une autre personne",
+      others: "{a} et {n} autres",
+      people: "{n} personnes",
+    },
+    recipe: {
+      yours: "ta recette « {title} »",
+      yoursUnknown: "une de tes recettes",
+      on: "« {title} »",
+      onUnknown: "une de tes recettes",
+    },
+    kinds: {
+      follow: { one: "{who} te suit.", many: "{who} te suivent." },
+      reaction: {
+        one: "{who} a réagi à ta publication.",
+        many: "{who} ont réagi à ta publication.",
+      },
+      comment: {
+        one: "{who} a commenté ta publication.",
+        many: "{who} ont commenté ta publication.",
+      },
+      cooked: {
+        one: "{who} a cuisiné {recipe}.",
+        many: "{who} ont cuisiné {recipe}.",
+      },
+      tip: {
+        one: "{who} a laissé une astuce sur {recipe}.",
+        many: "{who} ont laissé une astuce sur {recipe}.",
+      },
+    },
     card: {
       title: "Notifications",
       intro:
-        "Pour être prévenue des réactions et des invitations. Jamais plus de deux par jour.",
+        "Sur ton téléphone quand on cuisine tes recettes, qu'on te laisse une astuce ou qu'on te suit. Jamais plus de deux par jour, jamais la nuit (21 h 30 – 8 h 30).",
+      prefsTitle: "M'avertir quand",
+      prefs: {
+        cooked: "on cuisine une de mes recettes",
+        tip: "on laisse une astuce sur mes recettes",
+        follow: "quelqu'un me suit",
+        comment: "on commente mes publications",
+      },
+      prefsSaved: "C'est noté.",
+      reactionsNote:
+        "Les réactions restent dans l'app : elles ne sonnent jamais.",
       enable: "Activer sur cet appareil",
       disable: "Désactiver",
       enabled: "Notifications activées sur cet appareil.",
@@ -533,8 +694,39 @@ export const fr = {
     visibility: {
       title: "Mon profil",
       label: "Profil visible par la communauté",
-      hint: "Ton prénom apparaît sur tes publications et recettes. Sinon tu restes « Membre ».",
+      hint: "Ton nom, ta photo et ta bio apparaissent sur ton profil, tes publications et tes recettes. Sinon tu restes « Membre ».",
       saved: "C'est noté.",
+    },
+    profileCard: {
+      viewProfile: "Voir mon profil",
+      photo: "Photo de profil",
+      addPhoto: "Ajouter une photo",
+      changePhoto: "Changer",
+      removePhoto: "Retirer",
+      photoHint:
+        "Recadrée en carré et réencodée sur ton appareil : la localisation n'est jamais envoyée.",
+      photoSaved: "Photo mise à jour.",
+      photoFailed: "La photo n'a pas pu être envoyée, réessaie.",
+      name: "Nom affiché",
+      handle: "Pseudo",
+      handleHint:
+        "Lettres, chiffres, points ou tirets bas, 3 à 30 caractères. Il donne l'adresse de ton profil.",
+      bio: "Bio",
+      bioPlaceholder:
+        "Ce que tu aimes cuisiner, pour qui, ton coin de cuisine…",
+      save: "Enregistrer",
+      saving: "Enregistrement…",
+      saved: "Profil mis à jour.",
+      errors: {
+        required: "Indique le nom à afficher.",
+        length: "C'est un peu long.",
+        format:
+          "Seulement des lettres, des chiffres, des points et des tirets bas.",
+        reserved: "Ce pseudo est réservé.",
+        taken: "Ce pseudo est déjà pris.",
+        moderation: "Ce texte enfreint la charte, change-le un peu.",
+        error: "Impossible d'enregistrer, réessaie.",
+      },
     },
     rules: {
       title: "Mes règles de cuisine",

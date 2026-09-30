@@ -1,9 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { z } from "zod";
 
 import { runModeration } from "@/ai/agents/moderator";
+import { recordCook } from "@/lib/journal/server";
+import { pushNotification } from "@/lib/notifications/push";
 import {
   MAX_POST_PHOTOS,
   POST_PHOTO_BUCKET,
@@ -62,22 +65,47 @@ export async function createPost(
     return { ok: false, code: "moderation", reasons: verdict.reasons };
   }
 
-  const { error } = await supabase.from("posts").insert({
-    author_id: user.id,
-    kind: input.kind,
-    text: input.text.length > 0 ? input.text : null,
-    recipe_id: input.recipeId,
-    photo_paths: input.photoPaths,
-    group_id: input.groupId,
-    visibility: "community",
-    moderation: verdict.severity === "medium" ? "flagged" : "ok",
-    moderation_reasons: verdict.reasons,
-  });
+  const flagged = verdict.severity === "medium";
+  const { data: post, error } = await supabase
+    .from("posts")
+    .insert({
+      author_id: user.id,
+      kind: input.kind,
+      text: input.text.length > 0 ? input.text : null,
+      recipe_id: input.recipeId,
+      photo_paths: input.photoPaths,
+      group_id: input.groupId,
+      visibility: "community",
+      moderation: flagged ? "flagged" : "ok",
+      moderation_reasons: verdict.reasons,
+    })
+    .select("id")
+    .single();
   if (error) return { ok: false, code: "error" };
+
+  // A « j'ai cuisiné » about a recipe is also a journal entry.
+  if (input.kind === "cooked" && input.recipeId) {
+    const cooked = await recordCook(supabase, user.id, {
+      recipeId: input.recipeId,
+      note: input.text.length > 0 ? input.text : null,
+      postId: post.id,
+    });
+    if (cooked.ok && !flagged && cooked.authorId) {
+      const recipient = cooked.authorId;
+      after(() =>
+        pushNotification({
+          kind: "cooked",
+          recipientId: recipient,
+          actorId: user.id,
+          recipeId: input.recipeId,
+        }),
+      );
+    }
+  }
 
   revalidatePath("/communaute");
   if (input.recipeId) revalidatePath("/recettes/[slug]", "page");
-  return { ok: true, flagged: verdict.severity === "medium" };
+  return { ok: true, flagged };
 }
 
 export async function deletePost(postId: string) {
@@ -159,6 +187,22 @@ export async function addPostComment(postId: string, rawText: string) {
     .select("id, text, created_at, author_id")
     .single();
   if (error) return { ok: false as const, code: "error" as const };
+  if (verdict.severity !== "medium") {
+    const { data: post } = await supabase
+      .from("posts")
+      .select("author_id")
+      .eq("id", id)
+      .maybeSingle();
+    if (post && post.author_id !== user.id) {
+      after(() =>
+        pushNotification({
+          kind: "comment",
+          recipientId: post.author_id,
+          actorId: user.id,
+        }),
+      );
+    }
+  }
   return { ok: true as const, comment: data };
 }
 
@@ -210,14 +254,35 @@ export async function toggleFollow(userId: string) {
       .delete()
       .eq("follower_id", user.id)
       .eq("followed_id", followed);
-    revalidatePath("/communaute");
+    revalidatePath("/communaute", "layout");
     return { ok: true as const, following: false };
   }
   const { error } = await supabase
     .from("follows")
     .insert({ follower_id: user.id, followed_id: followed });
-  revalidatePath("/communaute");
-  return { ok: !error, following: true };
+  revalidatePath("/communaute", "layout");
+  if (error) return { ok: false as const, following: false };
+  after(() =>
+    pushNotification({
+      kind: "follow",
+      recipientId: followed,
+      actorId: user.id,
+    }),
+  );
+  return { ok: true as const, following: true };
+}
+
+/** Removes one of my followers (they are not told). */
+export async function removeFollower(userId: string) {
+  const follower = z.uuid().parse(userId);
+  const { supabase, user } = await requireUser();
+  const { error } = await supabase
+    .from("follows")
+    .delete()
+    .eq("follower_id", follower)
+    .eq("followed_id", user.id);
+  revalidatePath("/communaute", "layout");
+  return { ok: !error };
 }
 
 export async function blockUser(userId: string) {
@@ -230,13 +295,30 @@ export async function blockUser(userId: string) {
       { blocker_id: user.id, blocked_id: blocked },
       { onConflict: "blocker_id,blocked_id" },
     );
-  // Blocking also unfollows, both directions of interest for the blocker.
+  // Blocking cuts the follow both ways.
   await supabase
     .from("follows")
     .delete()
     .eq("follower_id", user.id)
     .eq("followed_id", blocked);
-  revalidatePath("/communaute");
+  await supabase
+    .from("follows")
+    .delete()
+    .eq("follower_id", blocked)
+    .eq("followed_id", user.id);
+  revalidatePath("/communaute", "layout");
+  return { ok: true as const };
+}
+
+export async function unblockUser(userId: string) {
+  const blocked = z.uuid().parse(userId);
+  const { supabase, user } = await requireUser();
+  await supabase
+    .from("blocks")
+    .delete()
+    .eq("blocker_id", user.id)
+    .eq("blocked_id", blocked);
+  revalidatePath("/communaute", "layout");
   return { ok: true as const };
 }
 

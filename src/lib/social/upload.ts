@@ -23,3 +23,10 @@ export async function uploadPostPhotos(files: File[]): Promise<string[]> {
   }
   return paths;
 }
+
+/** Deletes photos uploaded for a post that was finally not published. */
+export async function removeUploadedPhotos(paths: string[]): Promise<void> {
+  if (paths.length === 0) return;
+  const supabase = createClient();
+  await supabase.storage.from(POST_PHOTO_BUCKET).remove(paths);
+}

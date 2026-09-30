@@ -81,12 +81,20 @@ export default async function ModerationPage() {
         <ShieldCheck size={26} strokeWidth={2} aria-hidden />
         {t.title}
       </h1>
-      <Link
-        href="/admin/etiquettes"
-        className="self-start text-sm font-semibold underline underline-offset-2"
-      >
-        {t.tagsLink}
-      </Link>
+      <div className="flex flex-wrap gap-4">
+        <Link
+          href="/admin/etiquettes"
+          className="text-sm font-semibold underline underline-offset-2"
+        >
+          {t.tagsLink}
+        </Link>
+        <Link
+          href="/admin/indicateurs"
+          className="text-sm font-semibold underline underline-offset-2"
+        >
+          {t.indicatorLink}
+        </Link>
+      </div>
 
       <div>
         <h2 className="font-display text-lg font-semibold">{t.openReports}</h2>

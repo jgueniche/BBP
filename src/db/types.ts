@@ -207,6 +207,42 @@ export type Database = {
         };
         Relationships: [];
       };
+      cook_logs: {
+        Row: {
+          cooked_on: string;
+          created_at: string;
+          id: string;
+          note: string | null;
+          post_id: string | null;
+          recipe_id: string | null;
+          recipe_title: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          cooked_on?: string;
+          created_at?: string;
+          id?: string;
+          note?: string | null;
+          post_id?: string | null;
+          recipe_id?: string | null;
+          recipe_title: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          cooked_on?: string;
+          created_at?: string;
+          id?: string;
+          note?: string | null;
+          post_id?: string | null;
+          recipe_id?: string | null;
+          recipe_title?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       follows: {
         Row: {
           created_at: string;
@@ -930,6 +966,33 @@ export type Database = {
         };
         Relationships: [];
       };
+      to_cook: {
+        Row: {
+          created_at: string;
+          id: string;
+          recipe_id: string;
+          source: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          recipe_id: string;
+          source?: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          recipe_id?: string;
+          source?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       user_settings: {
         Row: {
           allergens: string[];
@@ -938,6 +1001,9 @@ export type Database = {
           dislikes: string[];
           food_rules_consent_at: string | null;
           notif_prefs: Json;
+          notifications_seen_at: string | null;
+          push_sent_count: number;
+          push_sent_on: string | null;
           quiet_hours: Json | null;
           updated_at: string;
           user_id: string;
@@ -949,6 +1015,9 @@ export type Database = {
           dislikes?: string[];
           food_rules_consent_at?: string | null;
           notif_prefs?: Json;
+          notifications_seen_at?: string | null;
+          push_sent_count?: number;
+          push_sent_on?: string | null;
           quiet_hours?: Json | null;
           updated_at?: string;
           user_id: string;
@@ -960,6 +1029,9 @@ export type Database = {
           dislikes?: string[];
           food_rules_consent_at?: string | null;
           notif_prefs?: Json;
+          notifications_seen_at?: string | null;
+          push_sent_count?: number;
+          push_sent_on?: string | null;
           quiet_hours?: Json | null;
           updated_at?: string;
           user_id?: string;
@@ -1011,6 +1083,36 @@ export type Database = {
       group_readable: {
         Args: { gid: string };
         Returns: boolean;
+      };
+      has_blocked_me: {
+        Args: { uid: string };
+        Returns: boolean;
+      };
+      import_cook_rate: {
+        Args: never;
+        Returns: Json;
+      };
+      notification_events: {
+        Args: { since: string };
+        Returns: {
+          actor_id: string;
+          created_at: string;
+          kind: string;
+          post_id: string | null;
+          recipe_id: string | null;
+        }[];
+      };
+      profile_counts: {
+        Args: { uid: string };
+        Returns: Json;
+      };
+      recipe_cook_counts: {
+        Args: { recipe_ids: string[] };
+        Returns: { cooked: number; cooks: number; recipe_id: string }[];
+      };
+      unread_notification_count: {
+        Args: never;
+        Returns: number;
       };
       is_admin: {
         Args: never;

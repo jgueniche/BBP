@@ -10,6 +10,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { useUnreadCount } from "@/components/ui/use-unread-count";
 import { fr } from "@/i18n/fr";
 
 // Mobile tabs of the cooking app: recipes first, then the week, the
@@ -26,8 +27,9 @@ function isActive(pathname: string, href: string): boolean {
   return pathname.startsWith(href);
 }
 
-export function BottomNav() {
+export function BottomNav({ unread = 0 }: { unread?: number }) {
   const pathname = usePathname();
+  const count = useUnreadCount(unread);
 
   return (
     <nav
@@ -46,8 +48,27 @@ export function BottomNav() {
                   active ? "text-accent-foreground" : "text-ink-70"
                 }`}
               >
-                <Icon size={22} strokeWidth={2} aria-hidden />
+                <span className="relative">
+                  <Icon size={22} strokeWidth={2} aria-hidden />
+                  {href === "/communaute" && count > 0 && (
+                    <span
+                      aria-hidden
+                      className="absolute -top-0.5 -right-1 size-2.5 rounded-full border-2 border-surface-raised bg-primary"
+                    />
+                  )}
+                </span>
                 <span>{label}</span>
+                {href === "/communaute" && count > 0 && (
+                  <span className="sr-only">
+                    {", "}
+                    {count === 1
+                      ? fr.notifications.unreadCountOne
+                      : fr.notifications.unreadCount.replace(
+                          "{n}",
+                          String(count),
+                        )}
+                  </span>
+                )}
               </Link>
             </li>
           );

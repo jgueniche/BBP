@@ -15,6 +15,7 @@ import { fr } from "@/i18n/fr";
 import { loadFoodRules } from "@/lib/diets/preferences";
 import { loadRecipeIngredients } from "@/lib/diets/recipes";
 import { evaluateRecipe, recipeDietFacts } from "@/lib/diets/verdict";
+import { formatCookedDay } from "@/lib/journal/journal";
 import {
   loadCommunityVersions,
   loadCooked,
@@ -23,6 +24,8 @@ import {
 } from "@/lib/recipes/social";
 import { creditLine } from "@/lib/recipes/versions";
 import type { Totals } from "@/lib/nutrition/items";
+import { profileHref } from "@/lib/social/handles";
+import { loadMembers } from "@/lib/social/members";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
 
@@ -117,29 +120,29 @@ export default async function RecipePage({
     loadRecipeIngredients(supabase, [recipe.id]),
     user ? loadFoodRules(supabase, user.id) : Promise.resolve(null),
   ]);
-  const [cooked, chain, communityVersions] = await Promise.all([
-    loadCooked(supabase, recipe.id),
+  const [cooked, chain, communityVersions, toCookRes] = await Promise.all([
+    loadCooked(supabase, recipe.id, user?.id ?? null),
     loadCreditChain(supabase, recipe.parent_recipe_id),
     loadCommunityVersions(supabase, recipe.id),
+    user
+      ? supabase
+          .from("to_cook")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("recipe_id", recipe.id)
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
   ]);
   const credit = creditLine(chain);
   const forEngine = engineIngredients.get(recipe.id) ?? [];
   const verdict = evaluateRecipe(forEngine, rules);
   const facts = recipeDietFacts(forEngine);
 
-  const authorIds = recipe.author_id ? [recipe.author_id] : [];
-  const { data: profiles } =
-    authorIds.length > 0
-      ? await supabase
-          .from("profiles")
-          .select("id, display_name, username")
-          .in("id", authorIds)
-      : { data: [] };
-  const nameById = new Map(
-    (profiles ?? []).map(
-      (p) => [p.id, p.display_name ?? p.username ?? null] as const,
-    ),
+  const members = await loadMembers(
+    supabase,
+    recipe.author_id ? [recipe.author_id] : [],
   );
+  const author = recipe.author_id ? members.get(recipe.author_id) : undefined;
 
   const parent = parentRes.data;
   const nutrition = (recipe.nutrition_per_serving ?? {}) as Totals;
@@ -152,9 +155,7 @@ export default async function RecipePage({
   const hasProteinVersion = (versions ?? []).some(
     (v) => v.version_kind === "proteine",
   );
-  const authorName = recipe.author_id
-    ? (nameById.get(recipe.author_id) ?? t.authorHidden)
-    : null;
+  const authorName = recipe.author_id ? (author?.name ?? t.authorHidden) : null;
 
   // Group consecutive steps into named phases; numbering stays global.
   const phases: Array<{
@@ -181,9 +182,18 @@ export default async function RecipePage({
             <h1 className="font-display text-3xl font-semibold tracking-tight">
               {recipe.title}
             </h1>
-            {authorName && (
+            {authorName && recipe.author_id && (
               <p className="text-xs text-ink-50">
-                {t.authorBy} {authorName}
+                {t.authorBy}{" "}
+                <Link
+                  href={profileHref({
+                    id: recipe.author_id,
+                    handle: author?.handle ?? null,
+                  })}
+                  className="font-medium underline-offset-2 hover:underline"
+                >
+                  {authorName}
+                </Link>
               </p>
             )}
           </div>
@@ -250,6 +260,7 @@ export default async function RecipePage({
           initialLiked={likedRes.data !== null}
           initialSaved={savedRes.data !== null}
           initialLikes={stats?.likes ?? 0}
+          initialToCook={toCookRes.data !== null}
           publicSlug={
             recipe.visibility === "community" && recipe.status === "published"
               ? recipe.slug
@@ -280,6 +291,20 @@ export default async function RecipePage({
               → {v.title}
             </Link>
           ))}
+        </p>
+      )}
+
+      {user && cooked.mine.last && (
+        <p className="text-sm text-ink-70">
+          {(cooked.mine.times === 1 ? t.cooked.mineOne : t.cooked.mine)
+            .replace("{n}", String(cooked.mine.times))
+            .replace("{date}", formatCookedDay(cooked.mine.last))}{" "}
+          <Link
+            href="/recettes/journal"
+            className="font-semibold text-boutargue-deep underline-offset-2 hover:underline"
+          >
+            {t.journal.title}
+          </Link>
         </p>
       )}
 
@@ -414,7 +439,11 @@ export default async function RecipePage({
         </section>
       )}
 
-      <CookedGallery count={cooked.count} entries={cooked.entries} />
+      <CookedGallery
+        count={cooked.count}
+        entries={cooked.entries}
+        friends={cooked.friends}
+      />
 
       {communityVersions.length > 0 && (
         <section className="flex flex-col gap-2">

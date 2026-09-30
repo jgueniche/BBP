@@ -27,6 +27,11 @@ export async function GET() {
     memories,
     plans,
     tipVotes,
+    journal,
+    toCook,
+    following,
+    followers,
+    blocks,
   ] = await Promise.all([
     supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
     supabase.from("user_settings").select("*").maybeSingle(),
@@ -50,6 +55,11 @@ export async function GET() {
       .select("*, meal_plan_slots(*)")
       .eq("user_id", user.id),
     supabase.from("recipe_comment_votes").select("*").eq("user_id", user.id),
+    supabase.from("cook_logs").select("*").eq("user_id", user.id),
+    supabase.from("to_cook").select("*").eq("user_id", user.id),
+    supabase.from("follows").select("*").eq("follower_id", user.id),
+    supabase.from("follows").select("*").eq("followed_id", user.id),
+    supabase.from("blocks").select("*").eq("blocker_id", user.id),
   ]);
 
   const payload = {
@@ -68,6 +78,11 @@ export async function GET() {
     assistant_memories: memories.data,
     meal_plans: plans.data,
     tip_votes: tipVotes.data,
+    cooking_journal: journal.data,
+    to_cook: toCook.data,
+    following: following.data,
+    followers: followers.data,
+    blocked_members: blocks.data,
   };
 
   return new NextResponse(JSON.stringify(payload, null, 2), {

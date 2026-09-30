@@ -1,7 +1,8 @@
-import { Download, Plus, Users } from "lucide-react";
+import { Download, NotebookPen, Plus, Users } from "lucide-react";
 import Link from "next/link";
 
 import { CollectionDialog } from "@/components/recipes/collection-dialog";
+import { ToCookRemoveButton } from "@/components/recipes/to-cook-remove-button";
 import {
   RecipeCard,
   type RecipeCardData,
@@ -19,6 +20,7 @@ import { loadFoodRules } from "@/lib/diets/preferences";
 import { loadRecipeIngredients, verdictStatuses } from "@/lib/diets/recipes";
 import { DIETS, type Diet } from "@/lib/diets/types";
 import { evaluateRecipe } from "@/lib/diets/verdict";
+import { formatCookedDay } from "@/lib/journal/journal";
 import { CUISINE_GROUPS } from "@/lib/recipes/cuisines";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
@@ -68,7 +70,9 @@ export default async function RecettesPage({
 }) {
   const filters = await searchParams;
   const tab =
-    filters.tab === "carnet" || filters.tab === "carnets"
+    filters.tab === "carnet" ||
+    filters.tab === "carnets" ||
+    filters.tab === "a-cuisiner"
       ? filters.tab
       : "decouvrir";
 
@@ -117,6 +121,7 @@ export default async function RecettesPage({
         {(
           [
             ["decouvrir", t.tabs.discover, "/recettes"],
+            ["a-cuisiner", t.tabs.toCook, "/recettes?tab=a-cuisiner"],
             ["carnet", t.tabs.book, "/recettes?tab=carnet"],
             ["carnets", t.tabs.collections, "/recettes?tab=carnets"],
           ] as const
@@ -126,7 +131,7 @@ export default async function RecettesPage({
             href={href}
             aria-current={tab === key ? "page" : undefined}
             className={cn(
-              "flex-1 rounded-full px-3 py-1.5 text-center text-sm font-bold",
+              "flex-1 rounded-full px-2 py-1.5 text-center text-sm font-bold whitespace-nowrap sm:px-3",
               tab === key ? "bg-ink text-paper" : "text-ink-70",
             )}
           >
@@ -136,6 +141,7 @@ export default async function RecettesPage({
       </nav>
 
       {tab === "decouvrir" && <DiscoverTab filters={filters} />}
+      {tab === "a-cuisiner" && <ToCookTab userId={user?.id ?? null} />}
       {tab === "carnet" && <BookTab userId={user?.id ?? null} />}
       {tab === "carnets" && <CollectionsTab userId={user?.id ?? null} />}
     </section>
@@ -352,6 +358,124 @@ async function DiscoverTab({ filters }: { filters: Filters }) {
         </ul>
       )}
     </>
+  );
+}
+
+async function ToCookTab({ userId }: { userId: string | null }) {
+  if (!userId) return null;
+  const supabase = await createClient();
+  const [{ data: items }, { data: recent }] = await Promise.all([
+    supabase
+      .from("to_cook")
+      .select("recipe_id, source")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(200),
+    supabase
+      .from("cook_logs")
+      .select("id, recipe_id, recipe_title, cooked_on")
+      .eq("user_id", userId)
+      .order("cooked_on", { ascending: false })
+      .order("created_at", { ascending: false })
+      .limit(3),
+  ]);
+  const ids = (items ?? []).map((item) => item.recipe_id);
+  const recentIds = (recent ?? [])
+    .map((log) => log.recipe_id)
+    .filter((id): id is string => id !== null);
+  const [{ data: recipes }, { data: recentRecipes }] = await Promise.all([
+    ids.length > 0
+      ? supabase.from("recipes").select(CARD_SELECT).in("id", ids)
+      : Promise.resolve({ data: [] }),
+    recentIds.length > 0
+      ? supabase.from("recipes").select("id, slug").in("id", recentIds)
+      : Promise.resolve({ data: [] }),
+  ]);
+  const byId = new Map((recipes ?? []).map((r) => [r.id, r]));
+  const slugById = new Map((recentRecipes ?? []).map((r) => [r.id, r.slug]));
+  const queue = (items ?? []).flatMap((item) => {
+    const recipe = byId.get(item.recipe_id);
+    return recipe ? [{ item, recipe }] : [];
+  });
+  const rules = await loadFoodRules(supabase, userId);
+  const statuses = await verdictStatuses(
+    supabase,
+    rules,
+    queue.map((entry) => entry.recipe.id),
+  );
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="max-w-xl text-sm text-ink-50">{t.toCook.intro}</p>
+        <Button asChild variant="secondary" size="sm">
+          <Link href="/recettes/journal">
+            <NotebookPen />
+            {t.toCook.journalLink}
+          </Link>
+        </Button>
+      </div>
+      {queue.length === 0 ? (
+        <EmptyState
+          illustration={<IlluCasserole size={64} />}
+          title={t.toCook.empty}
+          hint={t.toCook.emptyHint}
+          action={
+            <Button asChild size="sm">
+              <Link href="/recettes/importer">
+                <Download />
+                {t.importCta}
+              </Link>
+            </Button>
+          }
+        />
+      ) : (
+        <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {queue.map(({ item, recipe }) => (
+            <li key={recipe.id} className="relative">
+              <RecipeCard
+                recipe={recipe as RecipeCardData}
+                verdict={statuses.get(recipe.id) ?? null}
+                tag={item.source === "import" ? t.toCook.fromImport : null}
+                className="pr-10"
+              />
+              <ToCookRemoveButton recipeId={recipe.id} />
+            </li>
+          ))}
+        </ul>
+      )}
+      {(recent ?? []).length > 0 && (
+        <div className="flex flex-col gap-1.5">
+          <h2 className="font-display text-lg font-semibold">
+            {t.toCook.recent}
+          </h2>
+          <ul className="flex flex-col gap-1 text-sm">
+            {(recent ?? []).map((log) => {
+              const slug = log.recipe_id ? slugById.get(log.recipe_id) : null;
+              return (
+                <li key={log.id} className="flex items-baseline gap-2">
+                  <span className="shrink-0 text-xs text-ink-50">
+                    {formatCookedDay(log.cooked_on)}
+                  </span>
+                  {slug ? (
+                    <Link
+                      href={`/recettes/${slug}`}
+                      className="truncate font-medium hover:underline"
+                    >
+                      {log.recipe_title}
+                    </Link>
+                  ) : (
+                    <span className="truncate font-medium">
+                      {log.recipe_title}
+                    </span>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+    </div>
   );
 }
 

@@ -237,6 +237,7 @@ export function RecipeEditor({ initial }: { initial: EditorInitial }) {
           }),
       };
       const result = await saveRecipe(payload);
+      if (result.queued) toast(fr.recettes.toCook.queuedFromImport);
       router.push(`/recettes/${result.slug}`);
     } catch {
       toast(t.saveError);

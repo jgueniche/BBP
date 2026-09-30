@@ -4,6 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { FeedPost, ReactionKind } from "@/components/social/post-card";
 import type { Database } from "@/db/types";
+import { loadMembers } from "@/lib/social/members";
 import { publicPhotoUrl } from "@/lib/social/photos";
 
 type Supabase = SupabaseClient<Database>;
@@ -16,6 +17,7 @@ export async function loadFeedPosts(
     groupId?: string;
     authorId?: string;
     onlyFollowed?: boolean;
+    kind?: "text" | "recipe" | "cooked";
     limit?: number;
   } = {},
 ): Promise<FeedPost[]> {
@@ -47,6 +49,7 @@ export async function loadFeedPosts(
   if (opts.groupId) query = query.eq("group_id", opts.groupId);
   else if (!opts.authorId) query = query.is("group_id", null);
   if (opts.authorId) query = query.eq("author_id", opts.authorId);
+  if (opts.kind) query = query.eq("kind", opts.kind);
   if (followedIds) query = query.in("author_id", followedIds);
 
   const { data: rows } = await query;
@@ -69,7 +72,7 @@ export async function loadFeedPosts(
   const [
     { data: stats },
     { data: reactions },
-    { data: profiles },
+    members,
     { data: follows },
     { data: recipes },
     { data: groups },
@@ -83,10 +86,7 @@ export async function loadFeedPosts(
       .select("post_id, kind")
       .in("post_id", postIds)
       .eq("user_id", currentUserId),
-    supabase
-      .from("profiles")
-      .select("id, display_name, username")
-      .in("id", authorIds),
+    loadMembers(supabase, authorIds),
     supabase
       .from("follows")
       .select("followed_id")
@@ -106,11 +106,6 @@ export async function loadFeedPosts(
   const myReactionById = new Map(
     (reactions ?? []).map((r) => [r.post_id, r.kind as ReactionKind]),
   );
-  const nameById = new Map(
-    (profiles ?? []).map(
-      (p) => [p.id, p.display_name ?? p.username ?? null] as const,
-    ),
-  );
   const followedSet = new Set((follows ?? []).map((f) => f.followed_id));
   const recipeById = new Map((recipes ?? []).map((r) => [r.id, r]));
   const groupById = new Map((groups ?? []).map((g) => [g.id, g]));
@@ -119,13 +114,16 @@ export async function loadFeedPosts(
     const stat = statsById.get(post.id);
     const recipe = post.recipe_id ? recipeById.get(post.recipe_id) : undefined;
     const group = post.group_id ? groupById.get(post.group_id) : undefined;
+    const author = members.get(post.author_id);
     return {
       id: post.id,
       kind: post.kind,
       text: post.text,
       createdAt: post.created_at,
       authorId: post.author_id,
-      authorName: nameById.get(post.author_id) ?? null,
+      authorName: author?.name ?? null,
+      authorHandle: author?.handle ?? null,
+      authorAvatar: author?.avatarUrl ?? null,
       isOwn: post.author_id === currentUserId,
       moderation: post.moderation,
       groupName: group?.name ?? null,
