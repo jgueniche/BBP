@@ -461,6 +461,77 @@ export type Database = {
         };
         Relationships: [];
       };
+      import_jobs: {
+        /** Written only through the import functions (RLS: read own). */
+        Row: {
+          attempts: number;
+          capture_paths: string[];
+          created_at: string;
+          credit: string | null;
+          error: string | null;
+          finished_at: string | null;
+          id: string;
+          input_text: string | null;
+          kind: string;
+          locked_until: string | null;
+          model: string | null;
+          not_before: string;
+          prompt_version: string | null;
+          recipe_id: string | null;
+          result: Json | null;
+          source_host: string | null;
+          source_key: string | null;
+          source_url: string | null;
+          status: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          attempts?: number;
+          capture_paths?: string[];
+          created_at?: string;
+          credit?: string | null;
+          error?: string | null;
+          finished_at?: string | null;
+          id?: string;
+          input_text?: string | null;
+          kind: string;
+          locked_until?: string | null;
+          model?: string | null;
+          not_before?: string;
+          prompt_version?: string | null;
+          recipe_id?: string | null;
+          result?: Json | null;
+          source_host?: string | null;
+          source_url?: string | null;
+          status?: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          attempts?: number;
+          capture_paths?: string[];
+          created_at?: string;
+          credit?: string | null;
+          error?: string | null;
+          finished_at?: string | null;
+          id?: string;
+          input_text?: string | null;
+          kind?: string;
+          locked_until?: string | null;
+          model?: string | null;
+          not_before?: string;
+          prompt_version?: string | null;
+          recipe_id?: string | null;
+          result?: Json | null;
+          source_host?: string | null;
+          source_url?: string | null;
+          status?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       meal_plan_slots: {
         Row: {
           created_at: string;
@@ -1360,6 +1431,66 @@ export type Database = {
         /** cid null: a post with no known creator (the team only). */
         Args: { cid: string | null; key: string };
         Returns: number;
+      };
+      claim_import_job: {
+        Args: { p_job: string };
+        Returns: Database["public"]["Tables"]["import_jobs"]["Row"][];
+      };
+      continue_import_job: {
+        Args: {
+          p_job: string;
+          p_kind: string;
+          p_text: string | null;
+          p_credit: string | null;
+          p_captures: string[] | null;
+        };
+        Returns: Json;
+      };
+      dismiss_import_job: {
+        Args: { p_job: string };
+        Returns: boolean | null;
+      };
+      enqueue_import: {
+        Args: {
+          p_kind: string;
+          p_url: string | null;
+          p_text: string | null;
+          p_credit: string | null;
+          p_captures: string[] | null;
+        };
+        Returns: Json;
+      };
+      finish_import_job: {
+        Args: {
+          p_job: string;
+          p_status: string;
+          p_result: Json | null;
+          p_error: string | null;
+          p_source_url: string | null;
+          p_model: string | null;
+          p_prompt_version: string | null;
+        };
+        Returns: boolean;
+      };
+      forget_import_jobs: {
+        Args: never;
+        Returns: undefined;
+      };
+      import_quota: {
+        Args: never;
+        Returns: Json;
+      };
+      mark_import_saved: {
+        Args: { p_job: string; p_recipe: string };
+        Returns: boolean | null;
+      };
+      recipe_photo_visible: {
+        Args: { object_name: string };
+        Returns: boolean;
+      };
+      requeue_import_job: {
+        Args: { p_job: string };
+        Returns: boolean | null;
       };
       compute_recipe_nutrition: {
         Args: { rid: string };
