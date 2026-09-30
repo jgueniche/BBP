@@ -322,19 +322,21 @@ export async function unblockUser(userId: string) {
   return { ok: true as const };
 }
 
-export async function reportContent(params: {
-  targetKind: "post" | "comment";
-  targetId: string;
-  reason: string;
-}) {
-  const targetId = z.uuid().parse(params.targetId);
-  const reason = z.string().min(3).max(300).parse(params.reason.trim());
+const reportSchema = z.object({
+  // « recipe » and « creator »: removal requests from a creator (ADR-035).
+  targetKind: z.enum(["post", "comment", "recipe", "creator"]),
+  targetId: z.uuid(),
+  reason: z.string().trim().min(3).max(300),
+});
+
+export async function reportContent(raw: z.input<typeof reportSchema>) {
+  const input = reportSchema.parse(raw);
   const { supabase, user } = await requireUser();
   const { error } = await supabase.from("reports").insert({
     reporter_id: user.id,
-    target_kind: params.targetKind === "comment" ? "comment" : "post",
-    target_id: targetId,
-    reason,
+    target_kind: input.targetKind,
+    target_id: input.targetId,
+    reason: input.reason,
   });
   return { ok: !error };
 }

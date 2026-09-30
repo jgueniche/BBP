@@ -21,10 +21,10 @@ Le réseau social de la cuisine : on suit ses copines et ses créatrices, on gar
 ## Arborescence
 ```
 src/
-  app/          (auth)/ (app)/ recettes/ planning/ communaute/ notifications/ coach/ profil/ admin/ onboarding/ design/ r/ courses/ api/
-  components/   ui/ diets/ recipes/ social/ coach/ pwa/ illustrations/
+  app/          (auth)/ (app)/ recettes/ planning/ communaute/ notifications/ createrices/ coach/ profil/ admin/ onboarding/ design/ r/ courses/ api/
+  components/   ui/ diets/ recipes/ social/ creators/ coach/ pwa/ illustrations/
   ai/           prompts/ tools/ agents/ evals/
-  lib/          brand.ts diets/ recipes/ journal/ supabase/ import/ planning/ nutrition/ social/ notifications/ moderation/ seo/ pwa/ push/ utils/
+  lib/          brand.ts diets/ recipes/ journal/ supabase/ import/ creators/ planning/ nutrition/ social/ notifications/ moderation/ seo/ pwa/ push/ utils/
   db/           seed/ types.ts
   i18n/         fr.ts (tout texte UI)
 scripts/        générateurs de graines (Ciqual, recettes de départ)

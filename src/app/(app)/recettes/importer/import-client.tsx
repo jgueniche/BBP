@@ -1,6 +1,16 @@
 "use client";
 
-import { Camera, ClipboardPaste, Link2, Sparkles } from "lucide-react";
+import {
+  BadgeCheck,
+  Camera,
+  ClipboardPaste,
+  ExternalLink,
+  Info,
+  Link2,
+  Sparkles,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -9,7 +19,9 @@ import {
   importRecipeFromText,
   importRecipeFromUrl,
   type ImportDraft,
+  type ImportResult,
 } from "@/app/(app)/recettes/import-actions";
+import { saveOfficialVersion } from "@/app/(app)/recettes/journal-actions";
 import {
   RecipeEditor,
   emptyEditorInitial,
@@ -22,6 +34,93 @@ import type { SharedImport } from "@/lib/pwa/share-target";
 import { cn } from "@/lib/utils/cn";
 
 const t = fr.recettes.importPage;
+const c = fr.creators.import;
+
+type Gate = Extract<
+  ImportResult,
+  { ok: false; code: "withdrawn" | "blocked" | "official" }
+>;
+
+function isGate(result: ImportResult): result is Gate {
+  return (
+    !result.ok &&
+    (result.code === "withdrawn" ||
+      result.code === "blocked" ||
+      result.code === "official")
+  );
+}
+
+/** The creator's wish, shown instead of the editor. */
+function GateCard({ gate, onReset }: { gate: Gate; onReset: () => void }) {
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+  const who = gate.creator ?? fr.recettes.theCreator;
+  return (
+    <div className="flex flex-col gap-3 rounded-lg bg-lilas p-4">
+      <p className="flex items-start gap-2 text-sm text-ink">
+        {gate.code === "official" ? (
+          <BadgeCheck
+            size={18}
+            strokeWidth={2}
+            className="mt-0.5 shrink-0"
+            aria-hidden
+          />
+        ) : (
+          <Info
+            size={18}
+            strokeWidth={2}
+            className="mt-0.5 shrink-0"
+            aria-hidden
+          />
+        )}
+        {(gate.code === "official"
+          ? c.official
+          : gate.code === "withdrawn"
+            ? c.withdrawn
+            : c.blocked
+        ).replace("{creator}", who)}
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {gate.code === "official" ? (
+          <>
+            <Button
+              size="sm"
+              disabled={pending}
+              onClick={async () => {
+                setPending(true);
+                const result = await saveOfficialVersion(gate.recipe.slug);
+                setPending(false);
+                if (!result.ok) {
+                  toast(fr.recettes.saveError);
+                  return;
+                }
+                toast(c.officialSaved);
+                router.push(`/recettes/${result.slug}`);
+              }}
+            >
+              {c.saveOfficial}
+            </Button>
+            <Button asChild size="sm" variant="secondary">
+              <Link href={`/recettes/${gate.recipe.slug}`}>
+                {fr.creators.credit.officialCta}
+              </Link>
+            </Button>
+          </>
+        ) : (
+          <Button asChild size="sm">
+            <a href={gate.originalUrl} target="_blank" rel="noopener">
+              {fr.creators.credit.viewOriginal}
+              <ExternalLink />
+            </a>
+          </Button>
+        )}
+        <Button size="sm" variant="ghost" onClick={onReset}>
+          {t.again}
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 function draftToInitial(draft: ImportDraft): EditorInitial {
   return {
@@ -66,8 +165,11 @@ const ERROR_MESSAGES = {
 
 export function ImportClient({
   shared = null,
+  initialCredit = "",
 }: {
   shared?: SharedImport | null;
+  /** The creator's @, when she publishes her own version. */
+  initialCredit?: string;
 }) {
   const [mode, setMode] = useState<"url" | "text" | "photo">(
     shared?.mode ?? "url",
@@ -83,6 +185,8 @@ export function ImportClient({
     title: string | null;
   }>({ url: null, author: null, title: null });
   const [initial, setInitial] = useState<EditorInitial | null>(null);
+  const [gate, setGate] = useState<Gate | null>(null);
+  const [creatorHandle, setCreatorHandle] = useState(initialCredit);
 
   async function runUrlImport(value: string) {
     setPending(true);
@@ -92,12 +196,18 @@ export function ImportClient({
         setInitial(draftToInitial(result.draft));
         return;
       }
+      if (isGate(result)) {
+        setGate(result);
+        return;
+      }
       if (result.code === "need_caption") {
         setSource({
           url: value,
           author: result.sourceAuthor ?? null,
           title: result.title ?? null,
         });
+        const credit = result.sourceAuthor;
+        setCreatorHandle((typed) => (credit?.startsWith("@") ? credit : typed));
         setNeedCaption(true);
         setMode("text");
         return;
@@ -128,14 +238,19 @@ export function ImportClient({
     event.preventDefault();
     setPending(true);
     try {
+      const typed = creatorHandle.trim();
       const result = await importRecipeFromText({
         text,
         sourceUrl: source.url,
-        sourceAuthor: source.author,
+        sourceAuthor: typed.length > 0 ? typed : source.author,
         title: source.title,
       });
       if (result.ok) {
         setInitial(draftToInitial(result.draft));
+        return;
+      }
+      if (isGate(result)) {
+        setGate(result);
         return;
       }
       toast(t.noRecipe);
@@ -173,6 +288,20 @@ export function ImportClient({
     } finally {
       setPending(false);
     }
+  }
+
+  if (gate) {
+    return (
+      <GateCard
+        gate={gate}
+        onReset={() => {
+          setGate(null);
+          setMode("url");
+          setNeedCaption(false);
+          setSource({ url: null, author: null, title: null });
+        }}
+      />
+    );
   }
 
   if (initial) {
@@ -239,6 +368,23 @@ export function ImportClient({
             <p className="rounded-lg bg-ciel px-3 py-2 text-xs text-ink-70">
               {t.needCaption}
             </p>
+          )}
+          {source.url && (
+            <label className="flex flex-col gap-1 text-sm font-semibold">
+              {c.creatorField}
+              <Input
+                value={creatorHandle}
+                onChange={(e) => setCreatorHandle(e.target.value)}
+                placeholder="@"
+                maxLength={60}
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+              />
+              <span className="text-[11px] font-normal text-ink-50">
+                {c.creatorHint}
+              </span>
+            </label>
           )}
           <textarea
             value={text}

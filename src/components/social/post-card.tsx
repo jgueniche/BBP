@@ -27,6 +27,7 @@ import {
   toggleFollow,
   type PostCommentItem,
 } from "@/app/(app)/communaute/actions";
+import { VerifiedBadge } from "@/components/creators/verified-badge";
 import { MemberAvatar } from "@/components/social/member-avatar";
 import { fr } from "@/i18n/fr";
 import { profileHref } from "@/lib/social/handles";
@@ -51,6 +52,8 @@ export type FeedPost = {
   authorName: string | null;
   authorHandle: string | null;
   authorAvatar: string | null;
+  /** A verified creator (shown only when her profile is public). */
+  authorVerified: boolean;
   isOwn: boolean;
   moderation: string;
   groupName: string | null;
@@ -208,6 +211,9 @@ export function PostCard({
             >
               {post.authorName ?? fr.communaute.member.anonymous}
             </Link>
+            {post.authorVerified && (
+              <VerifiedBadge compact className="ml-1 align-[-2px]" />
+            )}
             {post.groupSlug && post.groupName && (
               <span className="font-medium text-ink-50">
                 {" "}

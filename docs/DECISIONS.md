@@ -1,5 +1,12 @@
 # DECISIONS.md — ADR courts (≤ 5 lignes chacun)
 
+## ADR-035 — Créatrices : profil revendiqué, retrait qui privatise, clics anonymes (29/09/2026)
+Chaque import est rattaché à sa créatrice (compte ou domaine) et à sa publication (`source_key`, une clé par post quel
+que soit le lien). Retirer rend privées et marquées toutes les copies, sans les supprimer, et refuse les nouveaux
+imports ; seules des fonctions `security definer` touchent ces champs. Revendication par code (bio vérifiée par
+l'équipe, site par le serveur) ; qui a revendiqué reste masqué sauf profil public. Clics comptés sans membre ; les
+imports ne sont jamais référencés.
+
 ## ADR-034 — Journal privé, notifications calculées à la lecture, push rare (29/09/2026)
 « J'ai cuisiné » écrit toujours une entrée privée (`cook_logs`) ; « Partager » ajoute le post, et « cuisinée N fois »
 compte tout le journal, anonymement. Les notifications ne sont pas stockées : `notification_events` les recalcule sous

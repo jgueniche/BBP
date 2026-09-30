@@ -18,6 +18,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .select("slug, updated_at")
     .eq("visibility", "community")
     .eq("status", "published")
+    // Members' original recipes only: imports are never referenced.
+    .is("source_url", null)
     .order("updated_at", { ascending: false })
     .limit(2000);
 

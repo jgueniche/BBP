@@ -253,6 +253,7 @@ export const fr = {
     sortTop: "Populaires",
     authorBy: "par",
     authorHidden: "Membre",
+    theCreator: "La créatrice",
     myRecipes: "Mes recettes",
     savedRecipes: "Enregistrées",
     bookEmpty:
@@ -342,6 +343,7 @@ export const fr = {
       review:
         "Vérifie et ajuste avant d'enregistrer — surtout les quantités en grammes.",
       credit: "Crédit auteur",
+      again: "Importer autre chose",
     },
     cook: {
       start: "Mode cuisine",
@@ -618,6 +620,162 @@ export const fr = {
       tagDelete: "Supprimer",
       tagSaved: "C'est rangé.",
       unknownTag: "Étiquette de référence introuvable.",
+    },
+  },
+  creators: {
+    badge: "Créatrice vérifiée",
+    platforms: {
+      instagram: "Instagram",
+      tiktok: "TikTok",
+      youtube: "YouTube",
+      web: "Site",
+    },
+    credit: {
+      video: "D'après une vidéo de",
+      post: "D'après une publication de",
+      site: "D'après le site",
+      unnamed: "D'après l'original",
+      viewOriginal: "Voir l'original",
+      showVideo: "Voir la vidéo ici",
+      showPost: "Voir la publication ici",
+      playerNotice:
+        "Le lecteur de {platform} se charge seulement si tu appuies ; il peut alors déposer ses propres cookies.",
+      hidePlayer: "Masquer le lecteur",
+      withdrawn:
+        "Retirée à la demande de {creator} : ta copie reste dans ton carnet, en privé.",
+      withdrawnAnonymous:
+        "Retirée à la demande de sa créatrice : ta copie reste dans ton carnet, en privé.",
+      official: "{creator} a publié sa version officielle de cette recette.",
+      officialCta: "Voir la version officielle",
+      requestRemoval: "Tu es {creator} ? Demander un retrait",
+    },
+    page: {
+      viewAccount: "Voir son compte {platform}",
+      viewSite: "Voir son site",
+      onCopine: "Son profil sur Copine",
+      savedOne: "enregistrée {n} fois",
+      saved: "enregistrée {n} fois",
+      cookedOne: "cuisinée {n} fois",
+      cooked: "cuisinée {n} fois",
+      postsOne: "{n} publication importée",
+      posts: "{n} publications importées",
+      recipes: "Ses recettes et les versions publiques",
+      recipesEmpty:
+        "Pas encore de recette publique qui la crédite : les imports restent privés dans les carnets des membres.",
+      claimTitle: "C'est ton compte ?",
+      claimIntro:
+        "Revendique ce profil pour voir tes statistiques, publier tes versions officielles et décider de ce qui reste sur Copine en cuisine.",
+      claimCta: "C'est moi",
+      removalCta: "Demander un retrait",
+      removalPrompt:
+        "Explique ce qui doit être retiré (publication, recette, lien) et comment te joindre :",
+      removalSent:
+        "Demande envoyée : l'équipe la traite et te répond sous quelques jours.",
+      removalAbout: "À propos de « {title} »",
+      removalSend: "Envoyer la demande",
+      removalCancel: "Annuler",
+      officialTag: "Version officielle",
+    },
+    claim: {
+      bioSteps:
+        "Ajoute ce code à la bio de ton compte {platform}. L'équipe vérifie sous 48 h, puis tu pourras l'enlever.",
+      siteSteps:
+        "Ajoute ce code sur la page d'accueil de ton site, par exemple dans une balise meta, puis lance la vérification.",
+      metaExample: '<meta name="copine-en-cuisine" content="{code}">',
+      code: "Ton code",
+      copy: "Copier le code",
+      copied: "Code copié.",
+      pending: "Demande en cours de vérification.",
+      verify: "Vérifier mon site",
+      verified: "C'est vérifié : bienvenue dans ton espace créatrice !",
+      codeMissing:
+        "Le code n'apparaît pas encore sur ta page d'accueil. Réessaie dans un instant.",
+      siteUnreachable: "Ta page d'accueil ne répond pas, réessaie plus tard.",
+      manual: "Code trouvé : l'équipe valide ta demande très vite.",
+      cancel: "Annuler la demande",
+      cancelled: "Demande annulée.",
+      rejected: "Demande refusée.",
+      reason: "Motif : {reason}",
+      alreadyClaimed:
+        "Ce profil est déjà revendiqué. S'il s'agit d'une erreur, écris à l'équipe.",
+      error: "Impossible d'envoyer la demande, réessaie.",
+    },
+    join: {
+      title: "Tu es créatrice ?",
+      intro:
+        "Relie ton compte Instagram, TikTok, YouTube ou ton site : tu verras combien de fois tes recettes sont enregistrées et cuisinées.",
+      platform: "Plateforme",
+      handle: "Ton @ ou ton site",
+      handlePlaceholder: "@ton.compte ou tonsite.fr",
+      submit: "Continuer",
+      invalid: "Ce @ ou cette adresse n'est pas valide pour cette plateforme.",
+      mine: "Tes profils de créatrice",
+      pending: "Vérification en cours",
+    },
+    space: {
+      title: "Ton espace créatrice",
+      intro: "Chiffres agrégés : aucun membre n'est identifié.",
+      postsTitle: "Tes publications sur Copine en cuisine",
+      columns: {
+        post: "Publication",
+        saved: "Enregistrée",
+        cooked: "Cuisinée",
+        clicks: "Clics vers toi",
+      },
+      withdrawn: "Retirée",
+      withdraw: "Retirer",
+      withdrawConfirm:
+        "Retirer cette publication ? Les copies publiques repassent en privé, marquées, et plus personne ne pourra l'importer.",
+      withdrawnToast: "C'est retiré.",
+      restore: "Rétablir",
+      restored:
+        "C'est rétabli : les copies restent privées, chacune peut les partager à nouveau.",
+      official: "Publier ma version",
+      importsTitle: "Imports de tes publications",
+      importsAllowed:
+        "Les membres peuvent importer tes publications, toujours avec ton crédit et un lien vers l'original.",
+      importsBlocked:
+        "Tu as refusé les imports : les membres sont renvoyés vers tes publications.",
+      blockImports: "Refuser les imports",
+      allowImports: "Autoriser les imports",
+      empty: "Aucune publication importée pour l'instant.",
+    },
+    admin: {
+      link: "Créatrices",
+      title: "Créatrices",
+      claimsTitle: "Revendications à vérifier",
+      claimsEmpty: "Aucune demande en attente.",
+      requester: "Demandée par",
+      method: { bio: "Code dans la bio", site: "Code sur le site" },
+      openAccount: "Ouvrir le compte",
+      openSite: "Ouvrir le site",
+      approve: "Valider",
+      reject: "Refuser",
+      rejectPrompt: "Motif du refus (montré à la personne) :",
+      done: "C'est traité.",
+      reportsTitle: "Demandes de retrait",
+      reportsEmpty: "Aucune demande de retrait.",
+      withdrawPost: "Retirer la publication",
+      blockImports: "Refuser ses imports",
+      resolved: "C'est traité",
+      dismiss: "Ignorer",
+      code: "Code attendu",
+      profileRequest: "Tout le profil",
+      postWithdrawn: "Publication déjà retirée",
+      openSpace: "Ouvrir son espace",
+      back: "Modération",
+    },
+    import: {
+      withdrawn:
+        "{creator} a retiré cette publication de Copine en cuisine. Tu la retrouves toujours chez elle.",
+      blocked:
+        "{creator} préfère que ses recettes ne soient pas importées. Retrouve-la directement chez elle.",
+      official:
+        "{creator} a publié sa version officielle : enregistre-la plutôt qu'une copie.",
+      saveOfficial: "Enregistrer la version officielle",
+      officialSaved: "Enregistrée dans ton carnet et ta liste À cuisiner.",
+      creatorField: "@ de la créatrice",
+      creatorHint: "Pour lui rendre le crédit : son @ Instagram ou TikTok.",
     },
   },
   notifications: {

@@ -1,5 +1,5 @@
 # BRIEF.md — Copine en cuisine
-**Document maître pour Claude Code** · v3.0 · 29/09/2026 · Product owner : la femme de Jeremy · Décisions : ADR-027 à ADR-034
+**Document maître pour Claude Code** · v3.0 · 29/09/2026 · Product owner : la femme de Jeremy · Décisions : ADR-027 à ADR-035
 **Statut** : source de vérité. Remplace la v2 (carnet collaboratif) ; s'appuie sur `docs/PLAN-SOCIAL-2026.md` (proposition validée par Jeremy le 29/09/2026) et la veille `docs/BENCHMARK-SOCIAL-2026.md`. Le pourquoi du pivot initial reste dans `docs/PIVOT-2026.md` ; l'ancien produit (BBP) dans `docs/archive/BRIEF-BBP-v1.md`.
 
 ---
@@ -62,12 +62,12 @@ Le réseau social de la cuisine ne naîtra pas d'un fil, mais d'un carnet : **l'
 
 ---
 ## 4. Périmètre fonctionnel
-| Module | État (fin session 21) | Cible |
+| Module | État (fin session 22) | Cible |
 |---|---|---|
-| Import de recettes | Sites (JSON-LD), TikTok (oEmbed), texte, photo (vision), partage Android | Sites FR en priorité, YouTube, Pinterest, captures multiples, file de jobs et quotas, reformulation, doublons (S23) ; partage iPhone via la coque native (S24) |
+| Import de recettes | Sites (JSON-LD), TikTok (oEmbed), texte, photo (vision), partage Android ; chaque import rattaché à sa créatrice, refusé si elle a retiré la publication ou refusé les imports, version officielle proposée à la place | Sites FR en priorité, YouTube, Pinterest, captures multiples, file de jobs et quotas, reformulation, doublons (S23) ; partage iPhone via la coque native (S24) |
 | Recettes | Fiche, éditeur, carnet, fork, notes, mode cuisine, variante végétarienne IA, cuisines du monde, verdict « Pour toi », pastilles « toutes les tables », « J'ai cuisiné » (journal privé ou partage avec photos), liste « À cuisiner » remplie par les imports, astuces votées, versions créditées en chaîne, étiquettes libres et catégories ; ~200 recettes de départ | Photos de couverture des recettes, import v2 (S23) |
 | Régimes | Préférences simples + verdict par recette (§5) | Foyer et invités (S26-S27) ; IA pour les ingrédients inconnus |
-| Réseau social | Fil sans algorithme, actus / « j'ai cuisiné » / recettes, photos (sans géolocalisation), réactions J'adore · Bravo · Miam, commentaires, groupes, modération 2 étages ; profils publics (@pseudo, photo, bio), abonnements aux listes privées, fil « Mes copines » et suggestions, notifications sobres (dans l'app, push rare) | Créatrices (S22) ; clubs, défis, récap annuel (S28) |
+| Réseau social | Fil sans algorithme, actus / « j'ai cuisiné » / recettes, photos (sans géolocalisation), réactions J'adore · Bravo · Miam, commentaires, groupes, modération 2 étages ; profils publics (@pseudo, photo, bio), abonnements aux listes privées, fil « Mes copines » et suggestions, notifications sobres (dans l'app, push rare) ; créatrices : crédit « d'après @X » et lecteur officiel au toucher, clics comptés sans membre, profil revendicable (code en bio ou sur le site), espace avec statistiques par publication, retrait et refus des imports, badge « Créatrice vérifiée », file de l'équipe | Clubs, défis, récap annuel (S28) ; revenus des créatrices (P2) |
 | Carnets partagés | Membres éditeur/lecteur, invitation par lien | Activité, commentaires, temps réel |
 | Foyer | — | Planning et courses partagés en temps réel (S26) |
 | Tablée | — | Invitation par lien sans appli, règles de chaque invité, menu compatible, qui apporte quoi (S27) |
@@ -138,7 +138,7 @@ Gratuit au lancement. Ensuite : imports IA limités en gratuit et abonnement pou
 | 19 | ✅ Brief v3 & régimes simples | Ce brief et `CLAUDE.md` ; module casher détaillé et calendrier juif retirés (fin de la contrainte GPL) ; préférences simples + verdict par recette ; migration vers des attributs neutres ; catalogue de départ diversifié |
 | 20 | ✅ La recette sociale | « J'ai cuisiné » attaché à la recette, astuces votées, versions avec crédit, étiquettes libres et catégories, photos dans les posts (sans géolocalisation) |
 | 21 | ✅ Profils & journal | Profils publics, abonnements, journal, liste « À cuisiner », fil des copines, notifications sobres |
-| 22 | Créatrices | Profils revendicables, statistiques, badge, « d'après @X », retrait sur demande |
+| 22 | ✅ Créatrices | Profils revendicables, statistiques, badge, « d'après @X », retrait sur demande |
 | 23 | Import v2 | Sites FR en priorité, YouTube, Pinterest, captures ; prudence sur TikTok |
 | 24 | App iPhone & Android | Coque Capacitor + extension de partage, notifications |
 | 25 | Production & conformité | DSA, AI Act, RGPD, modération, CGU, stores → **bêta privée** |

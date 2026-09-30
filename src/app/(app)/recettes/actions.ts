@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { generateProteinVersion as generateProteinVersionAi } from "@/ai/agents/protein-version";
+import { creatorFromSource, creatorLabel } from "@/lib/creators/identity";
+import { checkImport, resolveCreatorId } from "@/lib/creators/server";
 import { computeRecipeNutrition } from "@/lib/nutrition/recipe";
 import { ALL_CUISINES, CATEGORIES } from "@/lib/recipes/cuisines";
 import { isReservedRecipeSlug } from "@/lib/recipes/slugs";
@@ -128,9 +130,38 @@ async function uniqueSlug(
   return `${base}-${Date.now()}`;
 }
 
-export async function saveRecipe(raw: RecipeInput) {
+export type SaveRecipeResult =
+  | { ok: true; slug: string; queued: boolean }
+  | {
+      /** The creator withdrew the post or refuses imports. */
+      ok: false;
+      code: "withdrawn" | "blocked";
+      creator: string | null;
+    };
+
+export async function saveRecipe(raw: RecipeInput): Promise<SaveRecipeResult> {
   const input = recipeSchema.parse(raw);
   const { supabase, user } = await requireUser();
+
+  // A new import is tied to its creator, unless she said no (ADR-035).
+  let creatorId: string | null = null;
+  if (!input.id && input.sourceUrl) {
+    const identity = creatorFromSource({
+      sourceUrl: input.sourceUrl,
+      sourceAuthor: input.sourceAuthor,
+    });
+    const check = await checkImport(supabase, input.sourceUrl, identity);
+    if (!check.mine && (check.withdrawn || check.blocked)) {
+      return {
+        ok: false,
+        code: check.withdrawn ? "withdrawn" : "blocked",
+        creator: identity
+          ? creatorLabel(identity.platform, identity.handle)
+          : null,
+      };
+    }
+    if (identity) creatorId = await resolveCreatorId(supabase, identity);
+  }
 
   const nutrition = await recipeNutrition(
     supabase,
@@ -146,13 +177,15 @@ export async function saveRecipe(raw: RecipeInput) {
   if (recipeId) {
     const { data: existing } = await supabase
       .from("recipes")
-      .select("slug, author_id")
+      .select("slug, author_id, source_url, source_author, withdrawn_at")
       .eq("id", recipeId)
       .maybeSingle();
     if (!existing || existing.author_id !== user.id) {
       throw new Error("Not your recipe");
     }
     slug = existing.slug;
+    // The credit of an import is not edited, and a withdrawn copy stays
+    // private in its owner's book.
     const { error } = await supabase
       .from("recipes")
       .update({
@@ -165,11 +198,13 @@ export async function saveRecipe(raw: RecipeInput) {
         cook_min: input.cookMin,
         servings: input.servings,
         tags,
-        visibility: input.visibility,
+        visibility: existing.withdrawn_at ? "private" : input.visibility,
         version_kind: input.versionKind,
         icon: input.icon,
-        source_url: input.sourceUrl,
-        source_author: input.sourceAuthor,
+        source_url: existing.source_url,
+        source_author: existing.source_url
+          ? existing.source_author
+          : input.sourceAuthor,
         nutrition_per_serving: nutrition,
       })
       .eq("id", recipeId);
@@ -200,6 +235,7 @@ export async function saveRecipe(raw: RecipeInput) {
         icon: input.icon,
         source_url: input.sourceUrl,
         source_author: input.sourceAuthor,
+        creator_id: creatorId,
         nutrition_per_serving: nutrition,
       })
       .select("id")
@@ -272,6 +308,11 @@ export async function forkRecipe(id: string) {
         .order("position"),
     ]);
   if (!source) throw new Error("Recipe not found");
+  // A version of a withdrawn post stays private and marked too.
+  const withdrawn =
+    source.withdrawn_at !== null ||
+    (source.source_url !== null &&
+      (await checkImport(supabase, source.source_url, null)).withdrawn);
 
   const title = `Ma version — ${source.title}`;
   const slug = await uniqueSlug(supabase, title, null);
@@ -296,6 +337,8 @@ export async function forkRecipe(id: string) {
       nutrition_per_serving: source.nutrition_per_serving,
       source_author: source.source_author,
       source_url: source.source_url,
+      creator_id: source.creator_id,
+      withdrawn_at: withdrawn ? new Date().toISOString() : null,
     })
     .select("id")
     .single();
@@ -403,6 +446,8 @@ export async function createProteinVersion(id: string) {
       icon: source.icon,
       nutrition_per_serving: nutrition,
       substitutions: generated.substitutions,
+      // A variant of a withdrawn copy stays private and marked too.
+      withdrawn_at: source.withdrawn_at ? new Date().toISOString() : null,
     })
     .select("id")
     .single();

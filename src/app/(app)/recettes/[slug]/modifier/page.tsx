@@ -71,6 +71,7 @@ export default async function EditRecipePage({
     icon: recipe.icon ?? "",
     sourceUrl: recipe.source_url,
     sourceAuthor: recipe.source_author ?? "",
+    withdrawn: recipe.withdrawn_at !== null,
     ingredients: (ingredients ?? []).map((ingredient) => ({
       label: ingredient.label_raw,
       grams: ingredient.grams === null ? "" : `${ingredient.grams}`,

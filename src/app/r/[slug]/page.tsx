@@ -3,8 +3,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { CreatorCredit } from "@/components/creators/creator-credit";
 import { DietFactChips } from "@/components/diets/diet-facts";
 import { fr } from "@/i18n/fr";
+import { creditView } from "@/lib/creators/credit";
 import { recipeDietFacts, type DietFacts } from "@/lib/diets/verdict";
 import type { Totals } from "@/lib/nutrition/items";
 import { recipeJsonLd, type RecipeForSeo } from "@/lib/seo/recipe-jsonld";
@@ -15,7 +17,9 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 const t = fr.recettes;
 
 // SEO (brief §10.14): the public share page is rendered statically and
-// refreshed every hour (ISR); unknown slugs are generated on demand.
+// refreshed every hour (ISR); unknown slugs are generated on demand. Only
+// members' original recipes are indexed: an import keeps a share page,
+// never referenced (ADR-035).
 export const revalidate = 3600;
 export const dynamicParams = true;
 
@@ -26,6 +30,7 @@ export async function generateStaticParams(): Promise<{ slug: string }[]> {
     .select("slug")
     .eq("visibility", "community")
     .eq("status", "published")
+    .is("source_url", null)
     .order("updated_at", { ascending: false })
     .limit(200);
   return (data ?? []).map((recipe) => ({ slug: recipe.slug }));
@@ -33,7 +38,7 @@ export async function generateStaticParams(): Promise<{ slug: string }[]> {
 
 async function loadRecipe(
   slug: string,
-): Promise<(RecipeForSeo & { facts: DietFacts }) | null> {
+): Promise<(RecipeForSeo & { id: string; facts: DietFacts }) | null> {
   if (!isSupabaseConfigured) return null;
   const supabase = createAnonClient();
   const { data: recipe } = await supabase
@@ -77,6 +82,7 @@ async function loadRecipe(
   );
 
   return {
+    id: recipe.id,
     facts,
     slug: recipe.slug,
     title: recipe.title,
@@ -113,6 +119,7 @@ export async function generateMetadata({
   return {
     title: recipe.title,
     description,
+    ...(recipe.source_url ? { robots: { index: false, follow: false } } : {}),
     alternates: { canonical: `/r/${slug}` },
     openGraph: {
       type: "article",
@@ -229,21 +236,24 @@ export default async function PublicRecipePage({
             </div>
           </dl>
           <DietFactChips facts={recipe.facts} className="mt-3" />
-          {recipe.source_author && (
-            <p className="mt-3 text-xs text-ink-50">
-              {t.importedFrom}{" "}
-              {recipe.source_url ? (
-                <a
-                  href={recipe.source_url}
-                  rel="nofollow noopener"
-                  className="underline underline-offset-2"
-                >
-                  {recipe.source_author}
-                </a>
-              ) : (
-                recipe.source_author
+          {recipe.source_url ? (
+            <CreatorCredit
+              view={creditView(
+                {
+                  sourceUrl: recipe.source_url,
+                  sourceAuthor: recipe.source_author,
+                },
+                null,
               )}
-            </p>
+              recipeId={recipe.id}
+              className="mt-3"
+            />
+          ) : (
+            recipe.source_author && (
+              <p className="mt-3 text-xs text-ink-50">
+                {t.importedFrom} {recipe.source_author}
+              </p>
+            )
           )}
         </header>
 
