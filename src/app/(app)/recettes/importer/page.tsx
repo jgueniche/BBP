@@ -28,7 +28,7 @@ export default async function ImportRecipePage({
     .slice(0, 60);
   const [jobs, quota] = await Promise.all([listImportJobs(), importQuota()]);
   return (
-    <section className="flex flex-col gap-4">
+    <section className="flex max-w-2xl flex-col gap-4">
       <header className="flex flex-col gap-1">
         <h1 className="font-display text-3xl font-semibold tracking-tight">
           {t.title}

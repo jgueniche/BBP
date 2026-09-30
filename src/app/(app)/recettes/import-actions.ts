@@ -278,19 +278,19 @@ async function viewsOf(
   const recipeIds = rows
     .map((row) => (row.status === "saved" ? row.recipe_id : null))
     .filter((id): id is string => id !== null);
-  const slugs = new Map<string, string>();
+  const recipes = new Map<string, { slug: string; title: string }>();
   if (recipeIds.length > 0) {
     const { data } = await supabase
       .from("recipes")
-      .select("id, slug")
+      .select("id, slug, title")
       .in("id", recipeIds);
-    for (const recipe of data ?? []) slugs.set(recipe.id, recipe.slug);
+    for (const recipe of data ?? []) recipes.set(recipe.id, recipe);
   }
   for (const row of rows) {
     if (needsRunner(row)) after(() => runImportJob(supabase, userId, row.id));
   }
   return rows.map((row) =>
-    jobView(row, row.recipe_id ? (slugs.get(row.recipe_id) ?? null) : null),
+    jobView(row, row.recipe_id ? (recipes.get(row.recipe_id) ?? null) : null),
   );
 }
 

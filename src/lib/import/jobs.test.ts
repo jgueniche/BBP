@@ -105,10 +105,9 @@ describe("import jobs", () => {
       code: "fetch_failed",
     });
     expect(jobView(row("running", null)).state).toEqual({ status: "pending" });
-    expect(jobView(row("saved", null), "gratin").state).toEqual({
-      status: "saved",
-      recipeSlug: "gratin",
-    });
+    expect(
+      jobView(row("saved", null), { slug: "gratin", title: "Gratin" }).state,
+    ).toEqual({ status: "saved", recipeSlug: "gratin", recipeTitle: "Gratin" });
   });
 
   it("labels a job by its draft or its site", () => {

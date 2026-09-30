@@ -1,6 +1,6 @@
 "use client";
 
-import { BadgeCheck, BookOpen, ExternalLink, Info } from "lucide-react";
+import { BadgeCheck, BookOpen, ExternalLink, Info, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -132,6 +132,9 @@ const when = new Intl.DateTimeFormat("fr-FR", {
   timeZone: "Europe/Paris",
 });
 
+/** Rows shown before « Tout voir ». */
+const FIRST_ROWS = 6;
+
 /** « Mes imports »: the week's jobs, resumed or dismissed at will. */
 export function ImportList({
   jobs,
@@ -142,7 +145,9 @@ export function ImportList({
   onResume: (job: ImportJobView) => void;
   onDismiss: (job: ImportJobView) => void;
 }) {
+  const [all, setAll] = useState(false);
   if (jobs.length === 0) return null;
+  const shown = all ? jobs : jobs.slice(0, FIRST_ROWS);
   return (
     <section className="flex flex-col gap-2" aria-labelledby="mes-imports">
       <header className="flex flex-col gap-0.5">
@@ -152,13 +157,13 @@ export function ImportList({
         <p className="text-xs text-ink-50">{t.mine.hint}</p>
       </header>
       <ul className="flex flex-col divide-y rounded-lg border bg-card">
-        {jobs.map((job) => {
+        {shown.map((job) => {
           const label =
             jobLabel(job) ??
             (job.kind === "captures" ? t.mine.captures : t.mine.pasted);
           const status = job.state.status;
           return (
-            <li key={job.id} className="flex items-center gap-3 px-3 py-2.5">
+            <li key={job.id} className="flex items-center gap-2 py-2 pr-1 pl-3">
               <div className="flex min-w-0 flex-1 flex-col gap-0.5">
                 <span className="truncate text-sm font-medium">{label}</span>
                 <span className="flex items-center gap-2 text-[11px] text-ink-50">
@@ -171,7 +176,9 @@ export function ImportList({
                   >
                     {t.mine.status[status]}
                   </Badge>
-                  {when.format(new Date(job.createdAt))}
+                  <span className="whitespace-nowrap">
+                    {when.format(new Date(job.createdAt))}
+                  </span>
                 </span>
               </div>
               {job.state.status === "saved" && job.state.recipeSlug ? (
@@ -190,17 +197,31 @@ export function ImportList({
                 </Button>
               ) : null}
               <Button
-                size="sm"
+                size="icon-sm"
                 variant="ghost"
                 onClick={() => onDismiss(job)}
-                aria-label={`${t.mine.dismiss} — ${label}`}
+                aria-label={`${t.mine.dismiss} : ${label}`}
+                title={t.mine.dismiss}
               >
-                {t.mine.dismiss}
+                <X aria-hidden />
               </Button>
             </li>
           );
         })}
       </ul>
+      {jobs.length > FIRST_ROWS ? (
+        <Button
+          size="sm"
+          variant="ghost"
+          className="self-start"
+          aria-expanded={all}
+          onClick={() => setAll((open) => !open)}
+        >
+          {all
+            ? t.mine.showLess
+            : t.mine.showAll.replace("{count}", String(jobs.length))}
+        </Button>
+      ) : null}
     </section>
   );
 }

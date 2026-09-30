@@ -333,9 +333,12 @@ export const fr = {
       title: "Importer une recette",
       intro:
         "Un lien Instagram, TikTok, YouTube, Pinterest ou d'un site de cuisine, un texte ou des captures : on en fait une fiche claire, et le crédit reste à son autrice.",
-      urlTab: "Depuis un lien",
-      textTab: "Coller un texte",
+      urlTab: "Lien",
+      textTab: "Texte",
       capturesTab: "Captures",
+      pasteText: "Coller le texte",
+      urlLabel: "Lien de la recette",
+      textLabel: "Texte de la recette",
       urlPlaceholder:
         "https://www.marmiton.org/… ou un lien Insta, TikTok, Pinterest",
       textPlaceholder:
@@ -343,7 +346,8 @@ export const fr = {
       capturesIntro:
         "Jusqu'à 6 captures d'une même recette (légende, carrousel) ou photos d'une recette écrite. On les lit, puis on les efface.",
       capturesPick: "Choisir les images",
-      capturesCount: "{n} image(s) sur 6",
+      capturesCount: "{n} images sur 6",
+      capturesCountOne: "1 image sur 6",
       capturesRemove: "Retirer cette image",
       capturesSourceUrl: "Lien de la publication (facultatif)",
       capturesSourceHint:
@@ -401,6 +405,8 @@ export const fr = {
         resume: "Reprendre",
         open: "Ouvrir",
         dismiss: "Retirer",
+        showAll: "Tout voir ({count})",
+        showLess: "Voir moins",
         pasted: "Texte collé",
         captures: "Captures",
         status: {

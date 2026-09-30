@@ -104,7 +104,7 @@ export type JobState =
   | ({ status: "needs_input" } & JobQuestion)
   | { status: "answered"; stop: JobStop }
   | { status: "failed"; code: FailCode }
-  | { status: "saved"; recipeSlug: string | null }
+  | { status: "saved"; recipeSlug: string | null; recipeTitle: string | null }
   | { status: "dismissed" };
 
 export type ImportJobView = {
@@ -225,7 +225,7 @@ function resultValue(result: unknown): unknown {
 /** A job row as the member sees it; an unreadable result reads as a failure. */
 export function jobView(
   row: JobRow,
-  recipeSlug: string | null = null,
+  recipe: { slug: string; title: string } | null = null,
 ): ImportJobView {
   const kind =
     row.kind === "text" || row.kind === "captures" ? row.kind : "url";
@@ -261,7 +261,14 @@ export function jobView(
         ? { ...base, state: { status: "answered", stop: result.stop } }
         : { ...base, state: { status: "failed", code: "fetch_failed" } };
     case "saved":
-      return { ...base, state: { status: "saved", recipeSlug } };
+      return {
+        ...base,
+        state: {
+          status: "saved",
+          recipeSlug: recipe?.slug ?? null,
+          recipeTitle: recipe?.title ?? null,
+        },
+      };
     case "dismissed":
       return { ...base, state: { status: "dismissed" } };
     default:
@@ -275,6 +282,9 @@ export function jobView(
 /** A few words for the job in « Mes imports ». */
 export function jobLabel(view: ImportJobView): string | null {
   if (view.state.status === "ready") return view.state.draft.title;
+  if (view.state.status === "saved" && view.state.recipeTitle) {
+    return view.state.recipeTitle;
+  }
   if (view.state.status === "needs_input" && view.state.title) {
     return view.state.title.slice(0, 80);
   }

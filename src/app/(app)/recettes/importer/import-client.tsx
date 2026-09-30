@@ -144,9 +144,11 @@ function CapturePicker({
       {files.length > 0 && (
         <>
           <p className="text-xs text-ink-50">
-            {t.capturesCount.replace("{n}", `${files.length}`)}
+            {files.length === 1
+              ? t.capturesCountOne
+              : t.capturesCount.replace("{n}", `${files.length}`)}
           </p>
-          <ul className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+          <ul className="grid grid-cols-4 gap-2 sm:grid-cols-6">
             {files.map((file, index) => (
               <li key={`${file.name}-${index}`} className="relative">
                 {/* eslint-disable-next-line @next/next/no-img-element -- local preview, never uploaded as is */}
@@ -449,7 +451,7 @@ export function ImportClient({
               setMode("text");
             }}
           >
-            {t.textTab}
+            {t.pasteText}
           </Button>
           <Button size="sm" variant="ghost" onClick={reset}>
             {t.again}
@@ -542,7 +544,7 @@ export function ImportClient({
             value={answer}
             onChange={(event) => setAnswer(event.target.value)}
             placeholder={t.textPlaceholder}
-            aria-label={t.textTab}
+            aria-label={t.textLabel}
             rows={8}
             minLength={20}
             className="rounded-[10px] border bg-card px-3 py-2 text-sm"
@@ -649,7 +651,7 @@ export function ImportClient({
               value={url}
               onChange={(event) => setUrl(event.target.value)}
               placeholder={t.urlPlaceholder}
-              aria-label={t.urlTab}
+              aria-label={t.urlLabel}
               required
             />
             <Button
@@ -684,7 +686,7 @@ export function ImportClient({
               value={text}
               onChange={(event) => setText(event.target.value)}
               placeholder={t.textPlaceholder}
-              aria-label={t.textTab}
+              aria-label={t.textLabel}
               rows={10}
               minLength={20}
               required

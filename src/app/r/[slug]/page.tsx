@@ -214,7 +214,7 @@ export default async function PublicRecipePage({
           <img
             src={recipe.coverUrl}
             alt={fr.recettes.fields.coverAlt.replace("{title}", recipe.title)}
-            className="aspect-[16/9] w-full rounded-lg border object-cover"
+            className="h-56 w-full rounded-lg border object-cover sm:h-72"
           />
         )}
         <header className="rounded-lg border bg-card p-6 shadow-soft">

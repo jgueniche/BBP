@@ -209,7 +209,7 @@ export default async function RecipePage({
         <img
           src={coverUrl}
           alt={fr.recettes.fields.coverAlt.replace("{title}", recipe.title)}
-          className="aspect-[4/3] w-full rounded-lg border object-cover sm:aspect-[16/9]"
+          className="h-56 w-full rounded-lg border object-cover sm:h-72 lg:h-80"
         />
       )}
       <header className="flex flex-col gap-2">
